@@ -2,9 +2,7 @@ package com.llw.base;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -20,9 +18,10 @@ public abstract class BaseEntity implements Serializable, Comparable {
 
     /** 逻辑主键 */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long id;
     /** 乐观锁版本控制 */
-    @Column
+    @Version
     protected long version;
 
     @Override
