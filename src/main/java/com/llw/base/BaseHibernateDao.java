@@ -2,9 +2,9 @@ package com.llw.base;
 
 import com.llw.dto.PagingDto;
 import org.hibernate.CacheMode;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.ParameterizedType;
