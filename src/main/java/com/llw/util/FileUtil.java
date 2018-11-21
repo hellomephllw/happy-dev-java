@@ -22,11 +22,21 @@ public class FileUtil {
     private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     /**
-     * 获取项目根目录据对路径
-     * @return 项目根目录据对路径
+     * 获取本地本目录绝对路径
+     * @return 本地根目录绝对路径
      * @throws Exception
      */
-    public static String getProjectRootAbsolutePath() throws Exception {
+    public static String getLocalRootAbsolutePath() throws Exception {
+
+        return System.getProperty("user.dir");
+    }
+
+    /**
+     * 获取web根目录绝对路径
+     * @return web根目录绝对路径
+     * @throws Exception
+     */
+    public static String getWebRootAbsolutePath() throws Exception {
 
         return new File(ResourceUtils.getURL("classpath:").getPath()).getAbsolutePath();
     }
@@ -39,7 +49,7 @@ public class FileUtil {
      * @throws Exception
      */
     public static void downloadFile(String downloadFileName, String filePath, HttpServletResponse response) throws Exception {
-        String fileAbsPath = getProjectRootAbsolutePath() + filePath;
+        String fileAbsPath = getWebRootAbsolutePath() + filePath;
         logger.info("开始下载文件: " + fileAbsPath);
         File file = new File(fileAbsPath);
         if (file.exists()) {
@@ -87,7 +97,7 @@ public class FileUtil {
      * @throws Exception
      */
     public static String uploadFile(MultipartFile file, String fileName, String dirPath) throws Exception {
-        String absDirPath = getProjectRootAbsolutePath() + dirPath;
+        String absDirPath = getWebRootAbsolutePath() + dirPath;
         if (file.isEmpty()) {
             logger.info("上传失败，文件不能为空！");
             return null;
@@ -128,7 +138,7 @@ public class FileUtil {
      * @throws Exception
      */
     public static void deleteFile(String filePath) throws Exception {
-        String absFilePath = getProjectRootAbsolutePath() + filePath;
+        String absFilePath = getWebRootAbsolutePath() + filePath;
         logger.info("准备删除文件的绝对路径为: " + absFilePath);
         File file = new File(absFilePath);
         if (file.isFile() && file.exists()) {

@@ -16,20 +16,8 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-//            System.out.println(MathUtil.subtract(1, 2, 3));
-            PageRequest page = PagingUtil.buildJpaPageRequest(
-                    1,
-                    1,
-                    CollectionUtil.stringMap().put("id", "desc"),
-                    CollectionUtil.stringMap().put("name", "desc")
-            );
-            System.out.println(page);
-
-//            Map<String, String> map = new HashMap<>();
-//            map.put("name", "aaa");
-//            map.put("age", "bbb");
-//            System.out.println(map.entrySet().iterator().next());
-//            System.out.println(map.values());
+            String name = "12345.java";
+            System.out.println(name.split("\\.")[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }
