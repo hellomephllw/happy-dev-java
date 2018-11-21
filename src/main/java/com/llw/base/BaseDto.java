@@ -14,7 +14,7 @@ import lombok.Data;
 public class BaseDto implements Comparable {
 
     @ApiModelProperty("id")
-    private long id;
+    protected long id;
 
     @Override
     public int compareTo(Object o) {

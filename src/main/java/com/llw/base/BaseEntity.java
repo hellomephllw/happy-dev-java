@@ -19,10 +19,10 @@ public abstract class BaseEntity implements Serializable, Comparable {
     /** 逻辑主键 */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected long id;
+    protected Long id;
     /** 乐观锁版本控制 */
     @Version
-    protected long version;
+    protected Long version;
 
     @Override
     public int compareTo(Object o) {

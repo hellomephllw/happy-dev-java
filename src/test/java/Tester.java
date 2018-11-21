@@ -19,7 +19,10 @@ public class Tester {
 //            System.out.println(MathUtil.subtract(1, 2, 3));
             PageRequest page = PagingUtil.buildJpaPageRequest(
                     1,
-                    1);
+                    1,
+                    CollectionUtil.stringMap().put("id", "desc"),
+                    CollectionUtil.stringMap().put("name", "desc")
+            );
             System.out.println(page);
 
 //            Map<String, String> map = new HashMap<>();
