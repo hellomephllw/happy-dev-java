@@ -72,7 +72,7 @@ public class PagingUtil {
      * @return 分页数据对象
      */
     @SuppressWarnings("unchecked")
-    public static PagingVo transformDtoToVo(PagingDto dto, Class voClazz, int pageNo, int pageSize) throws Exception {
+    public static PagingVo transformPagingDtoToVo(PagingDto dto, Class voClazz, int pageNo, int pageSize) throws Exception {
         PagingVo pagingVo = new PagingVo();
         pagingVo.setEntities(new TreeSet(transformEntities(dto.getEntities(), voClazz)));
         pagingVo.setPageNo(pageNo);
