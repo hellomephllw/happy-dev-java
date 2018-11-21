@@ -99,9 +99,9 @@ public class ObjectUtil {
      * @return 目标对象
      * @throws Exception
      */
-    public static Object transferObjectValToAnother(Object object, Class targetObjectClazz) throws Exception {
+    public static <T> T transferObjectValToAnother(Object object, Class<T> targetObjectClazz) throws Exception {
         //确定另一个对象
-        Object targetObject = targetObjectClazz.newInstance();
+        T targetObject = targetObjectClazz.newInstance();
 
         //递归迭代转移所有属性
         transferRecursively(object, object.getClass(), targetObject);
@@ -159,7 +159,7 @@ public class ObjectUtil {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    private static void fillVal(Field currField, Object object, Class objectClazz, Object targetObject, Class anotherClazz) throws Exception {
+    private static <T> void fillVal(Field currField, Object object, Class objectClazz, T targetObject, Class<T> anotherClazz) throws Exception {
         for (Field objField : objectClazz.getDeclaredFields()) {
             if (currField.getName().equals(objField.getName()) && currField.getType() == objField.getType()) {
                 Method method;
