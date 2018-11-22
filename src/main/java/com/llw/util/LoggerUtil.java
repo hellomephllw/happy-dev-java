@@ -15,10 +15,7 @@ public class LoggerUtil {
      * @param e 异常
      */
     public static void printStackTrace(Logger logger, Exception e) {
-        logger.error(e.getMessage());
-        for (StackTraceElement ste : e.getStackTrace()) {
-            logger.error(ste.toString());
-        }
+        logger.error("发生错误", e);
     }
 
 }
