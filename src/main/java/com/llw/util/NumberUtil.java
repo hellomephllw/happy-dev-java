@@ -3,7 +3,7 @@ package com.llw.util;
 import java.util.Random;
 
 /**
- * @discription: 数字工具类
+ * @description: 数字工具类
  * @author: llw
  * @date: 2018-11-15
  */

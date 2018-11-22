@@ -8,7 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @discription: controller基类
+ * @description: controller基类
  * @author: llw
  * @date: 2016-11-18
  */

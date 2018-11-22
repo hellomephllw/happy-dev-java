@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * @discription: 日期工具类
+ * @description: 日期工具类
  * @author: llw
  * @date: 2018-11-15
  */

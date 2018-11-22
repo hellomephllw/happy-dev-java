@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * @discription: 微信工具类
+ * @description: 微信工具类
  * @author: llw
  * @date: 2018-11-15
  */

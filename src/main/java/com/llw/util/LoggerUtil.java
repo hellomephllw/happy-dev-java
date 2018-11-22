@@ -3,7 +3,7 @@ package com.llw.util;
 import org.slf4j.Logger;
 
 /**
- * @discription: 日志工具类
+ * @description: 日志工具类
  * @author: llw
  * @date: 2018-11-05
  */

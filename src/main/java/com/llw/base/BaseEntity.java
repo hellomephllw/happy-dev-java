@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 /**
- * @discription: 模型对象基类，所有实体都要继承该基类
+ * @description: 模型对象基类，所有实体都要继承该基类
  * @author: llw
  * @date: 2016-11-17
  */

@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * @discription: 键生成工具类
+ * @description: 键生成工具类
  * @author: llw
  * @date: 2018-11-06
  */

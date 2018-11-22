@@ -5,7 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 /**
- * @discription: 数学工具类
+ * @description: 数学工具类
  * @author: llw
  * @date: 2018-11-15
  */

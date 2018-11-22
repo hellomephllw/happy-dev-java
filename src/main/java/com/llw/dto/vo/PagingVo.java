@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Set;
 
 /**
- * @discription: 分页值对象
+ * @description: 分页值对象
  * @author: llw
  * @date: 2018-11-15
  */

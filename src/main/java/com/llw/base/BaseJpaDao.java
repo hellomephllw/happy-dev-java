@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @discription: jpa基类
+ * @description: jpa基类
  * @author: llw
  * @date: 2018-11-17
  */

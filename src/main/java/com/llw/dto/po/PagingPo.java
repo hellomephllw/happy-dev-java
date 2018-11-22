@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * @discription: 分页持久层返回对象
+ * @description: 分页持久层返回对象
  * @author: llw
  * @date: 2016-11-27
  */

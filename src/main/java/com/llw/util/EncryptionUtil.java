@@ -3,7 +3,7 @@ package com.llw.util;
 import java.security.MessageDigest;
 
 /**
- * @discription: 字符串加密工具
+ * @description: 字符串加密工具
  * @author: llw
  * @date: 2018-11-15
  */

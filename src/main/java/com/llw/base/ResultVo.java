@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * @discription: vo基类
+ * @description: vo基类
  * @author: llw
  * @date: 2016-11-26
  */

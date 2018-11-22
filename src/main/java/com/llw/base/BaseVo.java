@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * @discription: 值对象基类
+ * @description: 值对象基类
  * @author: llw
  * @date: 2018-10-26
  */

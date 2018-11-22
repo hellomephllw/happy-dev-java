@@ -11,7 +11,7 @@ import java.net.URL;
 import java.util.Map;
 
 /**
- * @discription: 网络工具类
+ * @description: 网络工具类
  * @author: llw
  * @date: 2018-11-15
  */

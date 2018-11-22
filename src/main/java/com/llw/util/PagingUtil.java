@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort;
 import java.util.*;
 
 /**
- * @discription: 分页工具类
+ * @description: 分页工具类
  * @author: llw
  * @date: 2018-11-15
  */

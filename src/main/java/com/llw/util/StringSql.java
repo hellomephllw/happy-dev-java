@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @discription: 用来拼接sql查询语句的工具类
+ * @description: 用来拼接sql查询语句的工具类
  * @author: llw
  * @date: 2018-11-22
  */

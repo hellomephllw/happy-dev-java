@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.Map;
 
 /**
- * @discription: 文件工具类
+ * @description: 文件工具类
  * @author: llw
  * @date: 2018-10-31
  */

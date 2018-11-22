@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @discription: 读取实体的属性
+ * @description: 读取实体的属性
  * @author: llw
  * @date: 2018-11-21
  */

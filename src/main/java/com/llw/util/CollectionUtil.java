@@ -3,7 +3,7 @@ package com.llw.util;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * @discription: 集合工具类
+ * @description: 集合工具类
  * @author: llw
  * @date: 2018-11-16
  */

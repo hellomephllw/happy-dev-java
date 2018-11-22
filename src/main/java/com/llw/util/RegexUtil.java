@@ -4,7 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @discription: 正则表达式工具类
+ * @description: 正则表达式工具类
  * @author: llw
  * @date: 2018-10-24
  */

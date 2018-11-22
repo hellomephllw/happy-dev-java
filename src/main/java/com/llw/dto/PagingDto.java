@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 /**
- * @discription: 分页持数据传输对象
+ * @description: 分页持数据传输对象
  * @author: llw
  * @date: 2016-11-27
  */

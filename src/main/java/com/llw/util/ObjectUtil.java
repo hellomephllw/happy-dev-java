@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * @discription: 对象工具类
+ * @description: 对象工具类
  * @author: llw
  * @date: 2018-11-15
  */

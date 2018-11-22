@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @discription: Dao实现基类，所有dao实现类都最好继承
+ * @description: Dao实现基类，所有dao实现类都最好继承
  * @author: llw
  * @date: 2016-11-17
  */
