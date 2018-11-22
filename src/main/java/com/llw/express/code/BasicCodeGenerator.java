@@ -1,6 +1,5 @@
 package com.llw.express.code;
 
-import com.google.common.collect.ImmutableMap;
 import com.llw.util.CollectionUtil;
 import com.llw.util.DateUtil;
 import com.llw.util.FileUtil;
@@ -18,8 +17,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
