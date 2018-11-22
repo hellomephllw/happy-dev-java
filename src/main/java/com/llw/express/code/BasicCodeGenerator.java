@@ -66,8 +66,9 @@ public class BasicCodeGenerator {
         //生成daoImpl
         generateDaoImplCode();
         //生成service
+        generateServiceCode();
         //生成serviceImpl
-
+        generateServiceImplCode();
     }
 
     /**
@@ -75,12 +76,48 @@ public class BasicCodeGenerator {
      * @throws Exception
      */
     public static void generateDaoCode() throws Exception {
+        generateInterface("dao");
+    }
+
+    /**
+     * 生成dao实现类
+     * @throws Exception
+     */
+    public static void generateDaoImplCode() throws Exception {
+        generateInterfaceImplement("dao");
+    }
+
+    /**
+     * 生成服务接口
+     * @throws Exception
+     */
+    public static void generateServiceCode() throws Exception {
+        generateInterface("service");
+    }
+
+    /**
+     * 生成服务实现类
+     * @throws Exception
+     */
+    public static void generateServiceImplCode() throws Exception {
+        generateInterfaceImplement("service");
+    }
+
+    /**
+     * 生成service或dao接口
+     * @param type 接受dao或service
+     * @throws Exception
+     */
+    private static void generateInterface(String type) throws Exception {
+        String typeUpper = type.substring(0, 1).toUpperCase() + type.substring(1);
+        String typeLower = type.substring(0, 1).toLowerCase() + type.substring(1);
+
         Map<String, Class> entities = PackageReader.entities;
         for (String classPackagePath : entities.keySet()) {
             Class clazz = entities.get(classPackagePath);
 
-            String dirPath = getSourceCodePath() + "/" + getRelativePackagePath() + "/dao";
-            String fileName = "I" + clazz.getSimpleName() + "Dao.java";
+            String dirPath = getSourceCodePath() + "/" + getRelativePackagePath() + "/" + typeLower;
+            String fileName = "I" + clazz.getSimpleName() + typeUpper + ".java";
             String moduleName = null;
 
             String[] fragments = classPackagePath.split("entity")[1].split("\\.");
@@ -90,43 +127,42 @@ public class BasicCodeGenerator {
                 dirPath += "/" + moduleName;
             }
 
-            //判断是否存在dao
+            //判断是否存在该接口
             File daoFile = new File(dirPath + "/" + fileName);
             if (daoFile.exists()) continue;
 
             //生成模板
-            Template template = configuration.getTemplate("dao.ftl");
+            Template template = configuration.getTemplate(typeLower + ".ftl");
             File dir = new File(dirPath);
             if (!dir.exists()) {
                 dir.mkdir();
             }
             FileOutputStream fos = new FileOutputStream(new File(dir, fileName));
 
-            String packagePath = getUserConfigPackagePath() + ".dao" + (moduleName != null ? "." + moduleName : "");
+            String packagePath = getUserConfigPackagePath() + "." + typeLower + (moduleName != null ? "." + moduleName : "");
             template.process(
-                CollectionUtil.stringMap()
-                        .put("packagePath", packagePath)
-                        .put("entitySourceCodePath", classPackagePath)
-                        .put("author", System.getProperty("user.name"))
-                        .put("date", DateUtil.today())
-                        .put("entityClassName", clazz.getSimpleName())
-                        .put("entityInstanceName", clazz.getSimpleName().substring(0, 1).toLowerCase() + clazz.getSimpleName().substring(1))
-                        .build(),
-                new BufferedWriter(new OutputStreamWriter(fos, "utf-8"),10240));
+                    CollectionUtil.stringMap()
+                            .put("packagePath", packagePath)
+                            .put("entitySourceCodePath", classPackagePath)
+                            .put("author", System.getProperty("user.name"))
+                            .put("date", DateUtil.today())
+                            .put("entityClassName", clazz.getSimpleName())
+                            .put("entityInstanceName", clazz.getSimpleName().substring(0, 1).toLowerCase() + clazz.getSimpleName().substring(1))
+                            .build(),
+                    new BufferedWriter(new OutputStreamWriter(fos, "utf-8"),10240));
         }
     }
 
-    /**
-     * 生成dao实现类
-     * @throws Exception
-     */
-    public static void generateDaoImplCode() throws Exception {
+    private static void generateInterfaceImplement(String type) throws Exception {
+        String typeUpper = type.substring(0, 1).toUpperCase() + type.substring(1);
+        String typeLower = type.substring(0, 1).toLowerCase() + type.substring(1);
+
         Map<String, Class> entities = PackageReader.entities;
         for (String classPackagePath : entities.keySet()) {
             Class clazz = entities.get(classPackagePath);
 
-            String dirPath = getSourceCodePath() + "/" + getRelativePackagePath() + "/dao";
-            String fileName = "I" + clazz.getSimpleName() + "DaoImpl.java";
+            String dirPath = getSourceCodePath() + "/" + getRelativePackagePath() + "/" + typeLower;
+            String fileName = "I" + clazz.getSimpleName() + typeUpper + "Impl.java";
             String moduleName = null;
 
             String[] fragments = classPackagePath.split("entity")[1].split("\\.");
@@ -142,19 +178,21 @@ public class BasicCodeGenerator {
             if (daoFile.exists()) continue;
 
             //生成模板
-            Template template = configuration.getTemplate("daoImpl.ftl");
+            Template template = configuration.getTemplate(typeLower + "Impl.ftl");
             File dir = new File(dirPath);
             if (!dir.exists()) {
                 dir.mkdir();
             }
             FileOutputStream fos = new FileOutputStream(new File(dir, fileName));
 
-            String packagePath = getUserConfigPackagePath() + ".dao" + (moduleName != null ? "." + moduleName : "") + ".impl";
+            String packagePath = getUserConfigPackagePath() + "." + typeLower + (moduleName != null ? "." + moduleName : "") + ".impl";
             String daoClassPackagePath = getUserConfigPackagePath() + ".dao" + (moduleName != null ? "." + moduleName : "") + ".I" + clazz.getSimpleName() + "Dao";
+            String serviceClassPackagePath = getUserConfigPackagePath() + ".service" + (moduleName != null ? "." + moduleName : "") + ".I" + clazz.getSimpleName() + "Service";
             template.process(
                     CollectionUtil.stringMap()
                             .put("packagePath", packagePath)
                             .put("daoClassPackagePath", daoClassPackagePath)
+                            .put("serviceClassPackagePath", serviceClassPackagePath)
                             .put("entitySourceCodePath", classPackagePath)
                             .put("author", System.getProperty("user.name"))
                             .put("date", DateUtil.today())

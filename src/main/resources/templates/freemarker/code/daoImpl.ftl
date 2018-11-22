@@ -5,6 +5,7 @@ import ${daoClassPackagePath};
 import ${entitySourceCodePath};
 import com.llw.dto.PagingDto;
 import com.llw.util.StringSql;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +16,7 @@ import java.util.List;
 * @author: ${author}
 * @date: ${date}
 */
+@Repository
 public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> implements I${entityClassName}Dao {
 
     @Override
@@ -23,8 +25,18 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
+    public void addBatch(List<${entityClassName}> ${entityInstanceName}s) throws Exception {
+        super.saveBatch(${entityInstanceName}s);
+    }
+
+    @Override
     public void remove(long id) throws Exception {
         super.deleteById(id);
+    }
+
+    @Override
+    public void removeByIds(List<Long> ids) throws Exception {
+        super.deleteByIds(ids);
     }
 
     @Override
@@ -35,6 +47,11 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     @Override
     public void update(${entityClassName} ${entityInstanceName}) throws Exception {
         super.update(${entityInstanceName});
+    }
+
+    @Override
+    public void update(List<${entityClassName}> ${entityInstanceName}s) throws Exception {
+        super.updateBatch(${entityInstanceName}s);
     }
 
     @Override
@@ -58,6 +75,11 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     @Override
     public List<${entityClassName}> findAll() throws Exception {
         return super.findQuickIdDesc("");
+    }
+
+    @Override
+    public List<${entityClassName}> findByIds(List<Long> ids) throws Exception {
+        return super.findByIds(ids);
     }
 
 }
