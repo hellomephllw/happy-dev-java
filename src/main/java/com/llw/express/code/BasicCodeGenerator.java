@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class BasicCodeGenerator {
 
-    /**log*/
+    /**logger*/
     private static Logger logger = LoggerFactory.getLogger(BasicCodeGenerator.class);
 
     /**freemarker*/

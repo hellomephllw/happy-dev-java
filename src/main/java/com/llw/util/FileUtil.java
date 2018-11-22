@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class FileUtil {
 
-    /**log*/
+    /**logger*/
     private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
 
     /**
