@@ -27,7 +27,7 @@ import java.util.Map;
 public class BasicCodeGenerator {
 
     /**log*/
-    private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(BasicCodeGenerator.class);
 
     /**freemarker*/
     private final static Configuration configuration = new Configuration(Configuration.VERSION_2_3_28);
@@ -266,7 +266,6 @@ public class BasicCodeGenerator {
             //生成基础代码
             generate(args[0]);
         } catch (Exception e) {
-            e.printStackTrace();
             LoggerUtil.printStackTrace(logger, e);
         }
     }
