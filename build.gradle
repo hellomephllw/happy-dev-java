@@ -20,6 +20,7 @@ project.ext {
     hibernateVersion = '5.1.16.Final'
     yamlVersion = '1.10'
     aliJsonVersion = '1.1.15'
+    mysqlDriverVersion = '8.0.13'
 }
 
 dependencies {
@@ -33,6 +34,7 @@ dependencies {
     implementation("org.hibernate:hibernate-core:$hibernateVersion")
     implementation("org.yaml:snakeyaml:$yamlVersion")
     implementation("com.alibaba:fastjson:$aliJsonVersion")
+    runtimeOnly("mysql:mysql-connector-java:$mysqlDriverVersion")
     compileOnly("org.projectlombok:lombok:1.18.2")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

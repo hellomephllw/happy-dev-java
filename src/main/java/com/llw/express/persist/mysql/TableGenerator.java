@@ -4,6 +4,8 @@ import com.llw.util.LoggerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+
 /**
  * @description: 表生成器
  * @author: llw
@@ -20,7 +22,10 @@ public class TableGenerator {
      * @throws Exception
      */
     public static void generate(String env) throws Exception {
+        //连接数据库
         DatabaseHelper.connectDatabase(env);
+        //读取所有表格
+        TableReader.readAllTables();
     }
 
     public static void main(String[] args) {
@@ -29,6 +34,15 @@ public class TableGenerator {
             generate(args[0]);
         } catch (Exception e) {
             LoggerUtil.printStackTrace(logger, e);
+        } finally {
+            try {
+                Connection connection = DatabaseHelper.getConn();
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception e) {
+                LoggerUtil.printStackTrace(logger, e);
+            }
         }
     }
 

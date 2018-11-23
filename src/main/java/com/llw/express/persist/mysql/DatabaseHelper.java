@@ -1,11 +1,18 @@
 package com.llw.express.persist.mysql;
 
+import com.llw.express.code.BasicCodeGenerator;
 import com.llw.util.FileUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.util.Map;
 
 /**
@@ -17,6 +24,8 @@ public class DatabaseHelper {
 
     /**项目资源目录路径的补充路径*/
     private final static String _PROJECT_RESOURCES_PATH = "/src/main/resources/";
+    /**项目扩展lib目录路径的补充路径*/
+    private final static String _PROJECT_LIB_PATH = "/extlib/";
 
     /**数据库url*/
     private static String databaseUrl;
@@ -37,6 +46,12 @@ public class DatabaseHelper {
     public static void connectDatabase(String env) throws Exception {
         //读取数据库配置
         readDatabaseConfig(env);
+        //加载jdbc相关jar包到classpath
+        ExtClassPathLoader.loadAllJars(getProjectLibPath());
+        //加载驱动类
+        Class.forName(databaseRiver);
+        //获取数据库连接
+        conn = DriverManager.getConnection(databaseUrl, username, password);
     }
 
     /**
@@ -71,12 +86,30 @@ public class DatabaseHelper {
     }
 
     /**
+     * 获取项目lib资源路径
+     * @return 项目lib资源路径
+     * @throws Exception
+     */
+    public static String getProjectLibPath() throws Exception {
+        return FileUtil.getLocalRootAbsolutePath() + _PROJECT_LIB_PATH;
+    }
+
+    /**
      * 获取项目资源目录路径
      * @return 项目资源目录路径
      * @throws Exception
      */
     public static String getProjectResourcesPath() throws Exception {
         return FileUtil.getLocalRootAbsolutePath() + _PROJECT_RESOURCES_PATH;
+    }
+
+    /**
+     * 获取数据库连接
+     * @return 数据库连接
+     * @throws Exception
+     */
+    public static Connection getConn() throws Exception {
+        return conn;
     }
 
 }
