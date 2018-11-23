@@ -35,7 +35,7 @@ public class BasicCodeGenerator {
     /**源码路径, 对根路径的补充*/
     private final static String _BASE_SOURCE_CODE_PATH = "/src/main/java/";
     /**用户配置的包路径*/
-    private static String _RELATIVE_PACKAGE_PATH;
+    private static String _USER_CONFIG_BASE_PACKAGE_PATH;
 
     static {
         configuration.setTemplateLoader(new ClassTemplateLoader(FreeMarkerTemplateUtils.class, "/templates/freemarker/code"));
@@ -113,7 +113,7 @@ public class BasicCodeGenerator {
         for (String classPackagePath : entities.keySet()) {
             Class clazz = entities.get(classPackagePath);
 
-            String dirPath = getSourceCodePath() + "/" + getRelativePackagePath() + "/" + typeLower;
+            String dirPath = getSourceCodePath() + "/" + getUserConfigBasePackagePath() + "/" + typeLower;
             String fileName = "I" + clazz.getSimpleName() + typeUpper + ".java";
             String moduleName = null;
 
@@ -163,7 +163,7 @@ public class BasicCodeGenerator {
         for (String classPackagePath : entities.keySet()) {
             Class clazz = entities.get(classPackagePath);
 
-            String dirPath = getSourceCodePath() + "/" + getRelativePackagePath() + "/" + typeLower;
+            String dirPath = getSourceCodePath() + "/" + getUserConfigBasePackagePath() + "/" + typeLower;
             String fileName = "I" + clazz.getSimpleName() + typeUpper + "Impl.java";
             String moduleName = null;
 
@@ -211,7 +211,7 @@ public class BasicCodeGenerator {
      * @throws Exception
      */
     private static void initPath(String userConfigRelativePackagePath) throws Exception {
-        _RELATIVE_PACKAGE_PATH = userConfigRelativePackagePath.replaceAll("\\.", "/");
+        _USER_CONFIG_BASE_PACKAGE_PATH = userConfigRelativePackagePath.replaceAll("\\.", "/");
     }
 
     /**
@@ -220,9 +220,9 @@ public class BasicCodeGenerator {
      * @throws Exception
      */
     public static String getBasePackagePath() throws Exception {
-        if (getRelativePackagePath() == null) throw new Exception("用户没有配置包路径");
+        if (getUserConfigBasePackagePath() == null) throw new Exception("用户没有配置包路径");
 
-        return FileUtil.getLocalRootAbsolutePath() + _BASE_SOURCE_CODE_PATH + getRelativePackagePath();
+        return FileUtil.getLocalRootAbsolutePath() + _BASE_SOURCE_CODE_PATH + getUserConfigBasePackagePath();
     }
 
     /**
@@ -248,8 +248,8 @@ public class BasicCodeGenerator {
      * @return 用户配置包的文件路径
      * @throws Exception
      */
-    public static String getRelativePackagePath() throws Exception {
-        return _RELATIVE_PACKAGE_PATH;
+    public static String getUserConfigBasePackagePath() throws Exception {
+        return _USER_CONFIG_BASE_PACKAGE_PATH;
     }
 
     /**
@@ -258,7 +258,7 @@ public class BasicCodeGenerator {
      * @throws Exception
      */
     public static String getUserConfigPackagePath() throws Exception {
-        return _RELATIVE_PACKAGE_PATH.replaceAll("/", ".");
+        return _USER_CONFIG_BASE_PACKAGE_PATH.replaceAll("/", ".");
     }
 
     public static void main(String[] args) {
