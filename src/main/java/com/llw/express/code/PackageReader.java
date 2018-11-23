@@ -13,6 +13,9 @@ import java.util.Map;
  */
 public class PackageReader {
 
+    /**类加载器*/
+    private static ClassLoader classLoader;
+
     /**所有实体, 键为包路径, 值为实体类模板*/
     public static Map<String, Class> entities = new HashMap<>();
     /**所有dao接口, 键为包路径, 值为dao接口模板*/
@@ -136,7 +139,10 @@ public class PackageReader {
      * @throws Exception
      */
     private static ClassLoader getClassPathClassLoader() throws Exception {
-        return new URLClassLoader(new URL[]{getClassPathUrl()});
+        if (classLoader == null) {
+            classLoader = new URLClassLoader(new URL[]{getClassPathUrl()});
+        }
+        return classLoader;
     }
 
     /**
