@@ -29,6 +29,8 @@ public class DatabaseHelper {
 
     /**数据库url*/
     private static String databaseUrl;
+    /**数据库名称*/
+    private static String databaseName;
     /**用户名*/
     private static String username;
     /**密码*/
@@ -83,6 +85,8 @@ public class DatabaseHelper {
         username = datasourceConfig.get("username");
         password = datasourceConfig.get("password");
         databaseRiver = datasourceConfig.get("driver-class-name");
+        String[] fragments = databaseUrl.split("\\?")[0].split("/");
+        databaseName = fragments[fragments.length - 1];
     }
 
     /**
@@ -110,6 +114,61 @@ public class DatabaseHelper {
      */
     public static Connection getConn() throws Exception {
         return conn;
+    }
+
+    /**
+     * 获取数据库名称
+     * @return 数据库名称
+     */
+    public static String getDatabaseName() {
+        return databaseName;
+    }
+
+    //操作数据库=======================
+    public static void checkTable(Class entityClass) throws Exception {
+        //获取类上的表格名称
+
+        //查看是否有该表格
+
+        //检查所有属性
+
+
+    }
+
+    public static void addTable() throws Exception {
+
+    }
+
+    public static void deleteTable() throws Exception {
+
+    }
+
+    public static void checkFields(Class entityClass) throws Exception {
+
+    }
+
+    public static void addField() throws Exception {
+
+    }
+
+    public static void modifyField() throws Exception {
+
+    }
+
+    public static void deleteField() throws Exception {
+
+    }
+
+    public static void checkUniqueIndex() throws Exception {
+
+    }
+
+    public static void addUniqueIndex() throws Exception {
+
+    }
+
+    public static void deleteUniqueIndex() throws Exception {
+
     }
 
 }

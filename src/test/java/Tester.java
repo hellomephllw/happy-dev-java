@@ -18,9 +18,9 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            File file = new File(FileUtil.getLocalRootAbsolutePath() + "/.gitignore");
-            System.out.println(file);
-            System.out.println(file.getAbsolutePath());
+            String str = "jdbc:mysql://localhost:3306/demo?characterEncoding=utf8&useSSL=true";
+            String[] fragments = str.split("\\?")[0].split("/");
+            System.out.println(fragments[fragments.length - 1]);
         } catch (Exception e) {
             e.printStackTrace();
         }

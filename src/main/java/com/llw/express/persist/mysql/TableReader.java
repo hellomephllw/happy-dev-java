@@ -19,11 +19,27 @@ public class TableReader {
     public static void readAllTables() throws Exception {
         Connection conn = DatabaseHelper.getConn();
         DatabaseMetaData metaData = conn.getMetaData();
-        ResultSet resultSet = metaData.getTables(null, "%", "%", new String[] {"TABLE"});
-        while (resultSet.next()) {
+        ResultSet tableSet = metaData.getTables(DatabaseHelper.getDatabaseName(), "%", "%", new String[] {"TABLE"});
+        while (tableSet.next()) {
             System.out.println("=====");
-            System.out.println(resultSet);
+            System.out.println(tableSet.getString("TABLE_NAME"));
         }
+        ResultSet columnSet = metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", "%", "%");
+        while (columnSet.next()) {
+            System.out.println("#####");
+            System.out.println(columnSet.getString("COLUMN_NAME"));
+            System.out.println(columnSet.getString("TYPE_NAME"));
+            System.out.println(columnSet.getString("COLUMN_SIZE"));
+            System.out.println(columnSet.getString("DECIMAL_DIGITS"));
+            System.out.println(columnSet.getString("NULLABLE"));
+        }
+        ResultSet indexSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", "%", true, false);
+        while (indexSet.next()) {
+            System.out.println("~~~~~~");
+            System.out.println(indexSet.getString("INDEX_NAME"));
+            System.out.println(indexSet.getString("NON_UNIQUE"));
+        }
+
     }
 
 }
