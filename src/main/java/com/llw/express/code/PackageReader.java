@@ -158,7 +158,7 @@ public class PackageReader {
      * @throws Exception
      */
     private static void collectClasses(File file, String partOfDir, Map<String, Class> collector, String type) throws Exception {
-        if (file.isFile()) {
+        if (file.isFile() && file.getName().endsWith(".java")) {
             String fileName = file.getName();
             String className = createClassName("." + type + "." + (partOfDir != null ? partOfDir : "") + fileName.split("\\.")[0]);
             Class entityClass = getClassPathClassLoader().loadClass(className);
