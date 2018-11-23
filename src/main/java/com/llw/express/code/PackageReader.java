@@ -146,7 +146,7 @@ public class PackageReader {
      * @throws Exception
      */
     private static String createClassName(String partOfPath) throws Exception {
-        return BasicCodeGenerator.getRelativePackagePath().replaceAll("/", ".") + partOfPath;
+        return BasicCodeGenerator.getUserConfigBasePackagePath().replaceAll("/", ".") + partOfPath;
     }
 
     /**
