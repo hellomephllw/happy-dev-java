@@ -114,7 +114,18 @@ public class FieldChecker implements IFieldProcessor {
         }
     }
 
-
+    /**
+     * 通用检查
+     * @param tableName 表名
+     * @param entityFieldName 数据库字段名
+     * @param field 实体字段
+     * @param columnSet 数据库字段
+     * @param checkNullable 非空检查
+     * @param checkUnique 唯一检查
+     * @param checkLength 字符串长度检查
+     * @param checkDecimal decimal精度检查
+     * @throws Exception
+     */
     private void genericChecker(String tableName,
                                 String entityFieldName,
                                 Field field,
