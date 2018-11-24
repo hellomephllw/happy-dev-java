@@ -1,18 +1,13 @@
-package com.llw.express.persist.mysql;
+package com.llw.express.persist.mysql.helper;
 
-import com.llw.express.code.BasicCodeGenerator;
+import com.google.common.base.CaseFormat;
+import com.llw.express.persist.mysql.ExtClassPathLoader;
 import com.llw.util.FileUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.Driver;
-import java.sql.DriverManager;
+import java.sql.*;
 import java.util.Map;
 
 /**
@@ -40,6 +35,8 @@ public class DatabaseHelper {
 
     /**数据库连接*/
     private static Connection conn = null;
+    /**数据库元数据*/
+    private static DatabaseMetaData metaData = null;
 
     /**
      * 连接数据库
@@ -54,6 +51,8 @@ public class DatabaseHelper {
         Class.forName(databaseRiver);
         //获取数据库连接
         conn = DriverManager.getConnection(databaseUrl, username, password);
+        //初始化数据库元数据
+        metaData = conn.getMetaData();
     }
 
     /**
@@ -124,26 +123,103 @@ public class DatabaseHelper {
         return databaseName;
     }
 
-    //操作数据库=======================
-    public static void checkTable(Class entityClass) throws Exception {
-        //获取类上的表格名称
+    //=======================获取数据库表信息
+    /**
+     * 数据库中存在该表
+     * @param tableName 表名
+     * @return 是否存在
+     * @throws Exception
+     */
+    public static boolean existTable(String tableName) throws Exception {
 
-        //查看是否有该表格
-
-        //检查所有属性
-
-
+        return metaData.getTables(getDatabaseName(), "%", tableName, new String[] {"TABLE"}).next();
     }
 
+    /**
+     * 数据库表中存在该字段
+     * @param tableName 表名
+     * @param entityFieldName 实体字段名
+     * @return 是否存在
+     * @throws Exception
+     */
+    public static boolean existField(String tableName, String entityFieldName) throws Exception {
+
+        return metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", tableName, getDatabaseFieldName(entityFieldName)).next();
+    }
+
+    /**
+     * 数据库表中存在该唯一索引
+     * @param tableName 表名
+     * @param entityFieldName 实体字段名
+     * @return 是否存在
+     * @throws Exception
+     */
+    public static boolean existUniqueIndex(String tableName, String entityFieldName) throws Exception {
+        ResultSet uniqueSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, true, true);
+        while (uniqueSet.next()) {
+            String uniqueName = uniqueSet.getString("INDEX_NAME");
+            if (uniqueName.equals(getUniqueIndexName(tableName, entityFieldName))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取数据库表字段
+     * @param tableName 表名
+     * @param entityFieldName 实体字段名
+     * @return 字段
+     * @throws Exception
+     */
+    public static ResultSet getField(String tableName, String entityFieldName) throws Exception {
+
+        ResultSet columnSet = metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", tableName, getDatabaseFieldName(entityFieldName));
+
+        return columnSet.next() ? columnSet : null;
+    }
+
+    /**
+     * 获取唯一索引名称
+     * @param tableName 表名
+     * @param entityFieldName 实体字段名称
+     * @return 该实体字段的索引名称
+     * @throws Exception
+     */
+    public static String getUniqueIndexName(String tableName, String entityFieldName) throws Exception {
+
+        return tableName + "_unique_" + getDatabaseFieldName(entityFieldName);
+    }
+
+    /**
+     * 根据实体字段名(驼峰)获取数据库字段名(下划线)
+     * @param entityFieldName 实体字段名
+     * @return 数据库字段名
+     * @throws Exception
+     */
+    public static String getDatabaseFieldName(String entityFieldName) throws Exception {
+
+        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityFieldName);
+    }
+
+    /**
+     * 根据数据库字段名(下划线)获取实体字段名(驼峰)
+     * @param databaseFieldName 数据库字段名
+     * @return 实体字段名
+     * @throws Exception
+     */
+    public static String getEntityFieldName(String databaseFieldName) throws Exception {
+
+        return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, databaseFieldName);
+    }
+
+    //=======================操作数据库
     public static void addTable() throws Exception {
 
     }
 
     public static void deleteTable() throws Exception {
-
-    }
-
-    public static void checkFields(Class entityClass) throws Exception {
 
     }
 
@@ -156,10 +232,6 @@ public class DatabaseHelper {
     }
 
     public static void deleteField() throws Exception {
-
-    }
-
-    public static void checkUniqueIndex() throws Exception {
 
     }
 

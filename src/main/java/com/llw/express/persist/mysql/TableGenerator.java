@@ -1,15 +1,18 @@
 package com.llw.express.persist.mysql;
 
+import com.llw.express.persist.mysql.helper.*;
 import com.llw.util.FileUtil;
 import com.llw.util.LoggerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +53,7 @@ public class TableGenerator {
         EntityReader.readAllEntities(getBasePackagePath());
         //对表格进行对比
         diff();
+        TableReader.readAllTables();
     }
 
     /**
@@ -58,6 +62,7 @@ public class TableGenerator {
      */
     private static void diff() throws Exception {
         List<Class> entities = EntityReader.getEntities();
+        /**通过从实体正向检查和修改数据库表格*/
         for (Class entity : entities) {
             boolean isEntity = false;
             String tableName = null;
@@ -67,7 +72,7 @@ public class TableGenerator {
                 }
                 //获取表名
                 if (annotation.annotationType() == Table.class) {
-                    tableName = ((Table) annotation).name();
+                    tableName = ((Table) annotation).name().toLowerCase();
                 }
             }
             //判断是否是实体
@@ -79,18 +84,41 @@ public class TableGenerator {
                 //获取实体所有属性
                 List<Field> fields = collectAllFields(entity);
 
+                //属性字段安全检查
+                //todo
+
                 if (_MODE.equals(_MODE_CHECK)) {
                     //检查数据库表字段
-
+                    if (!DatabaseHelper.existTable(tableName)) {
+                        logger.warn("数据库中不存在表: " + tableName);
+                        continue;
+                    }
+                    //通过从实体属性到数据库字段正向对比
+                    for (Field entityField : fields) {
+                        //过滤实体非column字段
+                        if (!isColumn(entityField)) continue;
+                        //判断是否存在
+                        String entityFieldName = entityField.getName();
+                        if (!DatabaseHelper.existField(tableName, entityFieldName)) {
+                            logger.warn("数据库表(" + tableName + ")中不存在字段: " + entityFieldName);
+                            continue;
+                        }
+                        //对比
+                        fieldsProcessor(tableName, entityField, new FieldChecker());
+                    }
+                    //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
+                    //todo
                 } else if (_MODE.equals(_MODE_INCREMENT)) {
                     //增量操作
-
+                    //todo
                 } else if (_MODE.equals(_MODE_FORCE)) {
                     //执行删改
-
+                    //todo
                 }
             }
         }
+        /**通过从数据库表格逆向检查和修改数据库表格(看是否有多余的表格)*/
+        //todo
     }
 
     /**
@@ -112,8 +140,112 @@ public class TableGenerator {
         return fields;
     }
 
-    private static void diffCheck(String tableName, List<Field> fields) throws Exception {
+    /**
+     * 属性处理器
+     * @param tableName 表名
+     * @param entityField 实体属性
+     * @param fieldHelper 处理器
+     * @throws Exception
+     */
+    private static void fieldsProcessor(String tableName, Field entityField, IFieldHelper fieldHelper) throws Exception {
+        ResultSet columnSet = DatabaseHelper.getField(tableName, entityField.getName());
+        if (entityField.getType().isPrimitive()) {//基本类型
+            String typeStr = entityField.getGenericType().toString();
+            if (typeStr.equals("int")) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).integerField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (typeStr.equals("long")) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).longField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (typeStr.equals("float")) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).floatField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (typeStr.equals("double")) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).doubleField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (typeStr.equals("boolean")) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).booleanField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            }
+        } else {
+            Class fieldType = entityField.getType();
+            if (fieldType == String.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).stringField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == Date.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).dateField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == BigDecimal.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).bigDecimalField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == Integer.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).integerField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == Long.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).longField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == Float.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).floatField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == Double.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).doubleField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            } else if (fieldType == Boolean.class) {
+                if (fieldHelper instanceof IFieldProcessor) {
+                    ((IFieldProcessor) fieldHelper).booleanField(tableName, entityField, columnSet);
+                } else {
+//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                }
+            }
+        }
+    }
 
+    /**
+     * 是数据库字段
+     * @param field 实体字段
+     * @return 是否是数据库字段
+     * @throws Exception
+     */
+    private static boolean isColumn(Field field) throws Exception {
+        return field.getAnnotation(Column.class) != null
+                || field.getAnnotation(Id.class) != null
+                || field.getAnnotation(Version.class) != null;
     }
 
     /**
