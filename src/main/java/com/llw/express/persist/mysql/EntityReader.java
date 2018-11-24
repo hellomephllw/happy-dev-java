@@ -43,6 +43,14 @@ public class EntityReader {
     }
 
     /**
+     * 获取所有实体
+     * @return 所有实体
+     */
+    public static List<Class> getEntities() {
+        return entities;
+    }
+
+    /**
      * 添加实体
      * @param entityFile 实体文件
      * @param partOfDir 部分包路径(可能有子模块)

@@ -13,9 +13,6 @@ import java.util.List;
  */
 public class TableReader {
 
-    /**所有表格*/
-    private static final List tables = new ArrayList<>();
-
     public static void readAllTables() throws Exception {
         Connection conn = DatabaseHelper.getConn();
         DatabaseMetaData metaData = conn.getMetaData();
@@ -39,6 +36,10 @@ public class TableReader {
             System.out.println(indexSet.getString("INDEX_NAME"));
             System.out.println(indexSet.getString("NON_UNIQUE"));
         }
+
+    }
+
+    public static void diff() throws Exception {
 
     }
 

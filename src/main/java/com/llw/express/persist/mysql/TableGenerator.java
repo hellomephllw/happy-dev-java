@@ -5,7 +5,13 @@ import com.llw.util.LoggerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @description: 表生成器
@@ -42,8 +48,72 @@ public class TableGenerator {
         DatabaseHelper.connectDatabase(env);
         //读取所有实体
         EntityReader.readAllEntities(getBasePackagePath());
-        //读取所有表格
-//        TableReader.readAllTables();
+        //对表格进行对比
+        diff();
+    }
+
+    /**
+     * 对表格进行对比: 可能进行更新
+     * @throws Exception
+     */
+    private static void diff() throws Exception {
+        List<Class> entities = EntityReader.getEntities();
+        for (Class entity : entities) {
+            boolean isEntity = false;
+            String tableName = null;
+            for (Annotation annotation : entity.getAnnotations()) {
+                if (annotation.annotationType() == Entity.class) {
+                    isEntity = true;
+                }
+                //获取表名
+                if (annotation.annotationType() == Table.class) {
+                    tableName = ((Table) annotation).name();
+                }
+            }
+            //判断是否是实体
+            if (isEntity) {
+                if (tableName == null) {
+                    logger.warn("实体缺少表名: " + entity);
+                    continue;
+                }
+                //获取实体所有属性
+                List<Field> fields = collectAllFields(entity);
+
+                if (_MODE.equals(_MODE_CHECK)) {
+                    //检查数据库表字段
+
+                } else if (_MODE.equals(_MODE_INCREMENT)) {
+                    //增量操作
+
+                } else if (_MODE.equals(_MODE_FORCE)) {
+                    //执行删改
+
+                }
+            }
+        }
+    }
+
+    /**
+     * 收集所有属性
+     * @param entityClass 实体class
+     * @return 所有属性
+     * @throws Exception
+     */
+    private static List<Field> collectAllFields(Class entityClass) throws Exception {
+        List<Field> fields = new ArrayList<>();
+
+        for (Field field : entityClass.getDeclaredFields()) {
+            fields.add(field);
+        }
+        if (entityClass.getSuperclass() != Object.class) {
+            fields.addAll(collectAllFields(entityClass.getSuperclass()));
+        }
+
+        return fields;
+    }
+
+    private static void diffCheck(String tableName, List<Field> fields) throws Exception {
+
     }
 
     /**
