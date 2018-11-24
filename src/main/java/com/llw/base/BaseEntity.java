@@ -22,7 +22,7 @@ public abstract class BaseEntity implements Serializable, Comparable {
     protected Long id;
     /** 乐观锁版本控制 */
     @Version
-    protected Long version;
+    protected Long version = 0L;
 
     @Override
     public int compareTo(Object o) {
