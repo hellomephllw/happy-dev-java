@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +90,8 @@ public class TableGenerator {
                 if (!fieldsIsSecurity(entity, fields)) continue;
 
                 if (_MODE.equals(_MODE_CHECK)) {
-                    //检查数据库表字段
+                    /**检查*/
+                    //检查数据库表是否存在
                     if (!DatabaseHelper.existTable(tableName)) {
                         logger.info("数据库中不存在表: " + tableName);
                         continue;
@@ -110,10 +112,26 @@ public class TableGenerator {
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
                     dbTableUnusedChecker(tableName, fields);
                 } else if (_MODE.equals(_MODE_INCREMENT)) {
-                    //增量操作
-                    //todo
+                    /**增量操作*/
+                    //创建数据库表
+                    if (!DatabaseHelper.existTable(tableName)) {
+                        DatabaseHelper.addTable(tableName, fields);
+                        continue;
+                    }
+
+                    //创建数据库字段和唯一索引
+                    for (Field entityField : fields) {
+                        //过滤实体非column字段
+                        if (!isColumn(entityField)) continue;
+
+                        //判断是否存在
+                        String entityFieldName = entityField.getName();
+                        if (!DatabaseHelper.existField(tableName, entityFieldName)) {
+                            DatabaseHelper.addField(tableName, entityField);
+                        }
+                    }
                 } else if (_MODE.equals(_MODE_FORCE)) {
-                    //执行删改
+                    /**执行删改*/
                     //todo
                 }
             }
@@ -373,7 +391,11 @@ public class TableGenerator {
             LoggerUtil.printStackTrace(logger, e);
         } finally {
             try {
+                Statement statement = DatabaseHelper.getStatement();
                 Connection connection = DatabaseHelper.getConn();
+                if (statement != null) {
+                    statement.close();
+                }
                 if (connection != null) {
                     connection.close();
                 }

@@ -3,11 +3,19 @@ package com.llw.express.persist.mysql.helper;
 import com.google.common.base.CaseFormat;
 import com.llw.express.persist.mysql.ExtClassPathLoader;
 import com.llw.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Version;
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.*;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,6 +24,9 @@ import java.util.Map;
  * @date: 2018-11-23
  */
 public class DatabaseHelper {
+
+    /**logger*/
+    private static Logger logger = LoggerFactory.getLogger(DatabaseHelper.class);
 
     /**项目资源目录路径的补充路径*/
     private final static String _PROJECT_RESOURCES_PATH = "/src/main/resources/";
@@ -37,6 +48,8 @@ public class DatabaseHelper {
     private static Connection conn = null;
     /**数据库元数据*/
     private static DatabaseMetaData metaData = null;
+    /**数据库声明*/
+    private static Statement statement = null;
 
     /**
      * 连接数据库
@@ -53,6 +66,8 @@ public class DatabaseHelper {
         conn = DriverManager.getConnection(databaseUrl, username, password);
         //初始化数据库元数据
         metaData = conn.getMetaData();
+        //初始化数据库声明
+        statement = conn.createStatement();
     }
 
     /**
@@ -113,6 +128,15 @@ public class DatabaseHelper {
      */
     public static Connection getConn() throws Exception {
         return conn;
+    }
+
+    /**
+     * 获取数据库声明
+     * @return 数据库声明
+     * @throws Exception
+     */
+    public static Statement getStatement() throws Exception {
+        return statement;
     }
 
     /**
@@ -237,16 +261,79 @@ public class DatabaseHelper {
     }
 
     //=======================操作数据库
-    public static void addTable() throws Exception {
+    /**
+     * 创建数据库表格
+     * @param tableName 表名
+     * @param entityFields 实体所有属性
+     * @throws Exception
+     */
+    public static void addTable(String tableName, List<Field> entityFields) throws Exception {
+        //建表sql
+        StringBuilder sql = new StringBuilder("create table " + tableName + "(");
+        for (int i = 0; i < entityFields.size(); ++i) {
+            Field entityField = entityFields.get(i);
+            String fieldLine = createFieldStringForAddTable(entityField);
+            if ("".equals(fieldLine)) continue;
+            sql.append(fieldLine);
+            if (i == entityFields.size() - 1) break;
+            sql.append(",");
+        }
+        sql.append(");");
 
+        //执行建表
+        statement.executeUpdate(sql.toString());
+
+        logger.info("已创建数据库表: " + tableName);
+        logger.info("建表sql: " + sql.toString());
+
+        //创建独立索引
+        for (Field entityField : entityFields) {
+            addUniqueIndex(tableName, entityField);
+        }
     }
 
     public static void deleteTable() throws Exception {
 
     }
 
-    public static void addField() throws Exception {
+    /**
+     * 添加数据库表字段
+     * @param tableName 表名
+     * @param entityField 实体字段
+     * @throws Exception
+     */
+    public static void addField(String tableName, Field entityField) throws Exception {
+        Column column = entityField.getAnnotation(Column.class);
+        if (column == null) return ;
 
+        //添加字段sql
+        StringBuilder sql = new StringBuilder();
+        sql.append("alter table");
+        sql.append(" ");
+        sql.append(tableName);
+        sql.append(" add ");
+        sql.append(entityField.getName());
+        sql.append(" ");
+        sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
+        if (!column.nullable() && !column.unique()) {
+            sql.append(" not null");
+        }
+        sql.append(";");
+
+        //执行添加字段
+        statement.executeUpdate(sql.toString());
+
+        String fieldStr = entityField.getName()
+                + " "
+                + getWholeDbFieldTypeByEntityFieldType(entityField);
+        logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
+
+        if (!column.nullable() && column.unique()) {
+            logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
+        }
+
+        //创建独立索引
+        addUniqueIndex(tableName, entityField);
     }
 
     public static void modifyField() throws Exception {
@@ -257,12 +344,172 @@ public class DatabaseHelper {
 
     }
 
-    public static void addUniqueIndex() throws Exception {
+    /**
+     * 添加数据库字段唯一索引
+     * @param tableName 表名
+     * @param entityField 实体字段
+     * @throws Exception
+     */
+    public static void addUniqueIndex(String tableName, Field entityField) throws Exception {
+        Column column = entityField.getAnnotation(Column.class);
+        if (column == null) return ;
+        if (!column.unique()) return ;
 
+        String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
+        StringBuilder sql = new StringBuilder();
+        sql.append("create unique index");
+        sql.append(" ");
+        sql.append(uniqueIndexName);
+        sql.append(" on ");
+        sql.append(tableName);
+        sql.append("(");
+        sql.append(entityField.getName());
+        sql.append(");");
+
+        statement.executeUpdate(sql.toString());
+
+        logger.info("为数据库表(" + tableName + ")字段(" + entityField.getName() + ")添加唯一索引(" + uniqueIndexName + ")");
     }
 
     public static void deleteUniqueIndex() throws Exception {
 
+    }
+
+    /**
+     * 创建表字段字符串
+     * @param entityField 实体字段
+     * @return 表字段字符串
+     * @throws Exception
+     */
+    private static String createFieldStringForAddTable(Field entityField) throws Exception {
+        if (entityField.getAnnotation(Id.class) != null) {
+            return createPrimaryKeyStringForAddTable();
+        }
+        if (entityField.getAnnotation(Version.class) != null) {
+            return createVersionStringForAddTable();
+        }
+        if (entityField.getAnnotation(Column.class) != null) {
+            Column column = entityField.getAnnotation(Column.class);
+            StringBuilder fieldLine = new StringBuilder();
+            fieldLine.append(" ");
+            fieldLine.append(DatabaseHelper.getDatabaseFieldName(entityField.getName()));
+            fieldLine.append(" ");
+            fieldLine.append(getWholeDbFieldTypeByEntityFieldType(entityField));
+            fieldLine.append(" ");
+            if (!column.nullable()) {
+                fieldLine.append("not null");
+            }
+            return fieldLine.toString();
+        }
+
+        return "";
+    }
+
+    /**
+     * 创建主键字段字符串
+     * @return 主键字段字符串
+     * @throws Exception
+     */
+    private static String createPrimaryKeyStringForAddTable() throws Exception {
+
+        return "id bigint auto_increment primary key not null";
+    }
+
+    /**
+     * 创建version字段字符串
+     * @return version字段字符串
+     * @throws Exception
+     */
+    private static String createVersionStringForAddTable() throws Exception {
+
+        return "version bigint";
+    }
+
+    /**
+     * (获取数据库字段类型)根据实体字段类型获取完整的数据库字段类型字符串, 包括数字的最大长度、数字的小数位数、字符串长度
+     * @param entityField 实体字段
+     * @return 完整的数据库字段类型字符串
+     * @throws Exception
+     */
+    private static String getWholeDbFieldTypeByEntityFieldType(Field entityField) throws Exception {
+        if (entityField.getType().isPrimitive()) {//基本类型
+            return getDbFieldTypeByEntityFieldType(entityField);
+        } else {
+            Class fieldType = entityField.getType();
+            if (fieldType == Date.class
+                    || fieldType == Integer.class
+                    || fieldType == Long.class
+                    || fieldType == Float.class
+                    || fieldType == Double.class
+                    || fieldType == Boolean.class) {
+                return getDbFieldTypeByEntityFieldType(entityField);
+            } else if (fieldType == String.class) {
+                Column column = entityField.getAnnotation(Column.class);
+                if (!"".equals(column.columnDefinition())) {
+                    return getDbFieldTypeByEntityFieldType(entityField);
+                }
+                return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.length() + ")";
+            } else if (fieldType == BigDecimal.class) {
+                Column column = entityField.getAnnotation(Column.class);
+                return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.precision() + "," + column.scale() + ")";
+            }
+        }
+
+        if (entityField.getType().isPrimitive()) {
+            throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
+        }
+        throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
+    }
+
+    /**
+     * (获取数据库字段类型)根据实体字段类型获取数据库字段类型字符串, 只有类型
+     * @param entityField 实体字段
+     * @return 数据库字段类型的字符串
+     * @throws Exception
+     */
+    private static String getDbFieldTypeByEntityFieldType(Field entityField) throws Exception {
+        if (entityField.getType().isPrimitive()) {//基本类型
+            String typeStr = entityField.getGenericType().toString();
+            if (typeStr.equals("int")) {
+                return "int";
+            } else if (typeStr.equals("long")) {
+                return "bigint";
+            } else if (typeStr.equals("float")) {
+                return "float";
+            } else if (typeStr.equals("double")) {
+                return "double";
+            } else if (typeStr.equals("boolean")) {
+                return "int";
+            }
+        } else {
+            Class fieldType = entityField.getType();
+            if (fieldType == String.class) {
+                Column column = entityField.getAnnotation(Column.class);
+                if (!"".equals(column.columnDefinition())) {
+                    return column.columnDefinition().trim();
+                }
+                return "varchar";
+            } else if (fieldType == Date.class) {
+                return "timestamp";
+            } else if (fieldType == BigDecimal.class) {
+                return "decimal";
+            } else if (fieldType == Integer.class) {
+                return "int";
+            } else if (fieldType == Long.class) {
+                return "bigint";
+            } else if (fieldType == Float.class) {
+                return "float";
+            } else if (fieldType == Double.class) {
+                return "double";
+            } else if (fieldType == Boolean.class) {
+                return "int";
+            }
+        }
+
+        if (entityField.getType().isPrimitive()) {
+            throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
+        }
+        throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
     }
 
 }
