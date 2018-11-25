@@ -31,12 +31,13 @@ public class TableReader {
             System.out.println(columnSet.getInt("DECIMAL_DIGITS"));//右侧小数位数
             System.out.println(columnSet.getInt("NULLABLE"));
         }
-//        ResultSet indexSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", "%", true, false);
-//        while (indexSet.next()) {
-//            System.out.println("~~~~~~");
-//            System.out.println(indexSet.getString("INDEX_NAME"));
-//            System.out.println(indexSet.getString("NON_UNIQUE"));
-//        }
+        System.out.println("!!!!!!");
+        ResultSet indexSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", "demo_wallet", true, true);
+        while (indexSet.next()) {
+            System.out.println("~~~~~~");
+            System.out.println(indexSet.getString("INDEX_NAME"));
+            System.out.println(indexSet.getBoolean("NON_UNIQUE"));
+        }
 
     }
 

@@ -167,6 +167,17 @@ public class DatabaseHelper {
     }
 
     /**
+     * 获取数据库表的所有字段
+     * @param tableName 数据库表
+     * @return 所有字段
+     * @throws Exception
+     */
+    public static ResultSet getAllFieldsByTableName(String tableName) throws Exception {
+
+        return metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", tableName, "%");
+    }
+
+    /**
      * 获取数据库表字段
      * @param tableName 表名
      * @param entityFieldName 实体字段名
@@ -178,6 +189,17 @@ public class DatabaseHelper {
         ResultSet columnSet = metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", tableName, getDatabaseFieldName(entityFieldName));
 
         return columnSet.next() ? columnSet : null;
+    }
+
+    /**
+     * 根据表名获取该表中所有唯一索引
+     * @param tableName 数据库表
+     * @return 所有唯一索引
+     * @throws Exception
+     */
+    public static ResultSet getAllUniqueIndexByTableName(String tableName) throws Exception {
+
+        return metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, true, true);
     }
 
     /**

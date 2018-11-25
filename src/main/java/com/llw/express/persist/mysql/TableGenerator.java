@@ -108,7 +108,7 @@ public class TableGenerator {
                         fieldsProcessor(tableName, entityField, new FieldChecker());
                     }
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                    //todo
+                    dbTableUnusedChecker(tableName, fields);
                 } else if (_MODE.equals(_MODE_INCREMENT)) {
                     //增量操作
                     //todo
@@ -218,91 +218,86 @@ public class TableGenerator {
      * @param fieldHelper 处理器
      * @throws Exception
      */
-    private static void fieldsProcessor(String tableName, Field entityField, IFieldHelper fieldHelper) throws Exception {
+    private static void fieldsProcessor(String tableName, Field entityField, IFieldProcessor fieldHelper) throws Exception {
         ResultSet columnSet = DatabaseHelper.getField(tableName, entityField.getName());
         if (entityField.getType().isPrimitive()) {//基本类型
             String typeStr = entityField.getGenericType().toString();
             if (typeStr.equals("int")) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).integerField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.integerField(tableName, entityField, columnSet);
             } else if (typeStr.equals("long")) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).longField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.longField(tableName, entityField, columnSet);
             } else if (typeStr.equals("float")) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).floatField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.floatField(tableName, entityField, columnSet);
             } else if (typeStr.equals("double")) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).doubleField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.doubleField(tableName, entityField, columnSet);
             } else if (typeStr.equals("boolean")) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).booleanField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.booleanField(tableName, entityField, columnSet);
             }
         } else {
             Class fieldType = entityField.getType();
             if (fieldType == String.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).stringField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.stringField(tableName, entityField, columnSet);
             } else if (fieldType == Date.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).dateField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.dateField(tableName, entityField, columnSet);
             } else if (fieldType == BigDecimal.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).bigDecimalField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.bigDecimalField(tableName, entityField, columnSet);
             } else if (fieldType == Integer.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).integerField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.integerField(tableName, entityField, columnSet);
             } else if (fieldType == Long.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).longField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.longField(tableName, entityField, columnSet);
             } else if (fieldType == Float.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).floatField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.floatField(tableName, entityField, columnSet);
             } else if (fieldType == Double.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).doubleField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
-                }
+                fieldHelper.doubleField(tableName, entityField, columnSet);
             } else if (fieldType == Boolean.class) {
-                if (fieldHelper instanceof IFieldProcessor) {
-                    ((IFieldProcessor) fieldHelper).booleanField(tableName, entityField, columnSet);
-                } else {
-//                    ((IFieldReverseProcessor) fieldHelper).integerField(entityField, columnSet);
+                fieldHelper.booleanField(tableName, entityField, columnSet);
+            }
+        }
+    }
+
+    /**
+     * 检查数据库表格多余的字段和唯一索引
+     * @param tableName 表名
+     * @param fields 字段集合
+     * @throws Exception
+     */
+    private static void dbTableUnusedChecker(String tableName, List<Field> fields) throws Exception {
+        //检查多余的字段
+        ResultSet columnSet = DatabaseHelper.getAllFieldsByTableName(tableName);
+        while (columnSet.next()) {
+            String dbFieldName = columnSet.getString("COLUMN_NAME");
+            boolean existInEntity = false;
+            for (Field field : fields) {
+                if (field.getName().equals(DatabaseHelper.getEntityFieldName(dbFieldName))) {
+                    existInEntity = true;
+                    break;
                 }
+            }
+            if (!existInEntity) {
+                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")在实体中不存在");
+            }
+        }
+        //检查多余的唯一索引
+        ResultSet uniqueSet = DatabaseHelper.getAllUniqueIndexByTableName(tableName);
+        while (uniqueSet.next()) {
+            String uniqueIndexName = uniqueSet.getString("INDEX_NAME");
+            if (uniqueIndexName.toLowerCase().equals("primary")) {
+                continue;
+            }
+            String dbFieldName = uniqueIndexName.split("_unique_")[1];
+            boolean existInField = false;
+            for (Field entityField : fields) {
+                if (entityField.getName().equals(DatabaseHelper.getEntityFieldName(dbFieldName))) {
+                    Column column = entityField.getAnnotation(Column.class);
+                    if (column.unique()) {
+                        //属性中配置了唯一索引
+                        existInField = true;
+                    }
+                    break;
+                }
+            }
+            if (!existInField) {
+                logger.warn("数据库表(" + tableName + ")唯一索引(" + uniqueIndexName + ")是多余的, 需要删除");
             }
         }
     }
