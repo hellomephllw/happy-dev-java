@@ -73,7 +73,16 @@ public class FieldChecker implements IFieldProcessor {
         String entityFieldName = field.getName();
         String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
         //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "varchar");
+        String typeStr = columnSet.getString("TYPE_NAME");
+        if (typeStr != null) {
+            if (!("varchar".equals(typeStr.toLowerCase())
+                    || "text".equals(typeStr.toLowerCase())
+                    || "mediumtext".equals(typeStr.toLowerCase())
+                    || "longtext".equals(typeStr.toLowerCase()))) {
+                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")的类型为(" + typeStr.toLowerCase()
+                        + "), 需要变为varchar、text、mediumtext或longtext");
+            }
+        }
         //字段的其他检查
         genericChecker(tableName, entityFieldName, field, columnSet, true, true, true, false);
     }
