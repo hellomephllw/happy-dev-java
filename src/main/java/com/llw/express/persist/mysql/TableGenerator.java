@@ -77,6 +77,7 @@ public class TableGenerator {
             }
             //判断是否是实体
             if (isEntity) {
+                //表名检查
                 if (tableName == null) {
                     logger.warn("实体缺少表名: " + entity);
                     continue;
@@ -85,12 +86,12 @@ public class TableGenerator {
                 List<Field> fields = collectAllFields(entity);
 
                 //属性字段安全检查
-                //todo
+                if (!fieldsIsSecurity(entity, fields)) continue;
 
                 if (_MODE.equals(_MODE_CHECK)) {
                     //检查数据库表字段
                     if (!DatabaseHelper.existTable(tableName)) {
-                        logger.warn("数据库中不存在表: " + tableName);
+                        logger.info("数据库中不存在表: " + tableName);
                         continue;
                     }
                     //通过从实体属性到数据库字段正向对比
@@ -100,7 +101,7 @@ public class TableGenerator {
                         //判断是否存在
                         String entityFieldName = entityField.getName();
                         if (!DatabaseHelper.existField(tableName, entityFieldName)) {
-                            logger.warn("数据库表(" + tableName + ")中不存在字段: " + entityFieldName);
+                            logger.info("数据库表(" + tableName + ")中不存在字段: " + entityFieldName);
                             continue;
                         }
                         //对比
@@ -138,6 +139,76 @@ public class TableGenerator {
         }
 
         return fields;
+    }
+
+    /**
+     * 持久化对象的字段是否安全
+     * @param entityClass 实体class
+     * @param fields 所有字段
+     * @return 是否安全
+     * @throws Exception
+     */
+    private static boolean fieldsIsSecurity(Class entityClass, List<Field> fields) throws Exception {
+        boolean hasIdAnnotation = false;
+        boolean hasId = false;
+        int idAnnotationAmount = 0;
+        for (Field field : fields) {
+            //是否有id
+            Id id = field.getAnnotation(Id.class);
+            if (id != null) {
+                hasIdAnnotation = true;
+                ++idAnnotationAmount;
+            }
+            if ("id".equals(field.getName())) {
+                hasId = true;
+            }
+
+            //检查string是否设置长度
+            if (field.getType() == String.class) {
+                Column column = field.getAnnotation(Column.class);
+                if (column != null && column.length() == 255 && "".equals(column.columnDefinition())) {
+                    logger.warn("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为string类型, 需要设置字符串长度");
+                    return false;
+                }
+            }
+
+            //检查bigDecimal是否设置最大长度和小数位数
+            if (field.getType() == BigDecimal.class) {
+                Column column = field.getAnnotation(Column.class);
+                if (column != null) {
+                    boolean pass = true;
+                    if (column.precision() == 0) {
+                        logger.warn("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为bigDecimal类型, 需要设置最大长度");
+                        pass = false;
+                    }
+                    if (column.scale() == 0) {
+                        logger.warn("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为bigDecimal类型, 需要设置小数位数");
+                        pass = false;
+                    }
+                    if (!pass) {
+                        System.out.println("pass: " + pass);
+                        return false;
+                    }
+                }
+            }
+        }
+        //是否有id
+        if (!hasId) {
+            logger.warn("实体(" + entityClass.getSimpleName() + ")没有id字段");
+        }
+        if (!hasIdAnnotation) {
+            logger.warn("实体(" + entityClass.getSimpleName() + ")没有id注解");
+        }
+        //id注解个数大于1
+        if (idAnnotationAmount > 1) {
+            logger.warn("实体(" + entityClass.getSimpleName() + ")的id注解只能有1个");
+        }
+
+        if (!hasIdAnnotation || !hasId || idAnnotationAmount > 1) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
