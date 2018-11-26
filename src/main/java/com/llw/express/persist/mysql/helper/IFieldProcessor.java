@@ -8,7 +8,7 @@ import java.sql.ResultSet;
  * @author: llw
  * @date: 2018-11-24
  */
-public interface IFieldProcessor extends IFieldHelper {
+public interface IFieldProcessor {
 
     public void integerField(String tableName, Field field, ResultSet columnSet) throws Exception;
 

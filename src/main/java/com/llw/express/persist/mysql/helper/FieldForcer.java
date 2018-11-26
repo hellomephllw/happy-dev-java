@@ -3,8 +3,6 @@ package com.llw.express.persist.mysql.helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.Column;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 
@@ -75,23 +73,6 @@ public class FieldForcer implements IFieldProcessor {
     }
 
     /**
-     * 字段类型检查
-     * @param columnSet 数据库字段
-     * @param dbFieldType 数据库字段类型
-     * @return boolean 是否通过
-     * @throws Exception
-     */
-    private boolean fieldTypeChecker(ResultSet columnSet, String dbFieldType) throws Exception {
-        dbFieldType = dbFieldType.toLowerCase();
-        String typeStr = columnSet.getString("TYPE_NAME");
-        if (dbFieldType.equals(typeStr.toLowerCase())) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * 通用检查
      * @param tableName 表名
      * @param entityFieldName 数据库字段名
@@ -113,105 +94,35 @@ public class FieldForcer implements IFieldProcessor {
                                 boolean checkUnique,
                                 boolean checkLength,
                                 boolean checkDecimal) throws Exception {
-        //是否要修改类型
-        boolean modifyType = false;
-        if ("string".equals(dbFieldType.toLowerCase())) {
-            String typeStr = columnSet.getString("TYPE_NAME");
-            if (!("varchar".equals(typeStr.toLowerCase())
-                    || "text".equals(typeStr.toLowerCase())
-                    || "mediumtext".equals(typeStr.toLowerCase())
-                    || "longtext".equals(typeStr.toLowerCase()))) {
-                modifyType = true;
-            }
-        } else {
-            modifyType = !fieldTypeChecker(columnSet, dbFieldType);
-        }
-        //是否修改字符串长度
-        boolean modifyLength = false;
-        //是否修改bigDecimal的最大长度和小数位数
-        boolean modifyBigDecimal = false;
-        //是否要添加非空
-        boolean addNotNull = false;
-        //是否要删除非空
-        boolean deleteNotNull = false;
-        //是否要添加唯一索引
-        boolean addUnique = false;
-        //是否要删除唯一索引
-        boolean deleteUnique = false;
-
-        //是否能够有唯一索引
-        boolean canOwnUnique = false;
-
-        for (Annotation annotation : field.getAnnotations()) {
-            if (annotation.annotationType() == Column.class) {
-                if (checkNullable) {
-                    //非空检查
-                    int nullable = columnSet.getInt("NULLABLE");
-                    if (((Column) annotation).nullable()) {
-                        if (nullable == 0) {
-                            deleteNotNull = true;
-                        }
-                    } else {//不可为空
-                        if (nullable == 1) {
-                            addNotNull = true;
-                        }
-                    }
-                }
-                if (checkUnique) {
-                    //唯一索引检查
-                    if (((Column) annotation).unique()) {//唯一索引
-                        canOwnUnique = true;
-                        if (!DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                            addUnique = true;
-                        }
-                    } else {
-                        if (DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                            deleteUnique = true;
-                        }
-                    }
-                }
-                if (checkLength) {
-                    //字符串长度检查
-                    String typeStr = columnSet.getString("TYPE_NAME");
-                    if (typeStr.toLowerCase().equals("varchar")) {
-                        int entityFieldLen = ((Column) annotation).length();
-                        int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
-                        if (dbFieldLen != entityFieldLen) {
-                            modifyLength = true;
-                        }
-                    }
-                }
-                if (checkDecimal) {
-                    //bigDecimal检查
-                    int entityFieldPrecision = ((Column) annotation).precision();
-                    int entityFieldScale = ((Column) annotation).scale();
-                    int dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
-                    int dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
-                    if (entityFieldPrecision != dbFieldPrecision) {
-                        modifyBigDecimal = true;
-                    }
-                    if (entityFieldScale != dbFieldScale) {
-                        modifyBigDecimal = true;
-                    }
-                }
-                break;
-            }
-        }
+        //构建参数
+        FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkUnique, checkLength, checkDecimal);
 
         //添加索引
-        if (addUnique) {
+        if (fieldStateParams.addUnique) {
             DatabaseHelper.addUniqueIndex(tableName, field);
-            if (!modifyType && !modifyLength && !modifyBigDecimal && canOwnUnique && addNotNull) {
+            if (!fieldStateParams.modifyType
+                    && !fieldStateParams.modifyLength
+                    && !fieldStateParams.modifyBigDecimal
+                    && fieldStateParams.canOwnUnique
+                    && fieldStateParams.addNotNull) {
                 logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
             }
         }
         //删除索引
-        if (deleteUnique) {
+        if (fieldStateParams.deleteUnique) {
             DatabaseHelper.deleteUniqueIndex(tableName, field);
         }
         //修改字段
-        if (modifyType || modifyLength || modifyBigDecimal || addNotNull || deleteNotNull) {
-            if (!(!modifyType && !modifyLength && !modifyBigDecimal && canOwnUnique && addNotNull)) {
+        if (fieldStateParams.modifyType
+                || fieldStateParams.modifyLength
+                || fieldStateParams.modifyBigDecimal
+                || fieldStateParams.addNotNull
+                || fieldStateParams.deleteNotNull) {
+            if (!(!fieldStateParams.modifyType
+                    && !fieldStateParams.modifyLength
+                    && !fieldStateParams.modifyBigDecimal
+                    && fieldStateParams.canOwnUnique
+                    && fieldStateParams.addNotNull)) {
                 DatabaseHelper.modifyField(tableName, field);
             }
         }

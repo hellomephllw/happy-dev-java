@@ -156,7 +156,7 @@ public class TableGenerator {
                         fieldsProcessor(tableName, entityField, new FieldForcer());
                     }
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-//                    dbTableUnusedChecker(tableName, fields);
+                    //todo
                 }
             }
         }

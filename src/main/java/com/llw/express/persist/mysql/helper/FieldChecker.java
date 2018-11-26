@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.Column;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 
@@ -21,106 +20,57 @@ public class FieldChecker implements IFieldProcessor {
     @Override
     public void integerField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型检查
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "int");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, false, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "int", true, true, false, false);
     }
 
     @Override
     public void longField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "bigint");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, false, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "bigint", true, true, false, false);
     }
 
     @Override
     public void floatField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "float");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, false, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "float", true, true, false, false);
     }
 
     @Override
     public void doubleField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "double");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, false, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "double", true, true, false, false);
     }
 
     @Override
     public void booleanField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "int");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, false, false, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "int", true, false, false, false);
     }
 
     @Override
     public void stringField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        String typeStr = columnSet.getString("TYPE_NAME");
-        if (typeStr != null) {
-            if (!("varchar".equals(typeStr.toLowerCase())
-                    || "text".equals(typeStr.toLowerCase())
-                    || "mediumtext".equals(typeStr.toLowerCase())
-                    || "longtext".equals(typeStr.toLowerCase()))) {
-                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")的类型为(" + typeStr.toLowerCase()
-                        + "), 需要变为varchar、text、mediumtext或longtext");
-            }
-        }
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, true, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "string", true, true, true, false);
     }
 
     @Override
     public void dateField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "timestamp");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, false, false);
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "timestamp", true, true, false, false);
     }
 
     @Override
     public void bigDecimalField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //字段类型判断
-        fieldTypeChecker(tableName, dbFieldName, columnSet, "decimal");
-        //字段的其他检查
-        genericChecker(tableName, entityFieldName, field, columnSet, true, true, false, true);
-    }
 
-    /**
-     * 字段类型检查
-     * @param tableName 表名
-     * @param dbFieldName 数据库字段名
-     * @param columnSet 数据库字段
-     * @param dbFieldType 数据库字段类型
-     * @throws Exception
-     */
-    private void fieldTypeChecker(String tableName, String dbFieldName, ResultSet columnSet, String dbFieldType) throws Exception {
-        dbFieldType = dbFieldType.toLowerCase();
-        String typeStr = columnSet.getString("TYPE_NAME");
-        if (!(typeStr != null && dbFieldType.equals(typeStr.toLowerCase()))) {
-            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")的类型为(" + typeStr.toLowerCase() + "), 需要变为" + dbFieldType);
-        }
+        genericChecker(tableName, entityFieldName, field, columnSet, "decimal", true, true, false, true);
     }
 
     /**
@@ -139,51 +89,46 @@ public class FieldChecker implements IFieldProcessor {
                                 String entityFieldName,
                                 Field field,
                                 ResultSet columnSet,
+                                String dbFieldType,
                                 boolean checkNullable,
                                 boolean checkUnique,
                                 boolean checkLength,
                                 boolean checkDecimal) throws Exception {
-        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
+        //构建参数
+        FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkUnique, checkLength, checkDecimal);
 
-        for (Annotation annotation : field.getAnnotations()) {
-            if (annotation.annotationType() == Column.class) {
-                if (checkNullable) {
-                    //非空检查
-                    int nullable = columnSet.getInt("NULLABLE");
-                    if (((Column) annotation).nullable()) {
-                        if (nullable == 0) {
-                            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")不能为空, 需要变为可为空");
-                        }
-                    } else {
-                        if (nullable == 1) {
-                            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")可为空, 需要变为不为空");
-                        }
-                    }
-                }
-                if (checkUnique) {
-                    //唯一索引检查
-                    if (((Column) annotation).unique()) {
-                        if (!DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")有唯一索引, 需要为该字段添加唯一索引");
-                        }
-                    } else {
-                        if (DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")没有唯一索引, 需要删除该唯一索引(" + DatabaseHelper.getUniqueIndexName(tableName, entityFieldName) + ")");
-                        }
-                    }
-                }
-                if (checkLength) {
-                    //字符串长度检查
-                    int entityFieldLen = ((Column) annotation).length();
-                    int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
-                    if (dbFieldLen != entityFieldLen) {
-                        logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")字符串长度为(" + dbFieldLen + "), 需要变为" + entityFieldLen);
-                    }
-                }
-                if (checkDecimal) {
-                    //bigDecimal检查
-                    int entityFieldPrecision = ((Column) annotation).precision();
-                    int entityFieldScale = ((Column) annotation).scale();
+        String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
+        //添加索引
+        if (fieldStateParams.addUnique) {
+            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")有唯一索引, 需要为该字段添加唯一索引");
+            if (!fieldStateParams.modifyType
+                    && !fieldStateParams.modifyLength
+                    && !fieldStateParams.modifyBigDecimal
+                    && fieldStateParams.canOwnUnique
+                    && fieldStateParams.addNotNull) {
+                logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
+            }
+        }
+        //删除索引
+        if (fieldStateParams.deleteUnique) {
+            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")没有唯一索引, 需要删除该唯一索引(" + DatabaseHelper.getUniqueIndexName(tableName, entityFieldName) + ")");
+        }
+        //修改字段
+        if (fieldStateParams.modifyType
+                || fieldStateParams.modifyLength
+                || fieldStateParams.modifyBigDecimal
+                || fieldStateParams.addNotNull
+                || fieldStateParams.deleteNotNull) {
+            if (!(!fieldStateParams.modifyType
+                    && !fieldStateParams.modifyLength
+                    && !fieldStateParams.modifyBigDecimal
+                    && fieldStateParams.canOwnUnique
+                    && fieldStateParams.addNotNull)) {
+                //decimal
+                if (fieldStateParams.modifyBigDecimal) {
+                    Column column = field.getAnnotation(Column.class);
+                    int entityFieldPrecision = column.precision();
+                    int entityFieldScale = column.scale();
                     int dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
                     int dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
                     if (entityFieldPrecision != dbFieldPrecision) {
@@ -193,9 +138,31 @@ public class FieldChecker implements IFieldProcessor {
                         logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")小数位数为(" + dbFieldScale + "), 需要变为" + entityFieldScale);
                     }
                 }
-                break;
+                //length
+                if (fieldStateParams.modifyLength) {
+                    Column column = field.getAnnotation(Column.class);
+                    int entityFieldLen = column.length();
+                    int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
+                    if (dbFieldLen != entityFieldLen) {
+                        logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")字符串长度为(" + dbFieldLen + "), 需要变为" + entityFieldLen);
+                    }
+                }
+                //添加非空
+                if (fieldStateParams.addNotNull && !fieldStateParams.canOwnUnique) {
+                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")可为空, 需要变为不为空");
+                }
+                //删除非空
+                if (fieldStateParams.deleteNotNull) {
+                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")不能为空, 需要变为可为空");
+                }
+                //类型
+                if (fieldStateParams.modifyType) {
+                    String typeStr = columnSet.getString("TYPE_NAME");
+                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")的类型为(" + typeStr.toLowerCase() + "), 需要变为" + dbFieldType);
+                }
             }
         }
+
     }
 
 }
