@@ -191,6 +191,16 @@ public class DatabaseHelper {
     }
 
     /**
+     * 获取所有表格
+     * @return 所有表格
+     * @throws Exception
+     */
+    public static ResultSet getAllTables() throws Exception {
+
+        return metaData.getTables(DatabaseHelper.getDatabaseName(), "%", "%", new String[] {"TABLE"});
+    }
+
+    /**
      * 获取数据库表的所有字段
      * @param tableName 数据库表
      * @return 所有字段
@@ -292,8 +302,20 @@ public class DatabaseHelper {
         }
     }
 
-    public static void deleteTable() throws Exception {
+    /**
+     * 删除表格
+     * @param tableName 表名
+     * @throws Exception
+     */
+    public static void deleteTable(String tableName) throws Exception {
+        //删表sql
+        String sql = "drop table " + tableName + ";";
 
+        //执行删除
+        statement.executeUpdate(sql);
+
+        logger.info("已删除数据库表: " + tableName);
+        logger.info("删除表格sql: " + sql);
     }
 
     /**

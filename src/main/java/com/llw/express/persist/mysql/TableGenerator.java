@@ -54,7 +54,6 @@ public class TableGenerator {
         EntityReader.readAllEntities(getBasePackagePath());
         //对表格进行对比
         diff();
-//        TableReader.readAllTables();
     }
 
     /**
@@ -161,7 +160,7 @@ public class TableGenerator {
             }
         }
         /**通过从数据库表格逆向检查和修改数据库表格(看是否有多余的表格)*/
-        //todo
+        dbUnusedChecker(entities);
 
         logger.info(">>>>>>>动态检查(创建/修改)表格任务执行完毕, 本次操作为: " + _MODE);
     }
@@ -382,6 +381,37 @@ public class TableGenerator {
             }
             if (!existInField) {
                 fieldReverseProcessor.unusedUniqueIndex(tableName, uniqueIndexName);
+            }
+        }
+    }
+
+    /**
+     * 检查数据库中多余的表格
+     * @param entities 所有实体
+     * @throws Exception
+     */
+    private static void dbUnusedChecker(List<Class> entities) throws Exception {
+        ResultSet tableSet = DatabaseHelper.getAllTables();
+        while (tableSet.next()) {
+            String tableName = tableSet.getString("TABLE_NAME");
+            boolean exist = false;
+            for (Class entityClass : entities) {
+                Entity entityAnnotation = (Entity) entityClass.getAnnotation(Entity.class);
+                Table tableAnnotation = (Table) entityClass.getAnnotation(Table.class);
+                if (entityAnnotation != null
+                        && tableAnnotation != null
+                        && tableAnnotation.name().toLowerCase().equals(tableName)) {
+                    exist = true;
+                    break;
+                }
+            }
+            if (!exist) {
+                if (_MODE.equals(_MODE_CHECK)) {
+                    logger.warn("数据库表(" + tableName + ")在实体中不存在，需要删除");
+                }
+                if (_MODE.equals(_MODE_FORCE)) {
+                    DatabaseHelper.deleteTable(tableName);
+                }
             }
         }
     }
