@@ -63,6 +63,10 @@ public class TableGenerator {
      */
     private static void diff() throws Exception {
         List<Class> entities = EntityReader.getEntities();
+
+        /**实体安全检查*/
+        if (!entitiesIsSecurity(entities)) return ;
+
         /**通过从实体正向检查和修改数据库表格*/
         for (Class entity : entities) {
             boolean isEntity = false;
@@ -80,7 +84,7 @@ public class TableGenerator {
             if (isEntity) {
                 //表名检查
                 if (tableName == null) {
-                    logger.warn("实体缺少表名: " + entity);
+                    logger.error("实体缺少表名: " + entity);
                     continue;
                 }
                 //获取实体所有属性
@@ -177,6 +181,46 @@ public class TableGenerator {
         }
 
         return fields;
+    }
+
+    /**
+     * 判断实体是否安全
+     * @param entities 所有实体
+     * @return 是否安全
+     * @throws Exception
+     */
+    private static boolean entitiesIsSecurity(List<Class> entities) throws Exception {
+        boolean isSecurity = true;
+        for (Class entityClass : entities) {
+            boolean isEntity = false;
+            String tableName = null;
+            Entity entityAnnotation = (Entity) entityClass.getAnnotation(Entity.class);
+            Table tableAnnotation = (Table) entityClass.getAnnotation(Table.class);
+            if (entityAnnotation != null) {
+                isEntity = true;
+            }
+            if (tableAnnotation != null) {
+                tableName = tableAnnotation.name().toLowerCase();
+            }
+
+            if (isEntity) {
+                //检查缺少表名的实体
+                if (tableName == null) {
+                    logger.error("实体缺少表名: " + entityClass);
+                    isSecurity = false;
+                    continue;
+                }
+                //获取实体所有属性
+                List<Field> fields = collectAllFields(entityClass);
+
+                //属性字段安全检查
+                if (!fieldsIsSecurity(entityClass, fields)) {
+                    isSecurity = false;
+                }
+            }
+        }
+
+        return isSecurity;
     }
 
     /**
