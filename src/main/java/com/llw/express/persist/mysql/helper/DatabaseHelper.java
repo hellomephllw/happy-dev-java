@@ -359,6 +359,8 @@ public class DatabaseHelper {
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
         if (!column.nullable() && !column.unique()) {
             sql.append(" not null");
+        } else {
+            sql.append(" null");
         }
         sql.append(";");
 
@@ -368,7 +370,7 @@ public class DatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (!column.nullable() && !column.unique() ? " not null" : "");
+                + (!column.nullable() && !column.unique() ? " not null" : " null");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
         logger.warn("修改字段的sql: " + sql.toString());
 
