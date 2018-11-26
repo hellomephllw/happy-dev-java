@@ -398,11 +398,11 @@ public class DatabaseHelper {
     private static void modifyId(String tableName, Field entityField) throws Exception {
         String sql = "alter table " + tableName + " modify id " + getWholeDbFieldTypeByEntityFieldType(entityField) + ";";
 
-        //执行修改字段
+        //执行修改
         statement.executeUpdate(sql);
 
         logger.warn("把数据库表(" + tableName + ")字段(version), 修改为id " + getWholeDbFieldTypeByEntityFieldType(entityField));
-        logger.warn("修改字段的sql: " + sql);
+        logger.warn("修改id字段的sql: " + sql);
     }
 
     /**
@@ -414,15 +414,27 @@ public class DatabaseHelper {
     private static void modifyVersion(String tableName, Field entityField) throws Exception {
         String sql = "alter table " + tableName + " modify version " + getWholeDbFieldTypeByEntityFieldType(entityField) + ";";
 
-        //执行修改字段
+        //执行修改
         statement.executeUpdate(sql);
 
         logger.warn("把数据库表(" + tableName + ")字段(version), 修改为version " + getWholeDbFieldTypeByEntityFieldType(entityField));
-        logger.warn("修改字段的sql: " + sql);
+        logger.warn("修改version字段的sql: " + sql);
     }
 
-    public static void deleteField() throws Exception {
+    /**
+     * 删除字段
+     * @param tableName 表名
+     * @param dbFieldName 数据库字段名
+     * @throws Exception
+     */
+    public static void deleteField(String tableName, String dbFieldName) throws Exception {
+        String sql = "alter table " + tableName + " drop " + dbFieldName + ";";
 
+        //执行删除
+        statement.executeUpdate(sql);
+
+        logger.warn("把数据库表(" + tableName + ")字段(" + dbFieldName + ")删除");
+        logger.warn("删除字段的sql: " + sql);
     }
 
     /**
@@ -477,6 +489,20 @@ public class DatabaseHelper {
         statement.executeUpdate(sql.toString());
 
         logger.info("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + ")的唯一索引(" + uniqueIndexName + ")删除");
+    }
+
+    /**
+     * 删除唯一索引
+     * @param tableName 表名
+     * @param uniqueIndexName 索引名称
+     * @throws Exception
+     */
+    public static void deleteUniqueIndex(String tableName, String uniqueIndexName) throws Exception {
+        String sql = "alter table " + tableName + " drop index " + uniqueIndexName + ";";
+
+        statement.executeUpdate(sql);
+
+        logger.info("把数据库表(" + tableName + ")的唯一索引(" + uniqueIndexName + ")删除");
     }
 
     /**

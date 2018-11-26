@@ -114,7 +114,7 @@ public class TableGenerator {
                         fieldsProcessor(tableName, entityField, new FieldChecker());
                     }
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                    dbTableUnusedChecker(tableName, fields);
+                    dbTableUnusedChecker(tableName, fields, new FieldReverseChecker());
                 } else if (_MODE.equals(_MODE_INCREMENT)) {
                     /**增量操作*/
                     //创建数据库表
@@ -156,7 +156,7 @@ public class TableGenerator {
                         fieldsProcessor(tableName, entityField, new FieldForcer());
                     }
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                    //todo
+                    dbTableUnusedChecker(tableName, fields, new FieldReverseForcer());
                 }
             }
         }
@@ -345,7 +345,7 @@ public class TableGenerator {
      * @param fields 字段集合
      * @throws Exception
      */
-    private static void dbTableUnusedChecker(String tableName, List<Field> fields) throws Exception {
+    private static void dbTableUnusedChecker(String tableName, List<Field> fields, IFieldReverseProcessor fieldReverseProcessor) throws Exception {
         //检查多余的字段
         ResultSet columnSet = DatabaseHelper.getAllFieldsByTableName(tableName);
         while (columnSet.next()) {
@@ -358,7 +358,7 @@ public class TableGenerator {
                 }
             }
             if (!existInEntity) {
-                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")在实体中不存在");
+                fieldReverseProcessor.unusedField(tableName, dbFieldName);
             }
         }
         //检查多余的唯一索引
@@ -370,9 +370,9 @@ public class TableGenerator {
             }
             String dbFieldName = uniqueIndexName.split("_unique_")[1];
             boolean existInField = false;
-            for (Field entityField : fields) {
-                if (entityField.getName().equals(DatabaseHelper.getEntityFieldName(dbFieldName))) {
-                    Column column = entityField.getAnnotation(Column.class);
+            for (Field field : fields) {
+                if (field.getName().equals(DatabaseHelper.getEntityFieldName(dbFieldName))) {
+                    Column column = field.getAnnotation(Column.class);
                     if (column.unique()) {
                         //属性中配置了唯一索引
                         existInField = true;
@@ -381,7 +381,7 @@ public class TableGenerator {
                 }
             }
             if (!existInField) {
-                logger.warn("数据库表(" + tableName + ")唯一索引(" + uniqueIndexName + ")是多余的, 需要删除");
+                fieldReverseProcessor.unusedUniqueIndex(tableName, uniqueIndexName);
             }
         }
     }
