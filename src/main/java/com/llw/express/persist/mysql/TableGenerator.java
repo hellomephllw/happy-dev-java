@@ -54,7 +54,7 @@ public class TableGenerator {
         EntityReader.readAllEntities(getBasePackagePath());
         //对表格进行对比
         diff();
-        TableReader.readAllTables();
+//        TableReader.readAllTables();
     }
 
     /**
@@ -124,15 +124,35 @@ public class TableGenerator {
                         //过滤实体非column字段
                         if (!isColumn(entityField)) continue;
 
-                        //判断是否存在
+                        //如果不存在, 则新增字段
                         String entityFieldName = entityField.getName();
                         if (!DatabaseHelper.existField(tableName, entityFieldName)) {
                             DatabaseHelper.addField(tableName, entityField);
                         }
                     }
                 } else if (_MODE.equals(_MODE_FORCE)) {
-                    /**执行删改*/
-                    //todo
+                    /**执行增删改*/
+                    //创建数据库表
+                    if (!DatabaseHelper.existTable(tableName)) {
+                        DatabaseHelper.addTable(tableName, fields);
+                        continue;
+                    }
+
+                    //通过从实体属性到数据库字段正向对比
+                    for (Field entityField : fields) {
+                        //过滤实体非column字段
+                        if (!isColumn(entityField)) continue;
+                        //新增字段
+                        String entityFieldName = entityField.getName();
+                        if (!DatabaseHelper.existField(tableName, entityFieldName)) {
+                            DatabaseHelper.addField(tableName, entityField);
+                            continue;
+                        }
+                        //修改字段
+                        fieldsProcessor(tableName, entityField, new FieldForcer());
+                    }
+                    //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
+//                    dbTableUnusedChecker(tableName, fields);
                 }
             }
         }
@@ -185,7 +205,7 @@ public class TableGenerator {
             if (field.getType() == String.class) {
                 Column column = field.getAnnotation(Column.class);
                 if (column != null && column.length() == 255 && "".equals(column.columnDefinition())) {
-                    logger.warn("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为string类型, 需要设置字符串长度");
+                    logger.error("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为string类型, 需要设置字符串长度");
                     return false;
                 }
             }
@@ -196,15 +216,14 @@ public class TableGenerator {
                 if (column != null) {
                     boolean pass = true;
                     if (column.precision() == 0) {
-                        logger.warn("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为bigDecimal类型, 需要设置最大长度");
+                        logger.error("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为bigDecimal类型, 需要设置最大长度");
                         pass = false;
                     }
                     if (column.scale() == 0) {
-                        logger.warn("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为bigDecimal类型, 需要设置小数位数");
+                        logger.error("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为bigDecimal类型, 需要设置小数位数");
                         pass = false;
                     }
                     if (!pass) {
-                        System.out.println("pass: " + pass);
                         return false;
                     }
                 }
@@ -212,14 +231,14 @@ public class TableGenerator {
         }
         //是否有id
         if (!hasId) {
-            logger.warn("实体(" + entityClass.getSimpleName() + ")没有id字段");
+            logger.error("实体(" + entityClass.getSimpleName() + ")没有id字段");
         }
         if (!hasIdAnnotation) {
-            logger.warn("实体(" + entityClass.getSimpleName() + ")没有id注解");
+            logger.error("实体(" + entityClass.getSimpleName() + ")没有id注解");
         }
         //id注解个数大于1
         if (idAnnotationAmount > 1) {
-            logger.warn("实体(" + entityClass.getSimpleName() + ")的id注解只能有1个");
+            logger.error("实体(" + entityClass.getSimpleName() + ")的id注解只能有1个");
         }
 
         if (!hasIdAnnotation || !hasId || idAnnotationAmount > 1) {
@@ -238,6 +257,7 @@ public class TableGenerator {
      */
     private static void fieldsProcessor(String tableName, Field entityField, IFieldProcessor fieldHelper) throws Exception {
         ResultSet columnSet = DatabaseHelper.getField(tableName, entityField.getName());
+        if (columnSet == null) return ;
         if (entityField.getType().isPrimitive()) {//基本类型
             String typeStr = entityField.getGenericType().toString();
             if (typeStr.equals("int")) {

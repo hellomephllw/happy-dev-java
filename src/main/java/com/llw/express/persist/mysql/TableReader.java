@@ -22,7 +22,7 @@ public class TableReader {
 //            System.out.println("=====");
 //            System.out.println(tableSet.getString("TABLE_NAME"));
 //        }
-        ResultSet columnSet = metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", "demo_admin", "name");
+        ResultSet columnSet = metaData.getColumns(DatabaseHelper.getDatabaseName(), "%", "demo_admin", "aname");
         while (columnSet.next()) {
             System.out.println("#####");
             System.out.println(columnSet.getString("COLUMN_NAME"));

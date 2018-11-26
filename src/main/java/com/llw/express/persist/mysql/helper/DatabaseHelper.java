@@ -312,7 +312,7 @@ public class DatabaseHelper {
         sql.append(" ");
         sql.append(tableName);
         sql.append(" add ");
-        sql.append(entityField.getName());
+        sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
         if (!column.nullable() && !column.unique()) {
@@ -323,10 +323,12 @@ public class DatabaseHelper {
         //执行添加字段
         statement.executeUpdate(sql.toString());
 
-        String fieldStr = entityField.getName()
+        String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
-                + getWholeDbFieldTypeByEntityFieldType(entityField);
+                + getWholeDbFieldTypeByEntityFieldType(entityField)
+                + (!column.nullable() && !column.unique() ? " not null" : "");
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
+        logger.info("添加字段的sql: " + sql.toString());
 
         if (!column.nullable() && column.unique()) {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
@@ -336,8 +338,43 @@ public class DatabaseHelper {
         addUniqueIndex(tableName, entityField);
     }
 
-    public static void modifyField() throws Exception {
+    /**
+     * 修改数据库表字段
+     * @param tableName 表名
+     * @param entityField 实体字段
+     * @throws Exception
+     */
+    public static void modifyField(String tableName, Field entityField) throws Exception {
+        Column column = entityField.getAnnotation(Column.class);
+        if (column == null) return ;
 
+        //修改sql字段
+        StringBuilder sql = new StringBuilder();
+        sql.append("alter table");
+        sql.append(" ");
+        sql.append(tableName);
+        sql.append(" modify ");
+        sql.append(getDatabaseFieldName(entityField.getName()));
+        sql.append(" ");
+        sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
+        if (!column.nullable() && !column.unique()) {
+            sql.append(" not null");
+        }
+        sql.append(";");
+
+        //执行修改字段
+        statement.executeUpdate(sql.toString());
+
+        String fieldStr = getDatabaseFieldName(entityField.getName())
+                + " "
+                + getWholeDbFieldTypeByEntityFieldType(entityField)
+                + (!column.nullable() && !column.unique() ? " not null" : "");
+        logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
+        logger.warn("修改字段的sql: " + sql.toString());
+
+        if (!column.nullable() && column.unique()) {
+            logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功修改字段");
+        }
     }
 
     public static void deleteField() throws Exception {
@@ -354,6 +391,7 @@ public class DatabaseHelper {
         Column column = entityField.getAnnotation(Column.class);
         if (column == null) return ;
         if (!column.unique()) return ;
+        if (existUniqueIndex(tableName, entityField.getName())) return ;
 
         String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
         StringBuilder sql = new StringBuilder();
@@ -363,16 +401,38 @@ public class DatabaseHelper {
         sql.append(" on ");
         sql.append(tableName);
         sql.append("(");
-        sql.append(entityField.getName());
+        sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(");");
 
         statement.executeUpdate(sql.toString());
 
-        logger.info("为数据库表(" + tableName + ")字段(" + entityField.getName() + ")添加唯一索引(" + uniqueIndexName + ")");
+        logger.info("为数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + ")添加唯一索引(" + uniqueIndexName + ")");
     }
 
-    public static void deleteUniqueIndex() throws Exception {
+    /**
+     * 删除唯一索引
+     * @param tableName 表名
+     * @param entityField 实体字段
+     * @throws Exception
+     */
+    public static void deleteUniqueIndex(String tableName, Field entityField) throws Exception {
+        Column column = entityField.getAnnotation(Column.class);
+        if (column == null) return ;
+        if (column.unique()) return ;
+        if (!existUniqueIndex(tableName, entityField.getName())) return ;
 
+        String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
+        StringBuilder sql = new StringBuilder();
+        sql.append("alter table");
+        sql.append(" ");
+        sql.append(tableName);
+        sql.append(" drop index ");
+        sql.append(getUniqueIndexName(tableName, entityField.getName()));
+        sql.append(";");
+
+        statement.executeUpdate(sql.toString());
+
+        logger.info("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + ")的唯一索引(" + uniqueIndexName + ")删除");
     }
 
     /**
@@ -392,7 +452,7 @@ public class DatabaseHelper {
             Column column = entityField.getAnnotation(Column.class);
             StringBuilder fieldLine = new StringBuilder();
             fieldLine.append(" ");
-            fieldLine.append(DatabaseHelper.getDatabaseFieldName(entityField.getName()));
+            fieldLine.append(getDatabaseFieldName(entityField.getName()));
             fieldLine.append(" ");
             fieldLine.append(getWholeDbFieldTypeByEntityFieldType(entityField));
             fieldLine.append(" ");
@@ -456,9 +516,9 @@ public class DatabaseHelper {
         }
 
         if (entityField.getType().isPrimitive()) {
-            throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
+            throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
         }
-        throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
+        throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
     }
 
     /**
@@ -507,9 +567,9 @@ public class DatabaseHelper {
         }
 
         if (entityField.getType().isPrimitive()) {
-            throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
+            throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
         }
-        throw new Exception("字段(" + entityField.getName() + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
+        throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
     }
 
 }
