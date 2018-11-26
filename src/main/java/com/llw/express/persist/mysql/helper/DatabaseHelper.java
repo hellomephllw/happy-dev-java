@@ -346,6 +346,16 @@ public class DatabaseHelper {
      */
     public static void modifyField(String tableName, Field entityField) throws Exception {
         Column column = entityField.getAnnotation(Column.class);
+        Id id = entityField.getAnnotation(Id.class);
+        Version version = entityField.getAnnotation(Version.class);
+        if (id != null) {
+            modifyId(tableName, entityField);
+            return ;
+        }
+        if (version != null) {
+            modifyVersion(tableName, entityField);
+            return ;
+        }
         if (column == null) return ;
 
         //修改sql字段
@@ -377,6 +387,38 @@ public class DatabaseHelper {
         if (!column.nullable() && column.unique()) {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功修改字段");
         }
+    }
+
+    /**
+     * 修改id字段
+     * @param tableName 表名
+     * @param entityField 实体字段
+     * @throws Exception
+     */
+    private static void modifyId(String tableName, Field entityField) throws Exception {
+        String sql = "alter table " + tableName + " modify id " + getWholeDbFieldTypeByEntityFieldType(entityField) + ";";
+
+        //执行修改字段
+        statement.executeUpdate(sql);
+
+        logger.warn("把数据库表(" + tableName + ")字段(version), 修改为id " + getWholeDbFieldTypeByEntityFieldType(entityField));
+        logger.warn("修改字段的sql: " + sql);
+    }
+
+    /**
+     * 修改version字段
+     * @param tableName 表名
+     * @param entityField 实体字段
+     * @throws Exception
+     */
+    private static void modifyVersion(String tableName, Field entityField) throws Exception {
+        String sql = "alter table " + tableName + " modify version " + getWholeDbFieldTypeByEntityFieldType(entityField) + ";";
+
+        //执行修改字段
+        statement.executeUpdate(sql);
+
+        logger.warn("把数据库表(" + tableName + ")字段(version), 修改为version " + getWholeDbFieldTypeByEntityFieldType(entityField));
+        logger.warn("修改字段的sql: " + sql);
     }
 
     public static void deleteField() throws Exception {
