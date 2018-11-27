@@ -19,12 +19,7 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-//            String str = "jdbc:mysql://localhost:3306/demo?characterEncoding=utf8&useSSL=true";
-//            String[] fragments = str.split("\\?")[0].split("/");
-//            System.out.println(fragments[fragments.length - 1]);
 
-            System.out.println(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, "test"));
-            System.out.println(CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "test_data"));
         } catch (Exception e) {
             e.printStackTrace();
         }

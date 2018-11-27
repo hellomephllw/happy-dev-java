@@ -25,8 +25,8 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
-    public void addBatch(List<${entityClassName}> ${entityInstanceName}s) throws Exception {
-        super.saveBatch(${entityInstanceName}s);
+    public void addBatch(List<${entityClassName}> ${entityInstanceName}List) throws Exception {
+        super.saveBatch(${entityInstanceName}List);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
-    public void update(List<${entityClassName}> ${entityInstanceName}s) throws Exception {
-        super.updateBatch(${entityInstanceName}s);
+    public void update(List<${entityClassName}> ${entityInstanceName}List) throws Exception {
+        super.updateBatch(${entityInstanceName}List);
     }
 
     @Override
