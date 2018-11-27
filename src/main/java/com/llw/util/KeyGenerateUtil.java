@@ -15,7 +15,7 @@ public class KeyGenerateUtil {
      * @return uuid
      * @throws Exception
      */
-    public static String getUuidKey() throws Exception {
+    public static String getUuidKey() {
         return UUID.randomUUID().toString();
     }
 
@@ -24,7 +24,7 @@ public class KeyGenerateUtil {
      * @return 时间戳
      * @throws Exception
      */
-    public static String getTimestampKey() throws Exception {
+    public static String getTimestampKey() {
         return "" + new Date().getTime();
     }
 
@@ -33,7 +33,7 @@ public class KeyGenerateUtil {
      * @return 时间戳-uuid
      * @throws Exception
      */
-    public static String getTimestampWithUuidKey() throws Exception {
+    public static String getTimestampWithUuidKey() {
         return getTimestampKey() + "-" + KeyGenerateUtil.getUuidKey();
     }
 
@@ -43,7 +43,7 @@ public class KeyGenerateUtil {
      * @return 随机数
      * @throws Exception
      */
-    public static String getRandomKey(int count) throws Exception {
+    public static String getRandomKey(int count) {
         return "" + NumberUtil.generateRandomIntegerNumber(count);
     }
 
@@ -53,7 +53,7 @@ public class KeyGenerateUtil {
      * @return 随机数-时间戳
      * @throws Exception
      */
-    public static String getRandomKeyWithTimestamp(int count) throws Exception {
+    public static String getRandomKeyWithTimestamp(int count) {
         return getRandomKey(count) + "-" + getTimestampKey();
     }
 

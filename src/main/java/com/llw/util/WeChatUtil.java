@@ -15,7 +15,7 @@ public class WeChatUtil {
      * @return 随机数
      * @throws Exception
      */
-    public static String getNonceStr() throws Exception {
+    public static String getNonceStr() {
         return ThreadLocalRandom.current().nextInt(89999999) + 10000000 + "";
     }
 
@@ -24,7 +24,7 @@ public class WeChatUtil {
      * @return 时间戳
      * @throws Exception
      */
-    public static long getTimeStamp() throws Exception {
+    public static long getTimeStamp() {
         return new Date().getTime();
     }
 

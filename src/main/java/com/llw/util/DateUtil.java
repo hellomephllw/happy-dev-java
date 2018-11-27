@@ -228,7 +228,7 @@ public class DateUtil {
      * @return sql date
      * @throws Exception
      */
-    public static java.sql.Date transformUtilDateToSqlDate(Date date) throws Exception {
+    public static java.sql.Date transformUtilDateToSqlDate(Date date) {
         return new java.sql.Date(date.getTime());
     }
 
@@ -238,7 +238,7 @@ public class DateUtil {
      * @return util date
      * @throws Exception
      */
-    public static Date transformSqlDateToUtilDate(java.sql.Date date) throws Exception {
+    public static Date transformSqlDateToUtilDate(java.sql.Date date) {
         return new Date(date.getTime());
     }
 

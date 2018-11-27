@@ -14,7 +14,7 @@ public class CollectionUtil {
      * @return 通用map集合
      * @throws Exception
      */
-    public static ImmutableMap.Builder<Object, Object> generalMap() throws Exception {
+    public static ImmutableMap.Builder<Object, Object> generalMap() {
 
         return ImmutableMap.builder();
     }
@@ -24,7 +24,7 @@ public class CollectionUtil {
      * @return 字段map集合
      * @throws Exception
      */
-    public static ImmutableMap.Builder<String, Object> fieldMap() throws Exception {
+    public static ImmutableMap.Builder<String, Object> fieldMap() {
 
         return ImmutableMap.builder();
     }
@@ -34,7 +34,7 @@ public class CollectionUtil {
      * @return 字符串map集合
      * @throws Exception
      */
-    public static ImmutableMap.Builder<String, String> stringMap() throws Exception {
+    public static ImmutableMap.Builder<String, String> stringMap() {
 
         return ImmutableMap.builder();
     }

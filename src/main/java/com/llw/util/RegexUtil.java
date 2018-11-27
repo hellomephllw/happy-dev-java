@@ -24,7 +24,7 @@ public class RegexUtil {
      * @return 是否满足
      * @throws Exception
      */
-    public static boolean test(String regex, String content) throws Exception {
+    public static boolean test(String regex, String content) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(content);
 

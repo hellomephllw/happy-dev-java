@@ -16,7 +16,7 @@ public class NumberUtil {
      * @return 随机整数
      * @throws Exception
      */
-    public static long generateRandomIntegerNumber(int min, int max) throws Exception {
+    public static long generateRandomIntegerNumber(int min, int max) {
         Random random = new Random();
 
         return random.nextInt(max) % (max - min + 1) + min;
@@ -28,7 +28,7 @@ public class NumberUtil {
      * @return 随机整数
      * @throws Exception
      */
-    public static long generateRandomIntegerNumber(int count) throws Exception {
+    public static long generateRandomIntegerNumber(int count) {
         long result = (long) (Math.random() * Math.pow(10, count));
 
         if (result < Math.pow(10, count - 1)) {

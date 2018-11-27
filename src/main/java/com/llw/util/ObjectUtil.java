@@ -25,7 +25,7 @@ public class ObjectUtil {
      * @return xml
      * @throws Exception
      */
-    public static String transferObjectToXml(Object object) throws Exception {
+    public static String transferObjectToXml(Object object) {
         XStream xstream = new XStream(new DomDriver("utf-8"));
         xstream.processAnnotations(object.getClass());
 
@@ -38,7 +38,7 @@ public class ObjectUtil {
      * @return xml
      * @throws Exception
      */
-    public static String transferObjectToXmlWithCData(Object object) throws Exception {
+    public static String transferObjectToXmlWithCData(Object object) {
         XStream xstream = new XStream(new XppDriver(new NoNameCoder()) {
 
             @Override
@@ -85,7 +85,7 @@ public class ObjectUtil {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    public static <T> T transferXmlToObject(String xml, Class<T> clazz) throws Exception {
+    public static <T> T transferXmlToObject(String xml, Class<T> clazz) {
         XStream xstream = new XStream(new DomDriver());
         xstream.processAnnotations(clazz);
 
