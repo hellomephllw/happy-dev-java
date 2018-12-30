@@ -89,7 +89,7 @@ public class MailUtil {
             helper.setSubject(subject);
             helper.setText(content, true);
 
-            UrlResource resource = new UrlResource("http://mat1.gtimg.com/pingjs/ext2020/qqindex2018/dist/img/qq_logo_2x.png");
+            UrlResource resource = new UrlResource(filePath);
             helper.addInline(KeyGenerateUtil.getRandomKey(5), resource);
 
             mailSender.send(message);
