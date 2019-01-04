@@ -305,7 +305,11 @@ public class TableGenerator {
         if (columnSet == null) return ;
         if (entityField.getType().isPrimitive()) {//基本类型
             String typeStr = entityField.getGenericType().toString();
-            if (typeStr.equals("int")) {
+            if (typeStr.equals("byte")) {
+                fieldHelper.byteField(tableName, entityField, columnSet);
+            } else if (typeStr.equals("short")) {
+                fieldHelper.shortField(tableName, entityField, columnSet);
+            } else if (typeStr.equals("int")) {
                 fieldHelper.integerField(tableName, entityField, columnSet);
             } else if (typeStr.equals("long")) {
                 fieldHelper.longField(tableName, entityField, columnSet);
@@ -324,6 +328,10 @@ public class TableGenerator {
                 fieldHelper.dateField(tableName, entityField, columnSet);
             } else if (fieldType == BigDecimal.class) {
                 fieldHelper.bigDecimalField(tableName, entityField, columnSet);
+            } else if (fieldType == Byte.class) {
+                fieldHelper.byteField(tableName, entityField, columnSet);
+            } else if (fieldType == Short.class) {
+                fieldHelper.shortField(tableName, entityField, columnSet);
             } else if (fieldType == Integer.class) {
                 fieldHelper.integerField(tableName, entityField, columnSet);
             } else if (fieldType == Long.class) {
