@@ -33,17 +33,17 @@ public class FieldStateParams {
     public boolean canOwnUnique = false;
 
     /**
-     *
-     * @param tableName
-     * @param entityFieldName
-     * @param field
-     * @param columnSet
-     * @param dbFieldType
-     * @param checkNullable
-     * @param checkUnique
-     * @param checkLength
-     * @param checkDecimal
-     * @return
+     * 构建参数
+     * @param tableName 表名
+     * @param entityFieldName 实体字段名
+     * @param field 字段
+     * @param columnSet 数据库字段
+     * @param dbFieldType 数据库字段类型
+     * @param checkNullable 检查非空
+     * @param checkUnique 检查唯一索引
+     * @param checkLength 检查字符长度
+     * @param checkDecimal 检查decimal
+     * @return 实体字段情况
      * @throws Exception
      */
     public static FieldStateParams build(String tableName,
@@ -65,6 +65,16 @@ public class FieldStateParams {
                     || "text".equals(typeStr.toLowerCase())
                     || "mediumtext".equals(typeStr.toLowerCase())
                     || "longtext".equals(typeStr.toLowerCase()))) {
+                fieldStateParams.modifyType = true;
+            }
+        } else if ("byte".equals(dbFieldType.toLowerCase())) {
+            String typeStr = columnSet.getString("TYPE_NAME");
+            if (!"tinyint".equals(typeStr)) {
+                fieldStateParams.modifyType = true;
+            }
+        } else if ("short".equals(dbFieldType.toLowerCase())) {
+            String typeStr = columnSet.getString("TYPE_NAME");
+            if (!"smallint".equals(typeStr)) {
                 fieldStateParams.modifyType = true;
             }
         } else {

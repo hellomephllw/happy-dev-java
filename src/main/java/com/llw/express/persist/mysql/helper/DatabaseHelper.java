@@ -564,7 +564,7 @@ public class DatabaseHelper {
      */
     private static String createPrimaryKeyStringForAddTable() throws Exception {
 
-        return "id bigint auto_increment primary key not null";
+        return "id int auto_increment primary key not null";
     }
 
     /**
@@ -574,7 +574,7 @@ public class DatabaseHelper {
      */
     private static String createVersionStringForAddTable() throws Exception {
 
-        return "version bigint";
+        return "version int";
     }
 
     /**
@@ -589,6 +589,8 @@ public class DatabaseHelper {
         } else {
             Class fieldType = entityField.getType();
             if (fieldType == Date.class
+                    || fieldType == Byte.class
+                    || fieldType == Short.class
                     || fieldType == Integer.class
                     || fieldType == Long.class
                     || fieldType == Float.class
@@ -622,7 +624,11 @@ public class DatabaseHelper {
     private static String getDbFieldTypeByEntityFieldType(Field entityField) throws Exception {
         if (entityField.getType().isPrimitive()) {//基本类型
             String typeStr = entityField.getGenericType().toString();
-            if (typeStr.equals("int")) {
+            if (typeStr.equals("byte")) {
+                return "tinyint";
+            } else if (typeStr.equals("short")) {
+                return "smallint";
+            } else if (typeStr.equals("int")) {
                 return "int";
             } else if (typeStr.equals("long")) {
                 return "bigint";
@@ -631,7 +637,7 @@ public class DatabaseHelper {
             } else if (typeStr.equals("double")) {
                 return "double";
             } else if (typeStr.equals("boolean")) {
-                return "int";
+                return "bit";
             }
         } else {
             Class fieldType = entityField.getType();
@@ -645,6 +651,10 @@ public class DatabaseHelper {
                 return "timestamp";
             } else if (fieldType == BigDecimal.class) {
                 return "decimal";
+            } else if (fieldType == Byte.class) {
+                return "tinyint";
+            } else if (fieldType == Short.class) {
+                return "smallint";
             } else if (fieldType == Integer.class) {
                 return "int";
             } else if (fieldType == Long.class) {
@@ -654,7 +664,7 @@ public class DatabaseHelper {
             } else if (fieldType == Double.class) {
                 return "double";
             } else if (fieldType == Boolean.class) {
-                return "int";
+                return "bit";
             }
         }
 

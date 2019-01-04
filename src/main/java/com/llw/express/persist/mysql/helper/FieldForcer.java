@@ -17,6 +17,20 @@ public class FieldForcer implements IFieldProcessor {
     private static Logger logger = LoggerFactory.getLogger(FieldForcer.class);
 
     @Override
+    public void byteField(String tableName, Field field, ResultSet columnSet) throws Exception {
+        String entityFieldName = field.getName();
+
+        genericForcer(tableName, entityFieldName, field, columnSet, "byte", true, true, false, false);
+    }
+
+    @Override
+    public void shortField(String tableName, Field field, ResultSet columnSet) throws Exception {
+        String entityFieldName = field.getName();
+
+        genericForcer(tableName, entityFieldName, field, columnSet, "short", true, true, false, false);
+    }
+
+    @Override
     public void integerField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
@@ -48,7 +62,7 @@ public class FieldForcer implements IFieldProcessor {
     public void booleanField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericForcer(tableName, entityFieldName, field, columnSet, "int", true, false, false, false);
+        genericForcer(tableName, entityFieldName, field, columnSet, "bit", true, false, false, false);
     }
 
     @Override

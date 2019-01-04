@@ -10,6 +10,10 @@ import java.sql.ResultSet;
  */
 public interface IFieldProcessor {
 
+    public void byteField(String tableName, Field field, ResultSet columnSet) throws Exception;
+
+    public void shortField(String tableName, Field field, ResultSet columnSet) throws Exception;
+
     public void integerField(String tableName, Field field, ResultSet columnSet) throws Exception;
 
     public void longField(String tableName, Field field, ResultSet columnSet) throws Exception;

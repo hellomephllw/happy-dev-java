@@ -18,6 +18,20 @@ public class FieldChecker implements IFieldProcessor {
     private static Logger logger = LoggerFactory.getLogger(FieldChecker.class);
 
     @Override
+    public void byteField(String tableName, Field field, ResultSet columnSet) throws Exception {
+        String entityFieldName = field.getName();
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "byte", true, true, false, false);
+    }
+
+    @Override
+    public void shortField(String tableName, Field field, ResultSet columnSet) throws Exception {
+        String entityFieldName = field.getName();
+
+        genericChecker(tableName, entityFieldName, field, columnSet, "short", true, true, false, false);
+    }
+
+    @Override
     public void integerField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
@@ -49,7 +63,7 @@ public class FieldChecker implements IFieldProcessor {
     public void booleanField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "int", true, false, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "bit", true, false, false, false);
     }
 
     @Override
