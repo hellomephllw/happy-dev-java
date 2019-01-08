@@ -22,6 +22,7 @@ project.ext {
     aliJsonVersion = '1.1.15'
     mysqlDriverVersion = '8.0.13'
     beanUtilVersion = '1.9.3'
+    apacheCoomonIoVersion = '2.6'
 }
 
 dependencies {
@@ -38,6 +39,7 @@ dependencies {
     implementation("org.yaml:snakeyaml:$yamlVersion")
     implementation("com.alibaba:fastjson:$aliJsonVersion")
     implementation("commons-beanutils:commons-beanutils:$beanUtilVersion")
+    implementation("commons-io:commons-io:$apacheCoomonIoVersion")
     runtimeOnly("mysql:mysql-connector-java:$mysqlDriverVersion")
     compileOnly("org.projectlombok:lombok:1.18.2")
     testCompile("org.projectlombok:lombok:1.18.2")
