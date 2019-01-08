@@ -23,6 +23,14 @@ public class RedisAccess {
     private long defaultDuration = 60 * 60 * 24;
 
     /**
+     * 获取redisTemplate
+     * @return redisTemplate
+     */
+    public RedisTemplate getRedisTemplate() {
+        return redisTemplate;
+    }
+
+    /**
      * 设置过期时间
      * @param completedKey 完整的key(即末尾追加类型)
      * @param duration 过期时间(单位: 秒)
