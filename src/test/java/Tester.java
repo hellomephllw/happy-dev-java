@@ -1,4 +1,5 @@
 import com.llw.util.EncryptionUtil;
+import com.llw.util.IpUtil;
 
 /**
  * @description:
@@ -9,14 +10,10 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            String key = "1234567890";
-            String result = EncryptionUtil.desEncode("12345", key);
-
-            System.out.println(result);
-
-            String source = EncryptionUtil.desDecode(result, key);
-
-            System.out.println(source);
+            String ipStr = "1.1.200.200";
+            long ipLong = IpUtil.ipToLong(ipStr);
+            System.out.println(ipLong);
+            System.out.println(IpUtil.longToIp(ipLong));
         } catch (Exception e) {
             e.printStackTrace();
         }
