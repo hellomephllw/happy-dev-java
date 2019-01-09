@@ -39,7 +39,7 @@ public class KeyGenerateUtil {
 
     /**
      * 获取指定位数的随机数
-     * @param count 指定的位数
+     * @param count 随机数长度
      * @return 随机数
      * @throws Exception
      */
@@ -49,12 +49,21 @@ public class KeyGenerateUtil {
 
     /**
      * 获取随机数-时间戳
-     * @param count 随机数指定位数
+     * @param count 随机数长度
      * @return 随机数-时间戳
      * @throws Exception
      */
-    public static String getRandomKeyWithTimestamp(int count) {
+    public static String getRandomWithTimestampKey(int count) {
         return getRandomKey(count) + "-" + getTimestampKey();
+    }
+
+    /**
+     * 获取随机数-uuid
+     * @param count 随机数长度
+     * @return
+     */
+    public static String getRandomWithUuidKey(int count) {
+        return getRandomKey(count) + "-" + getUuidKey();
     }
 
 }
