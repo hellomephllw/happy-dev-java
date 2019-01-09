@@ -30,17 +30,17 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
-    public void remove(long id) throws Exception {
+    public void remove(int id) throws Exception {
         super.deleteById(id);
     }
 
     @Override
-    public void removeByIds(List<Long> ids) throws Exception {
+    public void removeByIds(List<Integer> ids) throws Exception {
         super.deleteByIds(ids);
     }
 
     @Override
-    public void update(long id) throws Exception {
+    public void update(int id) throws Exception {
         super.execDml("update User set todo=?1 where id=?2", Arrays.asList(null, id).toArray());
     }
 
@@ -55,7 +55,7 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
-    public ${entityClassName} get(long id) throws Exception {
+    public ${entityClassName} get(int id) throws Exception {
         return super.findById(id);
     }
 
@@ -78,7 +78,7 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
-    public List<${entityClassName}> findByIds(List<Long> ids) throws Exception {
+    public List<${entityClassName}> findByIds(List<Integer> ids) throws Exception {
         return super.findByIds(ids);
     }
 

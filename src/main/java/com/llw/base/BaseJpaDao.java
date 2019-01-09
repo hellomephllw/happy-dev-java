@@ -49,7 +49,7 @@ public abstract class BaseJpaDao<T> {
      * @return 实体
      * @throws Exception
      */
-    protected T findById(long id) throws Exception {
+    protected T findById(int id) throws Exception {
         if (id < 1) throw new Exception("id必须大于0");
 
         return entityManager.find(entityClass, id);
@@ -62,7 +62,7 @@ public abstract class BaseJpaDao<T> {
      * @throws Exception
      */
     @SuppressWarnings("unchecked")
-    protected List<T> findByIds(Collection<Long> ids) throws Exception {
+    protected List<T> findByIds(Collection<Integer> ids) throws Exception {
         if (ids == null || ids.isEmpty()) throw new Exception("id集合不能为空");
 
         StringBuilder jpql = new StringBuilder("from ");
@@ -187,7 +187,7 @@ public abstract class BaseJpaDao<T> {
         for (int i = 0; i < values.length; i++) {
             query.setParameter(i + 1, values[i]);
         }
-        Long count = (Long) query.getResultList().get(0);
+        Integer count = (Integer) query.getResultList().get(0);
 
         return new PagingDto<>(result, count);
     }
@@ -233,7 +233,7 @@ public abstract class BaseJpaDao<T> {
         for (int i = 0; i < values.length; i++) {
             query.setParameter(i + 1, values[i]);
         }
-        Long count = (Long) query.getResultList().get(0);
+        Integer count = (Integer) query.getResultList().get(0);
 
         return new PagingDto<>(result, count);
     }
@@ -282,7 +282,7 @@ public abstract class BaseJpaDao<T> {
      * @param id id
      * @throws Exception
      */
-    protected void deleteById(long id) throws Exception {
+    protected void deleteById(int id) throws Exception {
         if (id < 1) throw new Exception("id必须大于0");
 
         StringBuilder jpql = new StringBuilder("delete ");
@@ -299,7 +299,7 @@ public abstract class BaseJpaDao<T> {
      * @param ids id集合
      * @throws Exception
      */
-    protected void deleteByIds(Collection<Long> ids) throws Exception {
+    protected void deleteByIds(Collection<Integer> ids) throws Exception {
         if (ids == null || ids.isEmpty()) throw new Exception("id集合不能为空");
 
 
