@@ -69,12 +69,12 @@ public class FieldStateParams {
             }
         } else if ("byte".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
-            if (!"tinyint".equals(typeStr)) {
+            if (!"tinyint".equals(typeStr.toLowerCase())) {
                 fieldStateParams.modifyType = true;
             }
         } else if ("short".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
-            if (!"smallint".equals(typeStr)) {
+            if (!"smallint".equals(typeStr.toLowerCase())) {
                 fieldStateParams.modifyType = true;
             }
         } else {
