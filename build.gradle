@@ -46,12 +46,32 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-def localMavenRepo = 'file://' + new File(System.getProperty('user.home'), 'Documents/apache-maven-3.3.9/repository').absolutePath
+//打包源代码
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+//源码artifacts
+artifacts {
+    archives sourcesJar
+}
 
+//install放入本地仓库
+install {
+    repositories.mavenInstaller {
+        pom.version = "$project.version"
+        pom.artifactId = "$artifactId"
+        pom.groupId = "$project.group"
+    }
+}
+
+//上传私服
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: localMavenRepo)
+            repository(url: 'http://47.112.11.239:8081/repository/3rd-part/') {
+                authentication(userName: 'hellomephllw', password: 'llw010203')
+            }
             pom.version = "$project.version"
             pom.artifactId = "$artifactId"
             pom.groupId = "$project.group"
