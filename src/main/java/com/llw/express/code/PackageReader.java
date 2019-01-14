@@ -1,6 +1,8 @@
 package com.llw.express.code;
 
+import javax.persistence.MappedSuperclass;
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
@@ -168,6 +170,8 @@ public class PackageReader {
             String fileName = file.getName();
             String className = createClassName("." + type + "." + (partOfDir != null ? partOfDir : "") + fileName.split("\\.")[0]);
             Class entityClass = getClassPathClassLoader().loadClass(className);
+            Annotation mappedSuperclass = entityClass.getAnnotation(MappedSuperclass.class);
+            if (mappedSuperclass != null) return ;
             collector.put(className, entityClass);
         }
     }
