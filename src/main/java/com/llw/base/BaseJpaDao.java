@@ -187,7 +187,7 @@ public abstract class BaseJpaDao<T> {
         for (int i = 0; i < values.length; i++) {
             query.setParameter(i + 1, values[i]);
         }
-        Integer count = (Integer) query.getResultList().get(0);
+        Long count = (Long) query.getResultList().get(0);
 
         return new PagingDto<>(result, count);
     }
@@ -233,7 +233,7 @@ public abstract class BaseJpaDao<T> {
         for (int i = 0; i < values.length; i++) {
             query.setParameter(i + 1, values[i]);
         }
-        Integer count = (Integer) query.getResultList().get(0);
+        Long count = (Long) query.getResultList().get(0);
 
         return new PagingDto<>(result, count);
     }
