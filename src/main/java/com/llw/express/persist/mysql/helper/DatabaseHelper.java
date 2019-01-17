@@ -648,7 +648,7 @@ public class DatabaseHelper {
                 }
                 return "varchar";
             } else if (fieldType == Date.class) {
-                return "timestamp default '2000-01-01 00:00:00'";
+                return "timestamp";
             } else if (fieldType == BigDecimal.class) {
                 return "decimal";
             } else if (fieldType == Byte.class) {
