@@ -174,7 +174,7 @@ public abstract class BaseJpaDao<T> {
             query.setParameter(i + 1, values[i]);
         }
         List<T> result = query
-                .setFirstResult(--pageNo)
+                .setFirstResult(--pageNo * pageSize)
                 .setMaxResults(pageSize)
                 .getResultList();
 
@@ -220,7 +220,7 @@ public abstract class BaseJpaDao<T> {
             query.setParameter(i + 1, values[i]);
         }
         List<T> result = query
-                .setFirstResult(--pageNo)
+                .setFirstResult(--pageNo * pageSize)
                 .setMaxResults(pageSize)
                 .getResultList();
 
