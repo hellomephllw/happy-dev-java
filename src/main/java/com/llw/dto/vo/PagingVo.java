@@ -24,6 +24,9 @@ public class PagingVo<T> {
     @ApiModelProperty("总页数")
     private int pageAmount;
 
+    @ApiModelProperty("总数据量")
+    private long total;
+
     /** 实体集合:建议使用TreeSet */
     @ApiModelProperty("实体集合")
     private Set<T> entities;

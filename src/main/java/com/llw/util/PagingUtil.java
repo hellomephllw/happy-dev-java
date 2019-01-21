@@ -75,6 +75,7 @@ public class PagingUtil {
     public static PagingVo transformPagingDtoToVo(PagingDto dto, Class voClazz, int pageNo, int pageSize) throws Exception {
         PagingVo pagingVo = new PagingVo();
         pagingVo.setEntities(new TreeSet(transformEntities(dto.getEntities(), voClazz)));
+        pagingVo.setTotal(dto.getCount());
         pagingVo.setPageNo(pageNo);
         pagingVo.setPageSize(pageSize);
         pagingVo.setPageAmount(dto.getCount() % pageSize == 0 ? (int) (dto.getCount() / pageSize) : (int) (dto.getCount() / pageSize) + 1);
