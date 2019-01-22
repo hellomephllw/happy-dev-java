@@ -589,6 +589,8 @@ public class DatabaseHelper {
         } else {
             Class fieldType = entityField.getType();
             if (fieldType == Date.class
+                    || fieldType == java.util.Date.class
+                    || fieldType == Timestamp.class
                     || fieldType == Byte.class
                     || fieldType == Short.class
                     || fieldType == Integer.class
@@ -647,7 +649,7 @@ public class DatabaseHelper {
                     return column.columnDefinition().trim();
                 }
                 return "varchar";
-            } else if (fieldType == Date.class) {
+            } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
                 return "timestamp";
             } else if (fieldType == BigDecimal.class) {
                 return "decimal";
