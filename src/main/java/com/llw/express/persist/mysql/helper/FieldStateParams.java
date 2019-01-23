@@ -12,37 +12,53 @@ import java.sql.ResultSet;
  */
 public class FieldStateParams {
 
-    /**单例*/
+    /**
+     * 单例
+     */
     public final static FieldStateParams fieldStateParams = new FieldStateParams();
 
-    /**是否要修改类型*/
+    /**
+     * 是否要修改类型
+     */
     public boolean modifyType = false;
-    /**是否修改字符串长度*/
+    /**
+     * 是否修改字符串长度
+     */
     public boolean modifyLength = false;
-    /**是否修改bigDecimal的最大长度和小数位数*/
+    /**
+     * 是否修改bigDecimal的最大长度和小数位数
+     */
     public boolean modifyBigDecimal = false;
-    /**是否要添加非空*/
+    /**
+     * 是否要添加非空
+     */
     public boolean addNotNull = false;
-    /**是否要删除非空*/
+    /**
+     * 是否要删除非空
+     */
     public boolean deleteNotNull = false;
     /***是否要添加唯一索引*/
     public boolean addUnique = false;
-    /**是否要删除唯一索引*/
+    /**
+     * 是否要删除唯一索引
+     */
     public boolean deleteUnique = false;
-    /**是否能够有唯一索引*/
+    /**
+     * 是否能够有唯一索引
+     */
     public boolean canOwnUnique = false;
 
     /**
      * 构建参数
-     * @param tableName 表名
+     * @param tableName       表名
      * @param entityFieldName 实体字段名
-     * @param field 字段
-     * @param columnSet 数据库字段
-     * @param dbFieldType 数据库字段类型
-     * @param checkNullable 检查非空
-     * @param checkUnique 检查唯一索引
-     * @param checkLength 检查字符长度
-     * @param checkDecimal 检查decimal
+     * @param field           字段
+     * @param columnSet       数据库字段
+     * @param dbFieldType     数据库字段类型
+     * @param checkNullable   检查非空
+     * @param checkUnique     检查唯一索引
+     * @param checkLength     检查字符长度
+     * @param checkDecimal    检查decimal
      * @return 实体字段情况
      * @throws Exception
      */
@@ -75,6 +91,11 @@ public class FieldStateParams {
         } else if ("short".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
             if (!"smallint".equals(typeStr.toLowerCase())) {
+                fieldStateParams.modifyType = true;
+            }
+        } else if ("date".equals(dbFieldType.toLowerCase())) {
+            String typeStr = columnSet.getString("TYPE_NAME");
+            if (!"datetime".equals(typeStr.toLowerCase())) {
                 fieldStateParams.modifyType = true;
             }
         } else {
@@ -142,7 +163,7 @@ public class FieldStateParams {
 
     /**
      * 字段类型检查
-     * @param columnSet 数据库字段
+     * @param columnSet   数据库字段
      * @param dbFieldType 数据库字段类型
      * @return boolean 是否通过
      * @throws Exception

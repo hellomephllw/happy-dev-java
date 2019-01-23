@@ -76,7 +76,7 @@ public class FieldForcer implements IFieldProcessor {
     public void dateField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericForcer(tableName, entityFieldName, field, columnSet, "timestamp", true, true, false, false);
+        genericForcer(tableName, entityFieldName, field, columnSet, "date", true, true, false, false);
     }
 
     @Override

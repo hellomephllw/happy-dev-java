@@ -77,7 +77,7 @@ public class FieldChecker implements IFieldProcessor {
     public void dateField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "timestamp", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "date", true, true, false, false);
     }
 
     @Override
