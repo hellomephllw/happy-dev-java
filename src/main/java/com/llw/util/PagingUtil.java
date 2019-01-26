@@ -3,6 +3,7 @@ package com.llw.util;
 import com.google.common.collect.ImmutableMap;
 import com.llw.dto.PagingDto;
 import com.llw.dto.vo.PagingVo;
+import com.llw.dto.vo.PagingVoNoSort;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -81,6 +82,26 @@ public class PagingUtil {
         pagingVo.setPageAmount(dto.getCount() % pageSize == 0 ? (int) (dto.getCount() / pageSize) : (int) (dto.getCount() / pageSize) + 1);
 
         return pagingVo;
+    }
+
+    /**
+     * 把分页数据传输对象转换成分页数据对象
+     * @param dto 数据传输对象
+     * @param voClazz 值对象class
+     * @param pageNo 当前页码
+     * @param pageSize 每页数量
+     * @return 分页数据对象
+     */
+    @SuppressWarnings("unchecked")
+    public static PagingVoNoSort transformPagingDtoToVoNoSort(PagingDto dto, Class voClazz, int pageNo, int pageSize) throws Exception {
+        PagingVoNoSort pagingVoNoSort = new PagingVoNoSort();
+        pagingVoNoSort.setEntities(transformEntities(dto.getEntities(), voClazz));
+        pagingVoNoSort.setTotal(dto.getCount());
+        pagingVoNoSort.setPageNo(pageNo);
+        pagingVoNoSort.setPageSize(pageSize);
+        pagingVoNoSort.setPageAmount(dto.getCount() % pageSize == 0 ? (int) (dto.getCount() / pageSize) : (int) (dto.getCount() / pageSize) + 1);
+
+        return pagingVoNoSort;
     }
 
     /**
