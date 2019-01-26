@@ -7,6 +7,8 @@ import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -18,6 +20,9 @@ import java.lang.reflect.Method;
  * @date: 2018-11-15
  */
 public class ObjectUtil {
+
+    /**logger*/
+    private static Logger logger = LoggerFactory.getLogger(ObjectUtil.class);
 
     /**
      * 把对象转换为xml字符串
@@ -99,12 +104,17 @@ public class ObjectUtil {
      * @return 目标对象
      * @throws Exception
      */
-    public static <T> T transferObjectValToAnother(Object object, Class<T> targetObjectClazz) throws Exception {
-        //确定另一个对象
-        T targetObject = targetObjectClazz.newInstance();
+    public static <T> T transferObjectValToAnother(Object object, Class<T> targetObjectClazz) {
+        T targetObject = null;
+        try {
+            //确定另一个对象
+            targetObject = targetObjectClazz.newInstance();
 
-        //递归迭代转移所有属性
-        transferRecursively(object, object.getClass(), targetObject);
+            //递归迭代转移所有属性
+            transferRecursively(object, object.getClass(), targetObject);
+        } catch (Exception e) {
+            logger.error("转移对象属性发生错误", e);
+        }
 
         return targetObject;
     }
