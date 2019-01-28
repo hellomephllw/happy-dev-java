@@ -3,9 +3,7 @@ package com.llw.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
@@ -29,7 +27,7 @@ public class NetUtil {
     public static String sendHttpRequest(Map<String, Object> attrs) {
         String url = (String) attrs.get("url");
         String method = attrs.get("type") == null ? "GET" : ((String) attrs.get("type")).toUpperCase();
-        String contentType = attrs.get("contentType") == null ? "application/json" : (String) attrs.get("contentType");
+        String contentType = attrs.get("contentType") == null ? "application/json;charset=UTF-8" : (String) attrs.get("contentType");
 
         HttpURLConnection conn = null;
         try {
@@ -38,15 +36,24 @@ public class NetUtil {
             conn.setRequestMethod(method);
             conn.setRequestProperty("Content-type", contentType);
             conn.setInstanceFollowRedirects(false);
+            if (attrs.get("body") != null && attrs.get("body") instanceof String)
+                setRequestBody(conn, (String) attrs.get("body"));
+
             conn.connect();
+            logger.info("发出请求: " + attrs.get("url"));
+            logger.info("请求参数: " + attrs.get("body"));
+
+            if (conn.getResponseCode() == 200) {
+                return parseResult(conn);
+            }
+            return null;
         } catch (Exception e) {
-            logger.info("发送请求失败, url: " + attrs.get("url") + ", msg: " + e.getMessage());
-            LoggerUtil.printStackTrace(logger, e);
+            logger.error("发送请求失败, url: " + attrs.get("url"), e);
+            return null;
+        } finally {
+            if (conn != null) conn.disconnect();
         }
 
-        logger.info("发出请求: " + attrs.get("url"));
-
-        return parseResult(conn);
     }
 
     /**
@@ -69,22 +76,50 @@ public class NetUtil {
                 stringBuilder.append(str);
             }
         } catch (Exception e) {
-            logger.info("接收响应内容失败, msg: " + e.getMessage());
-            LoggerUtil.printStackTrace(logger, e);
+            logger.error("接收响应内容失败", e);
         } finally {
             try {
                 if (bufferedReader != null) bufferedReader.close();
                 if (inputStreamReader != null) inputStreamReader.close();
                 if (inputStream != null) inputStream.close();
             } catch (Exception e) {
-                logger.info("关闭接收响应的流失败, msg: " + e.getMessage());
-                LoggerUtil.printStackTrace(logger, e);
+                logger.error("关闭接收响应的流失败", e);
             }
         }
 
         logger.info("响应内容: " + stringBuilder.toString());
 
         return stringBuilder.toString();
+    }
+
+    /**
+     * 设置请求消息体
+     * @param connection socket连接
+     * @param body 消息体内容
+     */
+    private static void setRequestBody(HttpURLConnection connection, String body) {
+        if (body != null && !"".equals(body)) {
+            connection.setDoOutput(true);
+            OutputStream os = null;
+            DataOutputStream writer = null;
+            try {
+                byte[] writeBytes = body.getBytes("UTF-8");
+                connection.setRequestProperty("Content-Length", String.valueOf(writeBytes.length));
+
+                os = connection.getOutputStream();
+                writer = new DataOutputStream(os);
+                writer.write(writeBytes);
+            } catch (IOException e) {
+                logger.error("发送请求消息题失败", e);
+            } finally {
+                try {
+                    if (writer != null) writer.close();
+                    if (os != null) os.close();
+                } catch (IOException e) {
+                    logger.error("关闭发送请求消息体的流失败", e);
+                }
+            }
+        }
     }
 
 }

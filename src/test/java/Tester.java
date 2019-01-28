@@ -1,5 +1,7 @@
+import com.llw.util.CollectionUtil;
 import com.llw.util.EncryptionUtil;
 import com.llw.util.IpUtil;
+import com.llw.util.NetUtil;
 
 /**
  * @description:
@@ -15,8 +17,15 @@ public class Tester {
 //            System.out.println(ipLong);
 //            System.out.println(IpUtil.longToIp(ipLong));
 
-            new Temp().exe();
+            String result = NetUtil.sendHttpRequest(
+                    CollectionUtil.fieldMap()
+                            .put("url", "http://localhost:8080/communal/area/provinces")
+                            .put("type", "post")
+                            .put("contentType", "application/x-www-form-urlencoded")
+                            .put("body", "name=123&age=55")
+                            .build());
 
+            System.out.println(result);
         } catch (Exception e) {
             System.out.println("=====");
             e.printStackTrace();
