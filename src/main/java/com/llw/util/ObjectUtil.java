@@ -25,32 +25,18 @@ public class ObjectUtil {
     private static Logger logger = LoggerFactory.getLogger(ObjectUtil.class);
 
     /**
-     * 把对象转换为xml字符串
-     * @param object 对象
-     * @return xml
-     * @throws Exception
+     * 获取XStream
+     * @param withCData 是否包含cdata
+     * @return xstream
      */
-    public static String transferObjectToXml(Object object) {
-        XStream xstream = new XStream(new DomDriver("utf-8"));
-        xstream.processAnnotations(object.getClass());
-
-        return xstream.toXML(object);
-    }
-
-    /**
-     * 把对象转换为xml字符串，属性值加入cdata
-     * @param object 对象
-     * @return xml
-     * @throws Exception
-     */
-    public static String transferObjectToXmlWithCData(Object object) {
-        XStream xstream = new XStream(new XppDriver(new NoNameCoder()) {
+    public static XStream getXStream(boolean withCData) {
+        return new XStream(new XppDriver(new NoNameCoder()) {
 
             @Override
             public HierarchicalStreamWriter createWriter(Writer out) {
                 return new PrettyPrintWriter(out) {
                     // 对所有xml节点的转换都增加CDATA标记
-                    boolean cdata = true;
+                    boolean cdata = withCData;
 
                     @Override
                     @SuppressWarnings("rawtypes")
@@ -77,6 +63,29 @@ public class ObjectUtil {
                 };
             }
         });
+    }
+
+    /**
+     * 把对象转换为xml字符串
+     * @param object 对象
+     * @return xml
+     * @throws Exception
+     */
+    public static String transferObjectToXml(Object object) {
+        XStream xstream = getXStream(false);
+        xstream.processAnnotations(object.getClass());
+
+        return xstream.toXML(object);
+    }
+
+    /**
+     * 把对象转换为xml字符串，属性值加入cdata
+     * @param object 对象
+     * @return xml
+     * @throws Exception
+     */
+    public static String transferObjectToXmlWithCData(Object object) {
+        XStream xstream = getXStream(true);
         xstream.processAnnotations(object.getClass());
 
         return xstream.toXML(object);
@@ -91,7 +100,7 @@ public class ObjectUtil {
      */
     @SuppressWarnings("unchecked")
     public static <T> T transferXmlToObject(String xml, Class<T> clazz) {
-        XStream xstream = new XStream(new DomDriver());
+        XStream xstream = getXStream(false);
         xstream.processAnnotations(clazz);
 
         return (T) xstream.fromXML(xml);

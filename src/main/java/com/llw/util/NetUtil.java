@@ -16,7 +16,7 @@ import java.util.Map;
 public class NetUtil {
 
     /**log*/
-    private static Logger logger = LoggerFactory.getLogger(FileUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(NetUtil.class);
 
     /**
      * 发送http请求
