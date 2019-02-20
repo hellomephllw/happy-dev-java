@@ -1,5 +1,8 @@
 package com.llw.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -9,6 +12,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * @date: 2018-11-15
  */
 public class WeChatUtil {
+
+    /**logger*/
+    private static Logger logger = LoggerFactory.getLogger(WeChatUtil.class);
 
     /**
      * 获取nonce str随机数
@@ -33,14 +39,12 @@ public class WeChatUtil {
      * @return 签名
      * @throws Exception
      */
-    public static String getPaySign(String appId, String mchId, String deviceInfo, String body, String nonceStr, String key) throws Exception {
+    public static String getPaySign(Map<String, Object> paramsMap) throws Exception {
         // 非空参数值的参数按照参数名ASCII码从小到大排序
-        SortedMap<Object, Object> parameters = new TreeMap<Object, Object>();
-        parameters.put("appid", appId);
-        parameters.put("mch_id", mchId);
-        parameters.put("device_info", deviceInfo);
-        parameters.put("body", body);
-        parameters.put("nonce_str", nonceStr);
+        SortedMap<Object, Object> parameters = new TreeMap<>();
+        for (String key : paramsMap.keySet()) {
+            parameters.put(key, paramsMap.get(key));
+        }
 
         StringBuilder stringBuilder = new StringBuilder();
         Set es = parameters.entrySet();
@@ -53,10 +57,13 @@ public class WeChatUtil {
                 stringBuilder.append(k + "=" + v + "&");
             }
         }
-        stringBuilder.append("key=" + key);
+        stringBuilder.append("key=" + parameters.get("key"));
+
+        logger.info("组装参数如下: ");
+        logger.info(stringBuilder.toString());
 
         //md5加密
-        return EncryptionUtil.encrypt(stringBuilder.toString(), "MD5");
+        return EncryptionUtil.encrypt(stringBuilder.toString(), "MD5").toUpperCase();
     }
 
 }
