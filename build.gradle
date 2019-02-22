@@ -71,7 +71,7 @@ install {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: 'http://47.112.11.239:8081/repository/3rd-part/') {
+            repository(url: 'http://repo.yunluofushi.com/repository/3rd-part/') {
                 authentication(userName: 'hellomephllw', password: 'llw010203')
             }
             pom.version = "$project.version"
