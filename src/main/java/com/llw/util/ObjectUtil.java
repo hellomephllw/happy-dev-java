@@ -184,8 +184,9 @@ public class ObjectUtil {
                 Method method;
                 String transformName = objField.getName().substring(0, 1).toUpperCase() + objField.getName().substring(1);
                 if (objField.getGenericType().toString().toLowerCase().equals("boolean")) {
-                    if (transformName.substring(0, 2).equals("is")) {
-                        method = objectClazz.getMethod(transformName);
+                    if (transformName.substring(0, 2).toLowerCase().equals("is")) {
+                        transformName = objField.getName().substring(2, 3).toUpperCase() + objField.getName().substring(3);
+                        method = objectClazz.getMethod(objField.getName());
                     } else {
                         method = objectClazz.getMethod("is" + transformName);
                     }
