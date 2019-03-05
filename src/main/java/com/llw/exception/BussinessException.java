@@ -5,9 +5,9 @@ package com.llw.exception;
  * @author: llw
  * @date: 2016-11-26
  */
-public class BussinessException extends RuntimeException {
+public class BusinessException extends RuntimeException {
 
-    public BussinessException(String message) {
+    public BusinessException(String message) {
         super(message);
     }
 

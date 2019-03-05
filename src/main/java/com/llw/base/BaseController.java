@@ -1,6 +1,6 @@
 package com.llw.base;
 
-import com.llw.exception.BussinessException;
+import com.llw.exception.BusinessException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -25,7 +25,7 @@ public abstract class BaseController {
 
         if (exception instanceof MissingServletRequestParameterException) {
             // TODO: 2016/11/26
-        } else if (exception instanceof BussinessException) {
+        } else if (exception instanceof BusinessException) {
             // TODO: 2016/11/26
         }
 

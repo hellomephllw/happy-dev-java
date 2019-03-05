@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
 
         logger.error(">>>>>>>>>出现异常");
 
-        if (e instanceof BussinessException) {
+        if (e instanceof BusinessException) {
             logger.error(e.getMessage());
             return new ResultVo<>(0, e.getMessage(), null);
         } else if (e instanceof MissingServletRequestParameterException) {
