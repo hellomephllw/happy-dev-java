@@ -3,7 +3,7 @@ package com.llw.exception;
 /**
  * @description: 业务异常
  * @author: llw
- * @date: 2016-11-26
+ * @date: 2019-03-05
  */
 public class BusinessException extends RuntimeException {
 
