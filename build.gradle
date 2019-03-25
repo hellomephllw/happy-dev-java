@@ -1,5 +1,5 @@
 group 'com.llw'
-version '1.0.7'
+version '1.0.8'
 def artifactId = "express"
 
 apply plugin: 'java'

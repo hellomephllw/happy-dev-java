@@ -83,7 +83,7 @@ public class RedisAccess {
      * 根据key删除
      * @param key 键
      */
-    public void remove(String key) {
+    public void removeString(String key) {
         redisTemplate.delete(keyString(key));
     }
 
