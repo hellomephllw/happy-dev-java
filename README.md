@@ -1,4 +1,4 @@
-# java-project-express
+# happy-dev-java
 easy to dev and build spring boot project
 
 # 实现快速开发
