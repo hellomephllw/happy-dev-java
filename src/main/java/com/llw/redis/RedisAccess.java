@@ -1,12 +1,19 @@
 package com.llw.redis;
 
+import ch.qos.logback.classic.pattern.DateConverter;
 import com.llw.util.RegexUtil;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.locale.converters.DateLocaleConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,8 +30,8 @@ public class RedisAccess {
     private long defaultDuration = 60 * 60 * 24;
 
     /**
-     * 获取redisTemplate
-     * @return redisTemplate
+     * 获取redistemplate
+     * @return redistemplate
      */
     public RedisTemplate getRedisTemplate() {
         return redisTemplate;
@@ -37,6 +44,39 @@ public class RedisAccess {
      */
     private void expire(String completedKey, long duration) {
         redisTemplate.expire(completedKey, duration, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 重置时间格式
+     */
+    private void dateFormater() {
+        ConvertUtils.register(new Converter() {
+            @Override
+            public Object convert(Class clazz, Object value) {
+                if (value == null) {
+                    return null;
+                }
+                if (value instanceof String) {
+                    String str = (String) value;
+                    if (str.trim().equals("")) {
+                        return null;
+                    }
+                    List<SimpleDateFormat> formats = new LinkedList<>();
+                    formats.add(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US));
+                    formats.add(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+                    formats.add(new SimpleDateFormat("yyyy-MM-dd"));
+                    for (SimpleDateFormat simpleDateFormat : formats) {
+                        try {
+                            return simpleDateFormat.parse(str);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+
+                return null;
+            }
+        }, Date.class);
     }
 
     //================================string
@@ -107,7 +147,7 @@ public class RedisAccess {
 
     //================================hash
     /**
-     * 补充string的key
+     * 补充对象的key
      * @param key 键
      * @return 完整🉐️的key(即末尾追加类型)
      */
@@ -173,6 +213,7 @@ public class RedisAccess {
      */
     public <T> T getObject(String key, Class<T> clazz) throws Exception {
         T bean = clazz.newInstance();
+        dateFormater();
         BeanUtils.populate(bean, redisTemplate.opsForHash().entries(keyObject(key)));
 
         return bean;
@@ -257,5 +298,80 @@ public class RedisAccess {
     public void expireObject(String key, long durationSecond) {
         redisTemplate.expire(keyObject(key), durationSecond, TimeUnit.SECONDS);
     }
+
+    //================================list
+    /**
+     * 补充list的key
+     * @param key 键
+     * @return 完整🉐️的key(即末尾追加类型)
+     */
+    private String keyList(String key) {
+        return RegexUtil.find("\\.list$", key) ? key : key + ".list";
+    }
+
+    /**
+     * 存入集合(尾部追加)
+     * @param key 键
+     * @param list 集合
+     */
+    public void putList(String key, List<?> list) {
+        removeList(key);
+        redisTemplate.opsForList().rightPushAll(keyList(key), list);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 存入集合(尾部追加)
+     * @param key 键
+     * @param list 集合
+     * @param durationSecond 过期时间
+     */
+    public void putList(String key, List<?> list, long durationSecond) {
+        removeList(key);
+        redisTemplate.opsForList().rightPushAll(keyList(key), list);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 获取集合
+     * @param key 键
+     * @return 集合
+     */
+    public List<?> getList(String key) {
+        return redisTemplate.opsForList().range(keyList(key), 0, getListLength(key) - 1);
+    }
+
+    /**
+     * 获取list长度
+     * @param key 键
+     * @return 长度
+     */
+    public long getListLength(String key) {
+        return redisTemplate.opsForList().size(keyList(key));
+    }
+
+    /**
+     * 根据索引获取集合元素
+     * @param key 键
+     * @param index 索引
+     * @return
+     */
+    public Object getListItemByIndex(String key, int index) {
+        return redisTemplate.opsForList().index(keyList(key), index);
+    }
+
+
+
+    /**
+     * 删除list集合
+     * @param key 键
+     */
+    public void removeList(String key) {
+        redisTemplate.delete(keyList(key));
+    }
+
+    //================================set
+
+    //================================sort set
 
 }
