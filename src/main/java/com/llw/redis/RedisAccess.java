@@ -1,12 +1,12 @@
 package com.llw.redis;
 
-import ch.qos.logback.classic.pattern.DateConverter;
+import com.llw.util.LoggerUtil;
 import com.llw.util.RegexUtil;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.locale.converters.DateLocaleConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -23,6 +23,9 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 public class RedisAccess {
+
+    /**logger*/
+    private static Logger logger = LoggerFactory.getLogger(RedisAccess.class);
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -49,7 +52,7 @@ public class RedisAccess {
     /**
      * 重置时间格式
      */
-    private void dateFormater() {
+    private void dateFormatter() {
         ConvertUtils.register(new Converter() {
             @Override
             public Object convert(Class clazz, Object value) {
@@ -213,7 +216,7 @@ public class RedisAccess {
      */
     public <T> T getObject(String key, Class<T> clazz) throws Exception {
         T bean = clazz.newInstance();
-        dateFormater();
+        dateFormatter();
         BeanUtils.populate(bean, redisTemplate.opsForHash().entries(keyObject(key)));
 
         return bean;
@@ -310,7 +313,7 @@ public class RedisAccess {
     }
 
     /**
-     * 存入集合(尾部追加)
+     * 存入list(尾部追加)
      * @param key 键
      * @param list 集合
      */
@@ -321,10 +324,10 @@ public class RedisAccess {
     }
 
     /**
-     * 存入集合(尾部追加)
+     * 存入list(尾部追加)
      * @param key 键
      * @param list 集合
-     * @param durationSecond 过期时间
+     * @param durationSecond 时长(单位: 秒)
      */
     public void putList(String key, List<?> list, long durationSecond) {
         removeList(key);
@@ -333,7 +336,91 @@ public class RedisAccess {
     }
 
     /**
-     * 获取集合
+     * 为list添加元素(尾部追加)
+     * @param key 键
+     * @param val 值
+     */
+    public void addListItem(String key, Object val) {
+        redisTemplate.opsForList().rightPush(keyList(key), val);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 为list添加元素(尾部追加)
+     * @param key 键
+     * @param val 值
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void addListItem(String key, Object val, long durationSecond) {
+        redisTemplate.opsForList().rightPush(keyList(key), val);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 为list批量添加元素(尾部追加)
+     * @param key 键
+     * @param list 元素集合
+     */
+    public void addListItems(String key, List<?> list) {
+        redisTemplate.opsForList().rightPushAll(keyList(key), list);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 为list批量添加元素(尾部追加)
+     * @param key 键
+     * @param list 元素集合
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void addListItems(String key, List<?> list, long durationSecond) {
+        redisTemplate.opsForList().rightPushAll(keyList(key), list);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 在list首部添加元素
+     * @param key 键
+     * @param val 值
+     */
+    public void offerListFirst(String key, Object val) {
+        redisTemplate.opsForList().leftPush(keyList(key), val);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 在list首部添加元素
+     * @param key 键
+     * @param val 值
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void offerListFirst(String key, Object val, long durationSecond) {
+        redisTemplate.opsForList().leftPush(keyList(key), val);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 在list尾部添加元素
+     * @param key 键
+     * @param val 值
+     */
+    public void offerListLast(String key, Object val) {
+        redisTemplate.opsForList().rightPush(keyList(key), val);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 在list尾部添加元素
+     * @param key 键
+     * @param val 值
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void offerListLast(String key, Object val, long durationSecond) {
+        redisTemplate.opsForList().rightPush(keyList(key), val);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 获取list
      * @param key 键
      * @return 集合
      */
@@ -351,16 +438,43 @@ public class RedisAccess {
     }
 
     /**
-     * 根据索引获取集合元素
+     * 根据索引获取list元素
      * @param key 键
      * @param index 索引
      * @return
      */
-    public Object getListItemByIndex(String key, int index) {
+    public Object getListItemByIndex(String key, long index) {
         return redisTemplate.opsForList().index(keyList(key), index);
     }
 
+    /**
+     * 获取list的某一页
+     * @param key 键
+     * @param start 开始位置
+     * @param stop 结束位置(包含尾)
+     * @return
+     */
+    public List<?> getListPageItems(String key, long start, long stop) {
+        return redisTemplate.opsForList().range(keyList(key), start, stop);
+    }
 
+    /**
+     * 移除并返回第一个元素
+     * @param key 键
+     * @return
+     */
+    public Object pollListFirst(String key) {
+        return redisTemplate.opsForList().leftPop(keyList(key));
+    }
+
+    /**
+     * 移除并返回最后一个元素
+     * @param key 键
+     * @return
+     */
+    public Object pollListLast(String key) {
+        return redisTemplate.opsForList().rightPop(keyList(key));
+    }
 
     /**
      * 删除list集合
@@ -368,6 +482,63 @@ public class RedisAccess {
      */
     public void removeList(String key) {
         redisTemplate.delete(keyList(key));
+    }
+
+    /**
+     * 根据索引移除list元素
+     * @param key 键
+     * @param index 索引
+     */
+    public void removeListItemByIndex(String key, long index) {
+        String tmpStr = "__list_delete__";
+        redisTemplate.opsForList().set(keyList(key), index, tmpStr);
+        redisTemplate.opsForList().remove(keyList(key), index, tmpStr);
+    }
+
+    /**
+     * 移除所有指定值的list元素
+     * @param key 键
+     * @param val 值
+     */
+    public void removeListItemsByValue(String key, Object val) {
+        redisTemplate.opsForList().remove(keyList(key), 0, val);
+    }
+
+    /**
+     * 根据指定数量移除所有指定值的list元素
+     * @param key 键
+     * @param val 值
+     * @param amount 数量
+     * @param left 从左开始
+     */
+    public void removeListItemsByValue(String key, Object val, long amount, boolean left) {
+        try {
+            if (amount <= 0) throw new Exception("删除list元素指定的amount必须大于0");
+            if (!left) amount = -amount;
+            redisTemplate.opsForList().remove(keyList(key), amount, val);
+        } catch (Exception e) {
+            LoggerUtil.printStackTrace(logger, e);
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 只保留list该区间的元素
+     * @param key 键
+     * @param start 开始位置(包含首)
+     * @param stop 结束位置(包含尾)
+     */
+    public void trimList(String key, long start, long stop) {
+        redisTemplate.opsForList().trim(keyList(key), start, stop);
+    }
+
+    /**
+     * 设置list的过期时间
+     * @param key 键
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void expireList(String key, long durationSecond) {
+        redisTemplate.expire(keyList(key), durationSecond, TimeUnit.SECONDS);
     }
 
     //================================set

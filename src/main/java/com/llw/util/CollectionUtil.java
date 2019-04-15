@@ -2,6 +2,9 @@ package com.llw.util;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.util.Collection;
+import java.util.Map;
+
 /**
  * @description: 集合工具类
  * @author: llw
@@ -37,6 +40,24 @@ public class CollectionUtil {
     public static ImmutableMap.Builder<String, String> stringMap() {
 
         return ImmutableMap.builder();
+    }
+
+    /**
+     * 集合是空
+     * @param collection 集合
+     * @return 是否为空
+     */
+    public static boolean isEmpty(Collection collection) {
+        return collection == null || collection.isEmpty();
+    }
+
+    /**
+     * 键值对是空
+     * @param map 键值对
+     * @return 是否为空
+     */
+    public static boolean mapIsEmpty(Map map) {
+        return map == null || map.isEmpty();
     }
 
 }
