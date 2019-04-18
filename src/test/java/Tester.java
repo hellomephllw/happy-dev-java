@@ -14,18 +14,13 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            List list = new ArrayList();
-            list.add(1);
-            list.add(2);
-            list.add(1, "a");
-            list.add(1, "b");
+            Set set = new HashSet();
+            set.add(11);
+            set.add(22);
+            set.add(33);
+            set.add(44);
 
-            System.out.println(list);
-
-            List l = new LinkedList();
-
-            Map map = new HashMap();
-            System.out.println(map.isEmpty());
+            Set s1 = new TreeSet();
         } catch (Exception e) {
             e.printStackTrace();
         }

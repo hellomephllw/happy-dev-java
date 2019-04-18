@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -269,7 +270,6 @@ public class RedisAccess {
      * @return 值
      */
     public Object getObjectField(String key, String fieldName) {
-
         return redisTemplate.opsForHash().get(keyObject(key), fieldName);
     }
 
@@ -542,7 +542,188 @@ public class RedisAccess {
     }
 
     //================================set
+    /**
+     * 补充set的key
+     * @param key 键
+     * @return 完整🉐️的key(即末尾追加类型)
+     */
+    private String keySet(String key) {
+        return RegexUtil.find("\\.set$", key) ? key : key + ".set";
+    }
 
-    //================================sort set
+    /**
+     * 存入set
+     * @param key 键
+     * @param set 集合
+     */
+    public void putSet(String key, Set<?> set) {
+        removeSet(key);
+        redisTemplate.opsForSet().add(keySet(key), set);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 存入set
+     * @param key 键
+     * @param set 集合
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void putSet(String key, Set<?> set, long durationSecond) {
+        removeSet(key);
+        redisTemplate.opsForSet().add(keySet(key), set);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 为set添加元素
+     * @param key 键
+     * @param val 值
+     */
+    public void addSetItem(String key, Object val) {
+        redisTemplate.opsForSet().add(keySet(key), val);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 为set添加元素
+     * @param key 键
+     * @param val 值
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void addSetItem(String key, Object val, long durationSecond) {
+        redisTemplate.opsForSet().add(keySet(key), val);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * 为set添加集合
+     * @param key 键
+     * @param set 集合
+     */
+    public void addSetItems(String key, Set<?> set) {
+        redisTemplate.opsForSet().add(keySet(key), set);
+        expire(keyList(key), defaultDuration);
+    }
+
+    /**
+     * 为set添加集合
+     * @param key 键
+     * @param set 集合
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void addSetItems(String key, Set<?> set, long durationSecond) {
+        redisTemplate.opsForSet().add(keySet(key), set);
+        expire(keyList(key), durationSecond);
+    }
+
+    /**
+     * set集合大小
+     * @param key 键
+     * @return 大小
+     */
+    public long getSetLength(String key) {
+        return redisTemplate.opsForSet().size(keySet(key));
+    }
+
+    /**
+     * 获取set集合
+     * @param key 键
+     * @return
+     */
+    public Set<?> getSet(String key) {
+        return redisTemplate.opsForSet().members(keySet(key));
+    }
+
+    /**
+     * 删除set集合
+     * @param key 键
+     */
+    public void removeSet(String key) {
+        redisTemplate.delete(keySet(key));
+    }
+
+    /**
+     * set集合是否包含某值
+     * @param key 键
+     * @param val 值
+     * @return 是否包含
+     */
+    public boolean containsSet(String key, Object val) {
+        return redisTemplate.opsForSet().isMember(keySet(key), val);
+    }
+
+    /**
+     * 设置set的过期时间
+     * @param key 键
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void expireSet(String key, long durationSecond) {
+        redisTemplate.expire(keySet(key), durationSecond, TimeUnit.SECONDS);
+    }
+
+    //================================sorted set
+    /**
+     * 补充sorted set的key
+     * @param key 键
+     * @return 完整🉐️的key(即末尾追加类型)
+     */
+    private String keyZSet(String key) {
+        return RegexUtil.find("\\.sortedSet$", key) ? key : key + ".sortedSet";
+    }
+
+    /**
+     * 存入sorted set
+     * @param key 键
+     * @param set set
+     * @param <T> 值范型
+     */
+    public <T> void putZSet(String key, Set<ZSetOperations.TypedTuple<T>> set) {
+        redisTemplate.opsForZSet().add(keyZSet(key), set);
+        expire(keyZSet(key), defaultDuration);
+    }
+
+    /**
+     * 存入sorted set
+     * @param key 键
+     * @param set set
+     * @param durationSecond 时长(单位: 秒)
+     * @param <T> 值范型
+     */
+    public <T> void putZSet(String key, Set<ZSetOperations.TypedTuple<T>> set, long durationSecond) {
+        redisTemplate.opsForZSet().add(keyZSet(key), set);
+        expire(keyZSet(key), durationSecond);
+    }
+
+    /**
+     * 为sorted set添加元素
+     * @param key 键
+     * @param val 值
+     * @param score 分数
+     */
+    public void addZSetItem(String key, Object val, double score) {
+        redisTemplate.opsForZSet().add(keyZSet(key), val, score);
+        expire(keyZSet(key), defaultDuration);
+    }
+
+    /**
+     * 为sorted set添加元素
+     * @param key 键
+     * @param val 值
+     * @param score 分数
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void addZSetItem(String key, Object val, double score, long durationSecond) {
+        redisTemplate.opsForZSet().add(keyZSet(key), val, score);
+        expire(keyZSet(key), durationSecond);
+    }
+
+    /**
+     * 设置sorted set的过期时间
+     * @param key 键
+     * @param durationSecond 时长(单位: 秒)
+     */
+    public void expireZSet(String key, long durationSecond) {
+        redisTemplate.expire(keyZSet(key), durationSecond, TimeUnit.SECONDS);
+    }
 
 }
