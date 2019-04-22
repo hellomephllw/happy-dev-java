@@ -678,6 +678,7 @@ public class RedisAccess {
      * @param <T> 值范型
      */
     public <T> void putZSet(String key, Set<ZSetOperations.TypedTuple<T>> set) {
+        removeZSet(keyZSet(key));
         redisTemplate.opsForZSet().add(keyZSet(key), set);
         expire(keyZSet(key), defaultDuration);
     }
@@ -690,6 +691,7 @@ public class RedisAccess {
      * @param <T> 值范型
      */
     public <T> void putZSet(String key, Set<ZSetOperations.TypedTuple<T>> set, long durationSecond) {
+        removeZSet(keyZSet(key));
         redisTemplate.opsForZSet().add(keyZSet(key), set);
         expire(keyZSet(key), durationSecond);
     }
@@ -715,6 +717,85 @@ public class RedisAccess {
     public void addZSetItem(String key, Object val, double score, long durationSecond) {
         redisTemplate.opsForZSet().add(keyZSet(key), val, score);
         expire(keyZSet(key), durationSecond);
+    }
+
+    /**
+     * 获取sorted set
+     * @param key 键
+     * @param <T> 值范型
+     * @return sorted set
+     */
+    public <T> Set<ZSetOperations.TypedTuple<T>> getZSet(String key) {
+        return redisTemplate.opsForZSet().rangeWithScores(keyZSet(key), 0, -1);
+    }
+
+    /**
+     * 获取一页sorted set
+     * @param key 键
+     * @param start 启始位置
+     * @param end 结束位置(包含)
+     * @param <T> 值范型
+     * @return 一页sorted set
+     */
+    public <T> Set<ZSetOperations.TypedTuple<T>> getZSetLimit(String key, long start, long end) {
+        return redisTemplate.opsForZSet().rangeWithScores(keyZSet(key), start, end);
+    }
+
+    /**
+     * 获取sorted set(倒序)
+     * @param key 键
+     * @param <T> 值范型
+     * @return sorted set
+     */
+    public <T> Set<ZSetOperations.TypedTuple<T>> getZSetDesc(String key) {
+        return redisTemplate.opsForZSet().reverseRangeWithScores(keyZSet(key), 0, -1);
+    }
+
+    /**
+     * 获取一页sorted set(倒序)
+     * @param key 键
+     * @param start 启始位置
+     * @param end 结束位置(包含)
+     * @param <T> 值范型
+     * @return 一页sorted set
+     */
+    public <T> Set<ZSetOperations.TypedTuple<T>> getZSetLimitDesc(String key, long start, long end) {
+        return redisTemplate.opsForZSet().reverseRangeWithScores(keyZSet(key), start, end);
+    }
+
+    /**
+     * 获取sorted set大小
+     * @param key 键
+     * @return 大小
+     */
+    public long getZSetLength(String key) {
+        return redisTemplate.opsForZSet().size(keyZSet(key));
+    }
+
+    /**
+     * 删除sorted set
+     * @param key 键
+     */
+    public void removeZSet(String key) {
+        redisTemplate.opsForZSet().removeRange(keyZSet(key), 0, -1);
+    }
+
+    /**
+     * 删除sorted set的元素
+     * @param key 键
+     * @param val 值
+     */
+    public void removeZSetItem(String key, Object val) {
+        redisTemplate.opsForZSet().remove(keyZSet(key), val);
+    }
+
+    /**
+     * 删除sorted set的指定多个元素
+     * @param key 键
+     * @param val 值
+     */
+    public void removeZSetItems(String key, Object... val) {
+        redisTemplate.opsForZSet().remove(keyZSet(key), val);
     }
 
     /**
