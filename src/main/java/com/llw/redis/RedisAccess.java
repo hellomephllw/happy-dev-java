@@ -558,7 +558,7 @@ public class RedisAccess {
      */
     public void putSet(String key, Set<?> set) {
         removeSet(key);
-        redisTemplate.opsForSet().add(keySet(key), set);
+        redisTemplate.opsForSet().add(keySet(key), set.toArray());
         expire(keyList(key), defaultDuration);
     }
 
@@ -570,7 +570,7 @@ public class RedisAccess {
      */
     public void putSet(String key, Set<?> set, long durationSecond) {
         removeSet(key);
-        redisTemplate.opsForSet().add(keySet(key), set);
+        redisTemplate.opsForSet().add(keySet(key), set.toArray());
         expire(keyList(key), durationSecond);
     }
 
@@ -601,7 +601,7 @@ public class RedisAccess {
      * @param set 集合
      */
     public void addSetItems(String key, Set<?> set) {
-        redisTemplate.opsForSet().add(keySet(key), set);
+        redisTemplate.opsForSet().add(keySet(key), set.toArray());
         expire(keyList(key), defaultDuration);
     }
 
@@ -612,7 +612,7 @@ public class RedisAccess {
      * @param durationSecond 时长(单位: 秒)
      */
     public void addSetItems(String key, Set<?> set, long durationSecond) {
-        redisTemplate.opsForSet().add(keySet(key), set);
+        redisTemplate.opsForSet().add(keySet(key), set.toArray());
         expire(keyList(key), durationSecond);
     }
 
