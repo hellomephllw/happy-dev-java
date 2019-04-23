@@ -1,6 +1,6 @@
 group 'com.llw'
-version '1.0.8'
-def artifactId = "express"
+version '2.0.0'
+def artifactId = "happy-dev"
 
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -71,7 +71,7 @@ install {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: 'http://repo.yunluofushi.com/repository/3rd-part/') {
+            repository(url: 'http://47.112.11.239:8081/repository/3rd-part/') {
                 authentication(userName: 'hellomephllw', password: 'llw010203')
             }
             pom.version = "$project.version"

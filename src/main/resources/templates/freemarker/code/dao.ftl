@@ -1,7 +1,7 @@
 package ${packagePath};
 
 import ${entitySourceCodePath};
-import com.llw.dto.PagingDto;
+import com.happy.dto.PagingDto;
 
 import java.util.List;
 

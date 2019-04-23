@@ -1,10 +1,10 @@
 package ${packagePath};
 
-import com.llw.base.BaseJpaDao;
+import com.happy.base.BaseJpaDao;
 import ${daoClassPackagePath};
 import ${entitySourceCodePath};
-import com.llw.dto.PagingDto;
-import com.llw.util.StringSql;
+import com.happy.dto.PagingDto;
+import com.happy.util.StringSql;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
