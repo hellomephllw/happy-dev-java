@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * @description: 用来拼接sql查询语句的工具类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-22
  */
 public class StringSql {

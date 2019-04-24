@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 
 /**
  * @description: 通过实体处理数据库
- * @author: happy
+ * @author: llw
  * @date: 2018-11-24
  */
 public interface IFieldProcessor {

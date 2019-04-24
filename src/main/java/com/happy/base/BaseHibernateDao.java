@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * @description: Dao实现基类，所有dao实现类都最好继承
- * @author: happy
+ * @author: llw
  * @date: 2016-11-17
  */
 public abstract class BaseHibernateDao<T> {

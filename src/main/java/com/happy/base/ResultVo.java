@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * @description: vo基类
- * @author: happy
+ * @author: llw
  * @date: 2016-11-26
  */
 @ApiModel(value = "响应值对象")

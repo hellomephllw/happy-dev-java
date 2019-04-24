@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @description: controller基类
- * @author: happy
+ * @author: llw
  * @date: 2016-11-18
  */
 public abstract class BaseController {

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @description: redis快速访问
- * @author: happy
+ * @author: llw
  * @date: 2018-11-27
  */
 @Component

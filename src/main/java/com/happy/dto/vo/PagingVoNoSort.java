@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * @description: 分页值对象
- * @author: happy
+ * @author: llw
  * @date: 2019-01-26
  */
 @ApiModel("分页值对象")

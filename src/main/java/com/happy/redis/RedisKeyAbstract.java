@@ -4,7 +4,7 @@ import com.happy.util.KeyGenerateUtil;
 
 /**
  * @description: key管理工具基类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-27
  */
 public abstract class RedisKeyAbstract {

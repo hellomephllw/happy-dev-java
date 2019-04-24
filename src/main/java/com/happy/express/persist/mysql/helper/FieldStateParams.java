@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 
 /**
  * @description: 字段的情况
- * @author: happy
+ * @author: llw
  * @date: 2018-11-27
  */
 public class FieldStateParams {

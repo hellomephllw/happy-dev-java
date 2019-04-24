@@ -5,7 +5,7 @@ import java.util.UUID;
 
 /**
  * @description: 键生成工具类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-06
  */
 public class KeyGenerateUtil {

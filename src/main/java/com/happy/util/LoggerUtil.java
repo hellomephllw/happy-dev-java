@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 
 /**
  * @description: 日志工具类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-05
  */
 public class LoggerUtil {

@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * @description: 集合工具类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-16
  */
 public class CollectionUtil {

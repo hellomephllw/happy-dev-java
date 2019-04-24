@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 
 /**
  * @description: 数学工具类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-15
  */
 public class MathUtil {

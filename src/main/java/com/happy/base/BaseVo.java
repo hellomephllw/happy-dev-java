@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @description: 值对象基类
- * @author: happy
+ * @author: llw
  * @date: 2018-10-26
  */
 @ApiModel("值对象基类")

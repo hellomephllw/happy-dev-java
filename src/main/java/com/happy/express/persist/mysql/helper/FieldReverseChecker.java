@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @description: 通过数据库到实体的方向处理数据库检查器
- * @author: happy
+ * @author: llw
  * @date: 2018-11-27
  */
 public class FieldReverseChecker implements IFieldReverseProcessor {

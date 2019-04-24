@@ -12,7 +12,7 @@ import java.security.SecureRandom;
 
 /**
  * @description: 字符串加密工具
- * @author: happy
+ * @author: llw
  * @date: 2018-11-15
  */
 public class EncryptionUtil {

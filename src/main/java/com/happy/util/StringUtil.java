@@ -2,7 +2,7 @@ package com.happy.util;
 
 /**
  * @description: 字符串工具类
- * @author: happy
+ * @author: llw
  * @date: 2019-03-11
  */
 public class StringUtil {

@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 /**
  * @description: 模型对象基类，所有实体都要继承该基类
- * @author: happy
+ * @author: llw
  * @date: 2016-11-17
  */
 @MappedSuperclass

@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @description: 数据传输对象基类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-07
  */
 @ApiModel("数据传输对象基类")

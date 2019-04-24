@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * @description: 读取实体的属性
- * @author: happy
+ * @author: llw
  * @date: 2018-11-21
  */
 public class PackageReader {

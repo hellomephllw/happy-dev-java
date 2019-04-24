@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @description: jpa基类
- * @author: happy
+ * @author: llw
  * @date: 2018-11-17
  */
 public abstract class BaseJpaDao<T> {

@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @description: 邮件工具类
- * @author: happy
+ * @author: llw
  * @date: 2018-12-30
  */
 public class MailUtil {
