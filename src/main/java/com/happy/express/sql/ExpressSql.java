@@ -73,7 +73,10 @@ public class ExpressSql {
      * @return 类加载路径根目录
      */
     private static String getRootClassPath() {
-        return ExpressSql.class.getResource("/").getPath();
+        return ExpressSql.class
+                .getResource("/")
+                .getPath()
+                .replaceAll("out/test/classes", "out/production/classes");
     }
 
     /**
