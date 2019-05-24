@@ -3,6 +3,7 @@ package com.happy.express.persist.mysql;
 import com.happy.express.persist.mysql.helper.*;
 import com.happy.util.FileUtil;
 import com.happy.util.LoggerUtil;
+import com.happy.util.ReflectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,17 +66,8 @@ public class TableGenerator {
 
         /**通过从实体正向检查和修改数据库表格*/
         for (Class entity : entities) {
-            boolean isEntity = false;
-            String tableName = null;
-            for (Annotation annotation : entity.getAnnotations()) {
-                if (annotation.annotationType() == Entity.class) {
-                    isEntity = true;
-                }
-                //获取表名
-                if (annotation.annotationType() == Table.class) {
-                    tableName = ((Table) annotation).name().toLowerCase();
-                }
-            }
+            boolean isEntity = ReflectionUtil.isEntity(entity);
+            String tableName = ReflectionUtil.getTableName(entity);
             //判断是否是实体
             if (isEntity) {
                 //表名检查
@@ -190,16 +182,8 @@ public class TableGenerator {
     private static boolean entitiesIsSecurity(List<Class> entities) throws Exception {
         boolean isSecurity = true;
         for (Class entityClass : entities) {
-            boolean isEntity = false;
-            String tableName = null;
-            Entity entityAnnotation = (Entity) entityClass.getAnnotation(Entity.class);
-            Table tableAnnotation = (Table) entityClass.getAnnotation(Table.class);
-            if (entityAnnotation != null) {
-                isEntity = true;
-            }
-            if (tableAnnotation != null) {
-                tableName = tableAnnotation.name().toLowerCase();
-            }
+            boolean isEntity = ReflectionUtil.isEntity(entityClass);
+            String tableName = ReflectionUtil.getTableName(entityClass);
 
             if (isEntity) {
                 //检查缺少表名的实体
