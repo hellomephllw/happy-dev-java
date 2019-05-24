@@ -1,6 +1,8 @@
 package com.happy.dto.po;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -10,6 +12,8 @@ import java.util.List;
  * @date: 2016-11-27
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PagingPo<T> {
 
     /** 分页条件查询出的实体 */
