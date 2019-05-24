@@ -1,5 +1,7 @@
 package com.happy.express.sql;
 
+import com.happy.util.ReflectionUtil;
+import com.happy.util.RegexUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,30 @@ public class ExpressSql {
         }
 
         return new ExpressSql();
+    }
+
+    /**
+     * 获取表名称
+     * @param className 类名(非全路径)
+     * @return 表名称
+     */
+    public static String getTableName(String className) {
+        String tableName = null;
+        try {
+            int count = 0;
+            for (String key : entities.keySet()) {
+                if (RegexUtil.test(".*" + className + "$", key)) {
+                    ++count;
+                    Class entityClass = entities.get(key);
+                    tableName = ReflectionUtil.getTableName(entityClass);
+                }
+            }
+            if (count > 1) throw new Exception("项目中存在相同名称的实体");
+        } catch (Exception e) {
+            logger.error("获取实体表名出错", e);
+        }
+
+        return tableName;
     }
 
     /**
