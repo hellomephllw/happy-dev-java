@@ -3,6 +3,7 @@ package com.happy.base;
 import com.happy.dto.PagingDto;
 import com.happy.exception.BusinessException;
 import com.happy.express.sql.obverse.SqlParser;
+import com.happy.util.CollectionUtil;
 import com.happy.util.StringUtil;
 import org.hibernate.query.NativeQuery;
 
@@ -399,8 +400,10 @@ public abstract class BaseJpaDao<T> {
         if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
         if (resultClass == null) throw new BusinessException("不能没有返回结果的类模板");
         if (params == null) throw new Exception("参数可以不写，但不能为空");
+
         //添加sql
         Query query = entityManager.createNativeQuery(SqlParser.parse(expressSql));
+
         //添加参数
         for (int i = 0; i < params.length; i++) {
             query.setParameter(i + 1, params[i]);
@@ -422,11 +425,26 @@ public abstract class BaseJpaDao<T> {
      * @return 结果集合
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     protected <T> List<T> express(String expressSql, Class<T> resultClass, Map<String, Object> params) throws Exception {
+        if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
+        if (resultClass == null) throw new BusinessException("不能没有返回结果的类模板");
 
+        //添加sql
+        Query query = entityManager.createNativeQuery(SqlParser.parse(expressSql));
 
-        return null;
+        //添加参数
+        if (params != null && !params.isEmpty()) {
+            for (String key : params.keySet()) {
+                query.setParameter(key, params.get(key));
+            }
+        }
+
+        //添加查询结果的类模板
+        query.unwrap(NativeQuery.class)
+                .addEntity(resultClass);
+
+        return (List<T>) query.getResultList();
     }
 
 }
