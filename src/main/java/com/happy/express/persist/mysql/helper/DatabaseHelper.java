@@ -97,7 +97,7 @@ public class DatabaseHelper {
         //取出数据库配置
         databaseUrl = datasourceConfig.get("url");
         username = datasourceConfig.get("username");
-        password = datasourceConfig.get("password");
+        password = datasourceConfig.get("password") + "";
         databaseRiver = datasourceConfig.get("driver-class-name");
         String[] fragments = databaseUrl.split("\\?")[0].split("/");
         databaseName = fragments[fragments.length - 1];
