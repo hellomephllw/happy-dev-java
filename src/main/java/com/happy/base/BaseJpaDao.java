@@ -359,7 +359,7 @@ public abstract class BaseJpaDao<T> {
      * @throws Exception 异常
      */
     @SuppressWarnings("unchecked")
-    protected List<T> execDql(String dql, Class<T> dtoClass, Object... values) throws Exception {
+    protected <T> List<T> execDql(String dql, Class<T> dtoClass, Object... values) throws Exception {
         if (dql == null || "".equals(dql)) throw new Exception("不能没有dql");
         if (dtoClass == null) throw new Exception("dto的类模板对象不能为空");
         if (values == null) throw new Exception("参数可以不写，但不能为空");
