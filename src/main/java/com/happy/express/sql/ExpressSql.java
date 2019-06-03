@@ -6,8 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * @description: 引入迅捷Sql
@@ -79,16 +82,35 @@ public class ExpressSql {
      * 读取所有实体
      */
     private static void entitiesReader() throws Exception {
-        File packageDir = new File(getRootClassPath() + transferDotToSlash(entitiesPackagePath));
-        for (File file : packageDir.listFiles()) {
-            if (file.isFile()) {
-                //基本模块
-                collectClasses(file, null);
-            } else {
-                //子模块
-                String dirName = file.getName();
-                for (File innerFile : file.listFiles()) {
-                    collectClasses(innerFile, dirName);
+        String entityPath = getRootClassPath() + transferDotToSlash(entitiesPackagePath);
+        if (RegexUtil.find("\\.jar!", entityPath)) {//jar
+            String jarPath = getRootClassPath().split("\\.jar!")[0] + ".jar";
+            if (RegexUtil.find("file:", jarPath)) {
+                jarPath = jarPath.split("file:")[1];
+            }
+            JarFile jarFile = new JarFile(jarPath);
+            Enumeration<JarEntry> en = jarFile.entries();
+            while (en.hasMoreElements()) {
+                JarEntry je = en.nextElement();
+                String name = je.getName();
+                if (RegexUtil.find(".*" + transferDotToSlash(entitiesPackagePath) + ".*", name) && name.lastIndexOf(".class") > 0) {
+                    String classPath = transferSlashToDot(name.split("classes/")[1]).split("\\.class")[0];
+                    Class entityClass = Class.forName(classPath);
+                    entities.put(classPath, entityClass);
+                }
+            }
+        } else {//build
+            File packageDir = new File(entityPath);
+            for (File file : packageDir.listFiles()) {
+                if (file.isFile()) {
+                    //基本模块
+                    collectClasses(file, null);
+                } else {
+                    //子模块
+                    String dirName = file.getName();
+                    for (File innerFile : file.listFiles()) {
+                        collectClasses(innerFile, dirName);
+                    }
                 }
             }
         }
@@ -112,6 +134,15 @@ public class ExpressSql {
      */
     private static String transferDotToSlash(String path) {
         return path.replaceAll("\\.", "/");
+    }
+
+    /**
+     * 把斜杠变为点
+     * @param path 路径
+     * @return 转换后的路径
+     */
+    private static String transferSlashToDot(String path) {
+        return path.replaceAll("/", "\\.");
     }
 
     /**
