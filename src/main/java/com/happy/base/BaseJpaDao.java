@@ -6,6 +6,8 @@ import com.happy.exception.BusinessException;
 import com.happy.express.sql.obverse.SqlParser;
 import com.happy.util.StringUtil;
 import org.hibernate.query.NativeQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,12 +35,19 @@ public abstract class BaseJpaDao<T> {
      */
     private Class<T> entityClass;
 
+    /**子类的class*/
+    private Class subClazz = this.getClass();
+    /**logger*/
+    protected Logger logger;
+
     @SuppressWarnings("unchecked")
     public BaseJpaDao() {
         //获取泛型T的class模板
         Type genericType = getClass().getGenericSuperclass();
         Type[] types = ((ParameterizedType) genericType).getActualTypeArguments();
         entityClass = (Class<T>) types[0];
+        //初始化logger
+        logger = LoggerFactory.getLogger(subClazz);
     }
 
     /**

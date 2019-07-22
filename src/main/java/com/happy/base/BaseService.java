@@ -4,18 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @description: controller基类
+ * @description: 服务实现累基类
  * @author: llw
- * @date: 2016-11-18
+ * @date: 2019-07-22
  */
-public abstract class BaseController {
+public class BaseService {
 
     /**子类的class*/
     private Class subClazz = this.getClass();
     /**logger*/
     protected Logger logger;
 
-    public BaseController() {
+    public BaseService() {
         logger = LoggerFactory.getLogger(subClazz);
     }
 
