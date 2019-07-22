@@ -101,15 +101,17 @@ public class ExpressSql {
             }
         } else {//build
             File packageDir = new File(entityPath);
-            for (File file : packageDir.listFiles()) {
-                if (file.isFile()) {
-                    //基本模块
-                    collectClasses(file, null);
-                } else {
-                    //子模块
-                    String dirName = file.getName();
-                    for (File innerFile : file.listFiles()) {
-                        collectClasses(innerFile, dirName);
+            if (packageDir.listFiles() != null) {
+                for (File file : packageDir.listFiles()) {
+                    if (file.isFile()) {
+                        //基本模块
+                        collectClasses(file, null);
+                    } else {
+                        //子模块
+                        String dirName = file.getName();
+                        for (File innerFile : file.listFiles()) {
+                            collectClasses(innerFile, dirName);
+                        }
                     }
                 }
             }
