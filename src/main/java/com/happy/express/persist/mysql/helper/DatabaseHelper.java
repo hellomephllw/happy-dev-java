@@ -650,7 +650,7 @@ public class DatabaseHelper {
                 }
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
-                return "datetime default '2000-01-01 00:00:00'";
+                return "timestamp default 0";
             } else if (fieldType == BigDecimal.class) {
                 return "decimal";
             } else if (fieldType == Byte.class) {

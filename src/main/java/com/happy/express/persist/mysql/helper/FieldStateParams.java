@@ -95,7 +95,7 @@ public class FieldStateParams {
             }
         } else if ("date".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
-            if (!"datetime".equals(typeStr.toLowerCase())) {
+            if (!"timestamp".equals(typeStr.toLowerCase())) {
                 fieldStateParams.modifyType = true;
             }
         } else {
