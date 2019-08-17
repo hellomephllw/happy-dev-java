@@ -39,10 +39,12 @@ public class SqlParser {
     private static String resolveEntities(String sql) {
         for (String fragment : sql.split("\\s+")) {
             fragment = fragment.trim();
-            Pattern pattern = Pattern.compile("@.+");
+            Pattern pattern = Pattern.compile("@[a-zA-Z0-9]+");
             Matcher matcher = pattern.matcher(fragment);
             if (matcher.find()) {
-                String tableName = ExpressSql.getTableName(fragment.substring(1));
+                String target = matcher.group();
+                String tableName = ExpressSql.getTableName(target.substring(1));
+                fragment = target;
                 sql = sql.replaceAll(fragment, tableName);
             }
         }
