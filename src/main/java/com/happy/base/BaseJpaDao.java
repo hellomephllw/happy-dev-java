@@ -406,7 +406,6 @@ public abstract class BaseJpaDao<T> {
      * @return 结果集合
      * @throws Exception 异常
      */
-    @SuppressWarnings({"unchecked", "deprecation"})
     protected <T> List<T> express(String expressSql, Class<T> resultClass, Object... params) throws Exception {
         if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
         if (resultClass == null) throw new BusinessException("不能没有返回结果的类模板");
@@ -423,12 +422,37 @@ public abstract class BaseJpaDao<T> {
      * @return 结果集合
      * @throws Exception 异常
      */
-    @SuppressWarnings({"unchecked", "deprecation"})
     protected <T> List<T> express(String expressSql, Class<T> resultClass, Map<String, Object> params) throws Exception {
         if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
         if (resultClass == null) throw new BusinessException("不能没有返回结果的类模板");
 
         return getExpressResultMap(expressSql, resultClass, params);
+    }
+
+    /**
+     * 执行原生sql
+     * @param expressSql 对象原生sql
+     * @param params 列表参数
+     * @return 结果集合
+     * @throws Exception
+     */
+    protected List<?> express(String expressSql, Object... params) throws Exception {
+        if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
+
+        return getExpressResult(expressSql, null, params);
+    }
+
+    /**
+     * 执行原生sql
+     * @param expressSql 对象原生sql
+     * @param params map参数
+     * @return 结果集合
+     * @throws Exception
+     */
+    protected List<?> express(String expressSql, Map<String, Object> params) throws Exception {
+        if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
+
+        return getExpressResult(expressSql, null, params);
     }
 
     /**
@@ -509,9 +533,11 @@ public abstract class BaseJpaDao<T> {
             query.setParameter(i + 1, params[i]);
         }
 
-        //添加查询结果的类模板
-        query.unwrap(NativeQuery.class)
-                .addEntity(resultClass);
+        if (resultClass != null) {
+            //添加查询结果的类模板
+            query.unwrap(NativeQuery.class)
+                    .addEntity(resultClass);
+        }
 
         return query.getResultList();
     }
@@ -536,9 +562,11 @@ public abstract class BaseJpaDao<T> {
             }
         }
 
-        //添加查询结果的类模板
-        query.unwrap(NativeQuery.class)
-                .addEntity(resultClass);
+        if (resultClass != null) {
+            //添加查询结果的类模板
+            query.unwrap(NativeQuery.class)
+                    .addEntity(resultClass);
+        }
 
         return query.getResultList();
     }
