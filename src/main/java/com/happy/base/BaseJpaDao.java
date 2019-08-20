@@ -456,6 +456,46 @@ public abstract class BaseJpaDao<T> {
     }
 
     /**
+     * 执行原生sql(dml)
+     * @param expressSql 对象原生sql
+     * @param params 参数列表
+     * @throws Exception
+     */
+    protected void expressDml(String expressSql, Object... params) throws Exception {
+        if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
+
+        //添加sql
+        Query query = entityManager.createNativeQuery(SqlParser.parse(expressSql));
+        //添加参数
+        for (int i = 0; i < params.length; i++) {
+            query.setParameter(i + 1, params[i]);
+        }
+
+        query.executeUpdate();
+    }
+
+    /**
+     * 执行原生sql(dml)
+     * @param expressSql 对象原生sql
+     * @param params map参数
+     * @throws Exception
+     */
+    protected void expressDml(String expressSql,  Map<String, Object> params) throws Exception {
+        if (StringUtil.isEmpty(expressSql)) throw new BusinessException("执行sql不能为空");
+
+        //添加sql
+        Query query = entityManager.createNativeQuery(SqlParser.parse(expressSql));
+        //添加参数
+        if (params != null && !params.isEmpty()) {
+            for (String key : params.keySet()) {
+                query.setParameter(key, params.get(key));
+            }
+        }
+
+        query.executeUpdate();
+    }
+
+    /**
      * 执行类原生sql分页
      * @param expressSql sql
      * @param resultClass 结果类模板
