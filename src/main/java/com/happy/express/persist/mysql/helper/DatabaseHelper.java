@@ -9,6 +9,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
+import javax.persistence.TableGenerator;
 import javax.persistence.Version;
 import java.io.File;
 import java.io.FileInputStream;
@@ -288,7 +289,10 @@ public class DatabaseHelper {
             if (i == entityFields.size() - 1) break;
             sql.append(",");
         }
-        sql.append(");");
+        sql.append(")");
+
+        //添加id起始值
+        sql.append(addIdInitialValue(entityFields));
 
         //执行建表
         statement.executeUpdate(sql.toString());
@@ -565,6 +569,26 @@ public class DatabaseHelper {
     private static String createPrimaryKeyStringForAddTable() throws Exception {
 
         return "id int auto_increment primary key not null";
+    }
+
+    /**
+     * 添加id起始值
+     * @param fields 字段
+     * @return 添加起始值语法
+     * @throws Exception
+     */
+    private static String addIdInitialValue(List<Field> fields) throws Exception {
+        for (Field field : fields) {
+            if (field.getAnnotation(Id.class) != null && field.getAnnotation(TableGenerator.class) != null) {
+                TableGenerator tableGenerator = field.getAnnotation(TableGenerator.class);
+                int initialValue = tableGenerator.initialValue();
+                if (initialValue > 0) {
+                    return " auto_increment = " + initialValue;
+                }
+            }
+        }
+
+        return "";
     }
 
     /**
