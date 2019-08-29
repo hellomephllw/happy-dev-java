@@ -2,6 +2,7 @@ package com.happy.redis;
 
 import com.happy.util.LoggerUtil;
 import com.happy.util.RegexUtil;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.Converter;
@@ -167,7 +168,7 @@ public class RedisAccess {
      * @throws Exception
      */
     public <T> void putObject(String key, T object) throws Exception {
-        redisTemplate.opsForHash().putAll(keyObject(key), BeanUtils.describe(object));
+        redisTemplate.opsForHash().putAll(keyObject(key), new BeanMap(object));
         expire(keyObject(key), defaultDuration);
     }
 
@@ -180,7 +181,7 @@ public class RedisAccess {
      * @throws Exception
      */
     public <T> void putObject(String key, T object, long durationSecond) throws Exception {
-        redisTemplate.opsForHash().putAll(keyObject(key), BeanUtils.describe(object));
+        redisTemplate.opsForHash().putAll(keyObject(key), new BeanMap(object));
         expire(keyObject(key), durationSecond);
     }
 
@@ -275,6 +276,36 @@ public class RedisAccess {
      */
     public Object getObjectField(String key, String fieldName) {
         return redisTemplate.opsForHash().get(keyObject(key), fieldName);
+    }
+
+    /**
+     * 获取对象属性(long类型属性)
+     * @param key 健
+     * @param fieldName 属性名
+     * @return 值
+     */
+    public Long getObjectFieldLong(String key, String fieldName) {
+        Object result = redisTemplate.opsForHash().get(keyObject(key), fieldName);
+        if (result instanceof Integer) {
+            return ((Integer) result).longValue();
+        }
+
+        return (Long) result;
+    }
+
+    /**
+     * 获取对象属性(int类型属性)
+     * @param key 健
+     * @param fieldName 属性名
+     * @return 值
+     */
+    public Integer getObjectFieldInteger(String key, String fieldName) {
+        Object result = redisTemplate.opsForHash().get(keyObject(key), fieldName);
+        if (result instanceof Long) {
+            return ((Long) result).intValue();
+        }
+
+        return (Integer) result;
     }
 
     /**
