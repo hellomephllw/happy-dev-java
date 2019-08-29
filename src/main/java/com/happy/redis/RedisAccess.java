@@ -216,11 +216,15 @@ public class RedisAccess {
      * @throws Exception
      */
     public <T> T getObject(String key, Class<T> clazz) throws Exception {
-        T bean = clazz.newInstance();
-        dateFormatter();
-        BeanUtils.populate(bean, redisTemplate.opsForHash().entries(keyObject(key)));
+        if (existObject(key)) {
+            T bean = clazz.newInstance();
+            dateFormatter();
+            BeanUtils.populate(bean, redisTemplate.opsForHash().entries(keyObject(key)));
 
-        return bean;
+            return bean;
+        }
+
+        return null;
     }
 
     /**
