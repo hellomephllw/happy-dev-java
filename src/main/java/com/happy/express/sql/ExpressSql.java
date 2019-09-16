@@ -126,7 +126,8 @@ public class ExpressSql {
         return ExpressSql.class
                 .getResource("/")
                 .getPath()
-                .replaceAll("out/test/classes", "out/production/classes");
+                .replaceAll("out/test/classes", "out/production/classes")
+                .replaceAll("out/production/resources", "out/production/classes");
     }
 
     /**
