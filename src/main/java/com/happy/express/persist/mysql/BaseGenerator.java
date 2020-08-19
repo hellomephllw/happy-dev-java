@@ -64,7 +64,7 @@ public class BaseGenerator {
      * @return 所有属性
      * @throws Exception
      */
-    protected static List<Field> collectAllFields(Class entityClass) throws Exception {
+    public static List<Field> collectAllFields(Class entityClass) throws Exception {
         List<Field> fields = new ArrayList<>();
 
         for (Field field : entityClass.getDeclaredFields()) {

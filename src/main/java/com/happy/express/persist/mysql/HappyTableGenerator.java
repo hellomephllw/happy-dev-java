@@ -169,7 +169,7 @@ public class HappyTableGenerator extends BaseGenerator {
      * @return 表格名称
      * @throws Exception
      */
-    private static String getTableName(Class entity) throws Exception {
+    public static String getTableName(Class entity) throws Exception {
         String tableName = null;
         for (Annotation annotation : entity.getAnnotations()) {
             if (annotation.annotationType() == HappyTable.class) {
