@@ -173,7 +173,7 @@ public class DateUtil {
      * 上个月
      * @return 上个月
      */
-    public static Date lastMouth() {
+    public static Date lastMonth() {
         return offsetDate(new Date(), Calendar.MONTH, -1);
     }
 

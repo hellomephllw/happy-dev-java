@@ -17,12 +17,16 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            Pattern p = Pattern.compile("@[a-zA-Z0-9]+");
-            Matcher m = p.matcher("select * from @FamilyName where id >= floor(((select max(id) from @FamilyName) - (select min(id) from @FamilyName) + 1) * rand()) + (select min(id) from @FamilyName) limit 1;");
+            List<String> list = new ArrayList<>();
+            list.add("a");
+            list.add("b");
+            list.add("c");
 
-            while(m.find()) {
-                System.out.println(m.group());//group方法返回由以前匹配操作所匹配的输入子序列。
-            }
+            String c = list.get(2);
+            list.remove(c);
+            list.add(0, c);
+
+            System.out.println(list);
         } catch (Exception e) {
             e.printStackTrace();
         }

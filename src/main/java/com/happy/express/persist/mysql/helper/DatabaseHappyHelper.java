@@ -1,30 +1,22 @@
 package com.happy.express.persist.mysql.helper;
 
-import com.google.common.base.CaseFormat;
-import com.happy.express.persist.mysql.ExtClassPathLoader;
-import com.happy.util.FileUtil;
+import com.happy.express.persist.annotation.HappyCol;
+import com.happy.express.persist.annotation.HappyId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.TableGenerator;
-import javax.persistence.Version;
-import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @description: 数据库处理工具
  * @author: llw
- * @date: 2018-11-23
+ * @date: 2020-08-19
  */
-public class DatabaseHelper extends BaseDatabaseHelper {
+public class DatabaseHappyHelper extends BaseDatabaseHelper {
 
     /**logger*/
     private static Logger logger = LoggerFactory.getLogger(DatabaseHelper.class);
@@ -87,7 +79,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      * @throws Exception
      */
     public static void addField(String tableName, Field entityField) throws Exception {
-        Column column = entityField.getAnnotation(Column.class);
+        HappyCol column = entityField.getAnnotation(HappyCol.class);
         if (column == null) return ;
 
         //添加字段sql
@@ -129,15 +121,10 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      * @throws Exception
      */
     public static void modifyField(String tableName, Field entityField) throws Exception {
-        Column column = entityField.getAnnotation(Column.class);
-        Id id = entityField.getAnnotation(Id.class);
-        Version version = entityField.getAnnotation(Version.class);
+        HappyCol column = entityField.getAnnotation(HappyCol.class);
+        HappyId id = entityField.getAnnotation(HappyId.class);
         if (id != null) {
             modifyId(tableName, entityField);
-            return ;
-        }
-        if (version != null) {
-            modifyVersion(tableName, entityField);
             return ;
         }
         if (column == null) return ;
@@ -190,22 +177,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
     }
 
     /**
-     * 修改version字段
-     * @param tableName 表名
-     * @param entityField 实体字段
-     * @throws Exception
-     */
-    private static void modifyVersion(String tableName, Field entityField) throws Exception {
-        String sql = "alter table " + tableName + " modify version " + getWholeDbFieldTypeByEntityFieldType(entityField) + ";";
-
-        //执行修改
-        statement.executeUpdate(sql);
-
-        logger.warn("把数据库表(" + tableName + ")字段(version), 修改为version " + getWholeDbFieldTypeByEntityFieldType(entityField));
-        logger.warn("修改version字段的sql: " + sql);
-    }
-
-    /**
      * 删除字段
      * @param tableName 表名
      * @param dbFieldName 数据库字段名
@@ -228,7 +199,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      * @throws Exception
      */
     public static void addUniqueIndex(String tableName, Field entityField) throws Exception {
-        Column column = entityField.getAnnotation(Column.class);
+        HappyCol column = entityField.getAnnotation(HappyCol.class);
         if (column == null) return ;
         if (!column.unique()) return ;
         if (existUniqueIndex(tableName, entityField.getName())) return ;
@@ -256,7 +227,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      * @throws Exception
      */
     public static void deleteUniqueIndex(String tableName, Field entityField) throws Exception {
-        Column column = entityField.getAnnotation(Column.class);
+        HappyCol column = entityField.getAnnotation(HappyCol.class);
         if (column == null) return ;
         if (column.unique()) return ;
         if (!existUniqueIndex(tableName, entityField.getName())) return ;
@@ -296,14 +267,11 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      * @throws Exception
      */
     private static String createFieldStringForAddTable(Field entityField) throws Exception {
-        if (entityField.getAnnotation(Id.class) != null) {
+        if (entityField.getAnnotation(HappyId.class) != null) {
             return createPrimaryKeyStringForAddTable();
         }
-        if (entityField.getAnnotation(Version.class) != null) {
-            return createVersionStringForAddTable();
-        }
-        if (entityField.getAnnotation(Column.class) != null) {
-            Column column = entityField.getAnnotation(Column.class);
+        if (entityField.getAnnotation(HappyCol.class) != null) {
+            HappyCol column = entityField.getAnnotation(HappyCol.class);
             StringBuilder fieldLine = new StringBuilder();
             fieldLine.append(" ");
             fieldLine.append(getDatabaseFieldName(entityField.getName()));
@@ -337,9 +305,9 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      */
     private static String addIdInitialValue(List<Field> fields) throws Exception {
         for (Field field : fields) {
-            if (field.getAnnotation(Id.class) != null && field.getAnnotation(TableGenerator.class) != null) {
-                TableGenerator tableGenerator = field.getAnnotation(TableGenerator.class);
-                int initialValue = tableGenerator.initialValue();
+            if (field.getAnnotation(HappyId.class) != null) {
+                HappyId tableGenerator = field.getAnnotation(HappyId.class);
+                int initialValue = tableGenerator.initialVal();
                 if (initialValue > 0) {
                     return " auto_increment = " + initialValue;
                 }
@@ -347,16 +315,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         }
 
         return "";
-    }
-
-    /**
-     * 创建version字段字符串
-     * @return version字段字符串
-     * @throws Exception
-     */
-    private static String createVersionStringForAddTable() throws Exception {
-
-        return "version int";
     }
 
     /**
@@ -382,13 +340,13 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                     || fieldType == Boolean.class) {
                 return getDbFieldTypeByEntityFieldType(entityField);
             } else if (fieldType == String.class) {
-                Column column = entityField.getAnnotation(Column.class);
-                if (!"".equals(column.columnDefinition())) {
+                HappyCol column = entityField.getAnnotation(HappyCol.class);
+                if (column.text()) {
                     return getDbFieldTypeByEntityFieldType(entityField);
                 }
-                return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.length() + ")";
+                return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.len() + ")";
             } else if (fieldType == BigDecimal.class) {
-                Column column = entityField.getAnnotation(Column.class);
+                HappyCol column = entityField.getAnnotation(HappyCol.class);
                 return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.precision() + "," + column.scale() + ")";
             }
         }
@@ -426,9 +384,9 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         } else {
             Class fieldType = entityField.getType();
             if (fieldType == String.class) {
-                Column column = entityField.getAnnotation(Column.class);
-                if (!"".equals(column.columnDefinition())) {
-                    return column.columnDefinition().trim();
+                HappyCol column = entityField.getAnnotation(HappyCol.class);
+                if (column.text()) {
+                    return "text";
                 }
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
