@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="${entityPackagePath}.${entityClassName}">
         <id column="id" property="id"/>
         <#list props as prop>
-            <result column="${prop.col}" property="${prop.prop}"/>
+        <result column="${prop.col}" property="${prop.prop}"/>
         </#list>
     </resultMap>
     <sql id="BaseColumnList">
@@ -103,7 +103,7 @@
     </select>
 
     <select id="count" resultType="int">
-        select count(*) from t_user
+        select count(*) from ${tableName}
         <where>
             <if test="todo!=null and todo!=''">
                 todo=${wellNumberPre}todo${wellNumberEnd}
