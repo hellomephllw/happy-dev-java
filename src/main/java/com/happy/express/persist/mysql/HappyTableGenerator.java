@@ -45,7 +45,7 @@ public class HappyTableGenerator extends BaseGenerator {
      * 表检查，可能回执行表同步任务
      * @throws Exception
      */
-    private static void diffAndGenerate() throws Exception {
+    public static void diffAndGenerate() throws Exception {
         List<Class> entities = EntityReader.getEntities();
 
         /**实体安全检查*/

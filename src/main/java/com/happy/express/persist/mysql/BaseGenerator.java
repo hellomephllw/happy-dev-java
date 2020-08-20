@@ -68,6 +68,7 @@ public class BaseGenerator {
         List<Field> fields = new ArrayList<>();
 
         for (Field field : entityClass.getDeclaredFields()) {
+            if (field.getAnnotations().length == 0) continue;
             fields.add(field);
         }
         if (entityClass.getSuperclass() != Object.class) {

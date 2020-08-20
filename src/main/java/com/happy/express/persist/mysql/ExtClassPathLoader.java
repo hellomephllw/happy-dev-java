@@ -108,10 +108,8 @@ public final class ExtClassPathLoader {
             JarEntry je = en.nextElement();
             String name = je.getName();
             String s5 = name.replace('/', '.');
-            if (s5.lastIndexOf(".class") > 0) {
-                String className = je.getName().substring(0,
-                        je.getName().length() - ".class".length()).replace('/',
-                        '.');
+            if (s5.endsWith(".class")) {
+                String className = je.getName().substring(0, je.getName().length() - ".class".length()).replace('/', '.');
                 classloader.loadClass(className);
                 logger.info("已加载类: " + className);
             }

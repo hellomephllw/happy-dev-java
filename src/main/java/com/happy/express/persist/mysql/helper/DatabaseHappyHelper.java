@@ -45,10 +45,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(addIdInitialValue(entityFields));
 
         //执行建表
+        logger.info("建表sql: " + sql.toString());
         statement.executeUpdate(sql.toString());
 
         logger.info("已创建数据库表: " + tableName);
-        logger.info("建表sql: " + sql.toString());
 
         //创建独立索引
         for (Field entityField : entityFields) {
@@ -66,10 +66,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String sql = "drop table " + tableName + ";";
 
         //执行删除
+        logger.info("删除表格sql: " + sql);
         statement.executeUpdate(sql);
 
         logger.info("已删除数据库表: " + tableName);
-        logger.info("删除表格sql: " + sql);
     }
 
     /**
@@ -97,6 +97,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(";");
 
         //执行添加字段
+        logger.info("添加字段的sql: " + sql.toString());
         statement.executeUpdate(sql.toString());
 
         String fieldStr = getDatabaseFieldName(entityField.getName())
@@ -104,7 +105,6 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
                 + (!column.nullable() && !column.unique() ? " not null" : "");
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
-        logger.info("添加字段的sql: " + sql.toString());
 
         if (!column.nullable() && column.unique()) {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
@@ -146,6 +146,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(";");
 
         //执行修改字段
+        logger.warn("修改字段的sql: " + sql.toString());
         statement.executeUpdate(sql.toString());
 
         String fieldStr = getDatabaseFieldName(entityField.getName())
@@ -153,7 +154,6 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
                 + (!column.nullable() && !column.unique() ? " not null" : " null");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
-        logger.warn("修改字段的sql: " + sql.toString());
 
         if (!column.nullable() && column.unique()) {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功修改字段");
@@ -170,10 +170,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String sql = "alter table " + tableName + " modify id " + getWholeDbFieldTypeByEntityFieldType(entityField) + ";";
 
         //执行修改
+        logger.warn("修改id字段的sql: " + sql);
         statement.executeUpdate(sql);
 
         logger.warn("把数据库表(" + tableName + ")字段(version), 修改为id " + getWholeDbFieldTypeByEntityFieldType(entityField));
-        logger.warn("修改id字段的sql: " + sql);
     }
 
     /**
@@ -186,10 +186,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String sql = "alter table " + tableName + " drop " + dbFieldName + ";";
 
         //执行删除
+        logger.warn("删除字段的sql: " + sql);
         statement.executeUpdate(sql);
 
         logger.warn("把数据库表(" + tableName + ")字段(" + dbFieldName + ")删除");
-        logger.warn("删除字段的sql: " + sql);
     }
 
     /**

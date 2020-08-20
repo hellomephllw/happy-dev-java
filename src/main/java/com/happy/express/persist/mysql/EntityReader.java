@@ -1,12 +1,19 @@
 package com.happy.express.persist.mysql;
 
 import com.happy.express.code.BasicCodeGenerator;
+import com.happy.util.FileUtil;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * @description: 读取所有实体
@@ -39,6 +46,27 @@ public class EntityReader {
                     addEntity(innerFile, dirName);
                 }
             }
+        }
+    }
+
+    /**
+     * 在jar包的自身classPath下读取所有实体class
+     * @param userConfigBasePackagePath 用户配置基础包路径
+     * @throws Exception
+     */
+    public static void readAllEntitiesInJarClassPath(String userConfigBasePackagePath) throws Exception {
+        String entityPackagePath = userConfigBasePackagePath + "/entity";
+        String jarPath = FileUtil.getWebRootAbsolutePath().split("file:")[1].split("!")[0];
+        JarFile jarFile = new JarFile(jarPath);
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+            if (entry.isDirectory() || !name.contains(entityPackagePath) || !name.endsWith(".class")) continue;
+            name = name.split("classes")[1].replace('/', '.');
+            String className = name.substring(1, name.length() - ".class".length());
+            Class entityClass = EntityReader.class.getClassLoader().loadClass(className);
+            entities.add(entityClass);
         }
     }
 

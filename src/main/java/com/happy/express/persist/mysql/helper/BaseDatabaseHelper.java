@@ -7,6 +7,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ public abstract class BaseDatabaseHelper {
 
     /**
      * 连接数据库
+     * @param env 环境
      * @throws Exception
      */
     public static void connectDatabase(String env) throws Exception {
@@ -49,6 +51,24 @@ public abstract class BaseDatabaseHelper {
         readDatabaseConfig(env);
         //加载jdbc相关jar包到classpath
         ExtClassPathLoader.loadAllJars(getProjectLibPath());
+        //加载驱动类
+        Class.forName(databaseRiver);
+        //获取数据库连接
+        conn = DriverManager.getConnection(databaseUrl, username, password);
+        //初始化数据库元数据
+        metaData = conn.getMetaData();
+        //初始化数据库声明
+        statement = conn.createStatement();
+    }
+
+    /**
+     * 连接数据库
+     * @param env 环境
+     * @throws Exception
+     */
+    public static void connectDatabaseInJar(String env) throws Exception {
+        //读取数据库配置
+        readDatabaseConfigInJar(env);
         //加载驱动类
         Class.forName(databaseRiver);
         //获取数据库连接
@@ -84,6 +104,43 @@ public abstract class BaseDatabaseHelper {
         Map<String, Map<String, Map<String, String>>> map = yaml.load(new FileInputStream(ymlFile));
         Map<String, String> datasourceConfig = map.get("spring").get("datasource");
         //取出数据库配置
+        readConfigOut(datasourceConfig);
+    }
+
+    /**
+     * 根据环境变量读取数据库配置
+     * @param env 环境变量
+     * @throws Exception
+     */
+    private static void readDatabaseConfigInJar(String env) throws Exception {
+        if (env == null || "".equals(env)) throw new Exception("环境变了不能为空");
+
+        String applicationFileName;
+        if (env.equals("dev")) {
+            applicationFileName = "application.yml";
+        } else if (env.equals("test")) {
+            applicationFileName = "application-test.yml";
+        } else if (env.equals("prod")) {
+            applicationFileName = "application-prod.yml";
+        } else {
+            throw new Exception("环境变量值只能是dev、test或prod");
+        }
+
+        //读取yaml
+        Yaml yaml = new Yaml();
+        InputStream inputStream = BaseDatabaseHelper.class.getResourceAsStream("/" + applicationFileName);
+        Map<String, Map<String, Map<String, String>>> map = yaml.load(inputStream);
+        Map<String, String> datasourceConfig = map.get("spring").get("datasource");
+        //取出数据库配置
+        readConfigOut(datasourceConfig);
+    }
+
+    /**
+     * 取出数据库配置
+     * @param datasourceConfig 配置
+     * @throws Exception
+     */
+    private static void readConfigOut(Map<String, String> datasourceConfig) throws Exception {
         databaseUrl = datasourceConfig.get("url");
         username = datasourceConfig.get("username");
         password = datasourceConfig.get("password") + "";
