@@ -109,7 +109,6 @@
                 todo=${wellNumberPre}todo${wellNumberEnd}
             </if>
         </where>
-        limit ${wellNumberPre}pageStart${wellNumberEnd}, ${wellNumberPre}pageEnd${wellNumberEnd}
     </select>
 
 </mapper>

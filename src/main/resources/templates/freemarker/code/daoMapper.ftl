@@ -22,7 +22,7 @@ public interface I${entityClassName}Dao {
 
     public void removeByIds(List<Integer> ids) throws Exception;
 
-    public void updateProps(@Param("id")int id) throws Exception;
+    public void updateProps(@Param("id") int id) throws Exception;
 
     public void update(${entityClassName} ${entityInstanceName}) throws Exception;
 
@@ -34,10 +34,9 @@ public interface I${entityClassName}Dao {
 
     public List<${entityClassName}> findByIds(List<Integer> ids) throws Exception;
 
-    public List<${entityClassName}> query(@Param("pageStart")int pageStart,
-                                          @Param("pageEnd")int pageEnd) throws Exception;
+    public List<${entityClassName}> query(@Param("pageStart") int pageStart,
+                                          @Param("pageEnd") int pageEnd) throws Exception;
 
-    public int count(@Param("pageStart")int pageStart,
-                     @Param("pageEnd")int pageEnd) throws Exception;
+    public int count() throws Exception;
 
 }
