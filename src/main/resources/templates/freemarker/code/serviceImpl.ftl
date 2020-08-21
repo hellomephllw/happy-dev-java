@@ -28,7 +28,7 @@ public class I${entityClassName}ServiceImpl extends BaseService implements I${en
         int endNo = pageNo * pageSize;
 
         List<${entityClassName}> list = ${entityInstanceName}Dao.query(startNo, endNo);
-        int count = ${entityInstanceName}Dao.count(startNo, endNo);
+        int count = ${entityInstanceName}Dao.count();
 
         return new PagingDto<>(list, count);
     }
