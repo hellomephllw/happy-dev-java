@@ -34,8 +34,8 @@ public interface I${entityClassName}Dao {
 
     public List<${entityClassName}> findByIds(List<Integer> ids) throws Exception;
 
-    public List<${entityClassName}> query(@Param("pageStart") int pageStart,
-                                          @Param("pageEnd") int pageEnd) throws Exception;
+    public List<${entityClassName}> query(@Param("startNo") int startNo,
+                                        @Param("endNo") int endNo) throws Exception;
 
     public int count() throws Exception;
 

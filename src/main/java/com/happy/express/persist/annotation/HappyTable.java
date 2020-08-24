@@ -11,4 +11,6 @@ public @interface HappyTable {
 
     public String tableName() default "";
 
+    public String splitTableStrategy() default "";
+
 }
