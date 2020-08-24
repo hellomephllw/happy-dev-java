@@ -5,11 +5,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+/**
+ * @description: 分表dao
+ * @author: llw
+ * @date: 2020-08-24
+ */
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HappySplitTable {
+public @interface HappySplitTableDao {
 
     public String tableName() default "";
 
-    public Class splitTableStrategy();
+    public String[] methods();
+
 }

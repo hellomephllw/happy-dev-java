@@ -6,14 +6,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @description: id
+ * @description: 分表dao方法
  * @author: llw
- * @date: 2020-08-19
+ * @date: 2020-08-24
  */
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HappyId {
+public @interface HappySplitTableMethod {
 
-    public int initialVal() default 0;
+    public Class splitTableStrategy();
 
 }

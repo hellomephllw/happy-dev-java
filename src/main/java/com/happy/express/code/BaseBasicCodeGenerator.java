@@ -19,8 +19,8 @@ import java.io.OutputStreamWriter;
 import java.util.Map;
 
 /**
- * @description:
- * @author:
+ * @description: 基础代码生成器基类
+ * @author: llw
  * @date: 2020-08-19
  */
 public class BaseBasicCodeGenerator {
