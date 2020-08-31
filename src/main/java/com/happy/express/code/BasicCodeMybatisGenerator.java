@@ -137,7 +137,7 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
      * @throws Exception
      */
     public static void generateServiceImplCode() throws Exception {
-        generateInterfaceImplement("service");
+        generateInterfaceImplement("service", true);
     }
 
     /**

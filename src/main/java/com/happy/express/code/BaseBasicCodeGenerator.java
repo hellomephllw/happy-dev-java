@@ -162,9 +162,13 @@ public class BaseBasicCodeGenerator {
      * @param type 接受dao或service
      * @throws Exception
      */
-    protected static void generateInterfaceImplement(String type) throws Exception {
+    protected static void generateInterfaceImplement(String type, boolean mybatis) throws Exception {
         String typeUpper = type.substring(0, 1).toUpperCase() + type.substring(1);
         String typeLower = type.substring(0, 1).toLowerCase() + type.substring(1);
+        String templateName = typeLower;
+        if (mybatis && type.equals("service")) {
+            templateName = "mybatisService";
+        }
 
         Map<String, Class> entities = PackageReader.entities;
         for (String classPackagePath : entities.keySet()) {
@@ -187,7 +191,7 @@ public class BaseBasicCodeGenerator {
             if (daoFile.exists()) continue;
 
             //生成模板
-            Template template = configuration.getTemplate(typeLower + "Impl.ftl");
+            Template template = configuration.getTemplate(templateName + "Impl.ftl");
             File dir = new File(dirPath);
             if (!dir.exists()) {
                 dir.mkdir();
