@@ -179,7 +179,7 @@ public class ObjectUtil {
     @SuppressWarnings("unchecked")
     private static <T> void fillVal(Field currField, Object object, Class objectClazz, T targetObject, Class<T> anotherClazz) throws Exception {
         for (Field objField : objectClazz.getDeclaredFields()) {
-            if (currField.getName().equals(objField.getName()) && currField.getType() == objField.getType()) {
+            if (currField.getName().equals(objField.getName()) && currField.getType() == objField.getType() && !currField.getName().equals("serialVersionUID")) {
                 Method method;
                 String transformName = objField.getName().substring(0, 1).toUpperCase() + objField.getName().substring(1);
                 if (objField.getGenericType().toString().toLowerCase().equals("boolean")) {

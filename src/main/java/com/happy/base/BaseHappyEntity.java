@@ -1,24 +1,24 @@
 package com.happy.base;
 
+import com.happy.express.persist.annotation.HappyId;
 import lombok.Data;
 
-import javax.persistence.*;
+import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 /**
- * @description: 模型对象基类，所有实体都要继承该基类
+ * @description: 实体基类
  * @author: llw
- * @date: 2016-11-17
+ * @date: 2020-08-19
  */
 @MappedSuperclass
 @Data
-public abstract class BaseEntity implements Serializable, Comparable {
+public class BaseHappyEntity implements Serializable, Comparable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 物理主键 */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    /**物理主键*/
+    @HappyId
     protected int id;
 
     @Override

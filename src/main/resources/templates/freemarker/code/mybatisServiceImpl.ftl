@@ -25,8 +25,9 @@ public class I${entityClassName}ServiceImpl extends BaseService implements I${en
 
     private PagingDto<${entityClassName}> paging(int pageNo, int pageSize) throws Exception {
         int startNo = (pageNo - 1) * pageSize;
+        int pageCount = pageSize;
 
-        List<${entityClassName}> list = ${entityInstanceName}Dao.query(startNo, pageSize);
+        List<${entityClassName}> list = ${entityInstanceName}Dao.query(startNo, pageCount);
         int count = ${entityInstanceName}Dao.count();
 
         return new PagingDto<>(list, count);

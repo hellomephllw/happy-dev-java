@@ -15,7 +15,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * @description:
+ * @description: 加载jar包工具
  * @author: llw
  * @date: 2018-11-23
  */
@@ -108,10 +108,8 @@ public final class ExtClassPathLoader {
             JarEntry je = en.nextElement();
             String name = je.getName();
             String s5 = name.replace('/', '.');
-            if (s5.lastIndexOf(".class") > 0) {
-                String className = je.getName().substring(0,
-                        je.getName().length() - ".class".length()).replace('/',
-                        '.');
+            if (s5.endsWith(".class")) {
+                String className = je.getName().substring(0, je.getName().length() - ".class".length()).replace('/', '.');
                 classloader.loadClass(className);
                 logger.info("已加载类: " + className);
             }
@@ -119,7 +117,7 @@ public final class ExtClassPathLoader {
     }
 
     /**
-     * 初始化addUrl 方法.
+     * 初始化addUrl方法
      * @return 可访问addUrl方法的Method对象
      */
     private static Method initAddMethod() {
@@ -134,9 +132,8 @@ public final class ExtClassPathLoader {
     }
 
     /**
-     * 通过filepath加载文件到classpath。
+     * 通过filepath加载文件到classpath
      * @param file 文件路径
-     * @return URL
      * @throws Exception 异常
      */
     private static void addURL(File file) throws Exception {
