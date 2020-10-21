@@ -1,7 +1,7 @@
 # happy-dev-java
 easy to dev and build spring boot project
 
-# 实现快速开发
+# 实现快速开发，提高生产力
 
 ### 1.按需自动生成基础dao和service
 
