@@ -7,44 +7,48 @@
         <result column="${prop.col}" property="${prop.prop}"/>
         </#list>
     </resultMap>
-    <sql id="BaseColumnList">
+    <sql id="tableName">
+        ${tableName}
+    </sql>
+    <sql id="baseColumns">
         ${entityCols}
+    </sql>
+    <sql id="insertValues">
+        ${batchInsertValues}
     </sql>
 
     <insert id="add" parameterType="${entityPackagePath}.${entityClassName}">
-        insert into ${tableName} (${insertCols})
-        values (${insertValues})
+        insert into <include refid="tableName"/> (<include refid="baseColumns"/>)
+        values (<include refid="insertValues"/>)
     </insert>
 
     <insert id="addBatch" parameterType="${entityPackagePath}.${entityClassName}">
-        insert into ${tableName} (${insertCols})
+        insert into <include refid="tableName"/> (<include refid="baseColumns"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (
-            ${batchInsertValues}
-            )
+            (<include refid="insertValues"/>)
         </foreach>
     </insert>
 
     <delete id="remove">
-        delete from ${tableName} where id=${wellNumberPre}id${wellNumberEnd}
+        delete from <include refid="tableName"/> where id=${wellNumberPre}id${wellNumberEnd}
     </delete>
 
     <delete id="removeByIds" parameterType="java.util.List">
-        delete from ${tableName} where id in
+        delete from <include refid="tableName"/> where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">
             ${wellNumberPre}item${wellNumberEnd}
         </foreach>
     </delete>
 
     <update id="updateProps">
-        update ${tableName}
+        update <include refid="tableName"/>
         set todo=${wellNumberPre}todo${wellNumberEnd}
         where id=${wellNumberPre}id${wellNumberEnd}
     </update>
 
     <update id="update" parameterType="${entityPackagePath}.${entityClassName}">
-        update ${tableName}
+        update <include refid="tableName"/>
         set
         <#assign num=0>
         <#list propsWithoutId as prop>
@@ -56,7 +60,7 @@
 
     <update id="updateBatch" parameterType="java.util.List">
         <foreach collection="list" item="item" separator=";">
-            update ${tableName}
+            update <include refid="tableName"/>
             set
             <#assign num=0>
             <#list propsWithoutId as prop>
@@ -69,21 +73,21 @@
 
     <select id="get" resultMap="BaseResultMap">
         select
-        <include refid="BaseColumnList"/>
-        from ${tableName}
+        <include refid="tableName"/>
+        from <include refid="baseColumns"/>
         where id=${wellNumberPre}id${wellNumberEnd}
     </select>
 
     <select id="findAll" resultMap="BaseResultMap">
         select
-        <include refid="BaseColumnList"/>
-        from ${tableName}
+        <include refid="tableName"/>
+        from <include refid="baseColumns"/>
     </select>
 
     <select id="findByIds" resultMap="BaseResultMap">
         select
-        <include refid="BaseColumnList"/>
-        from ${tableName}
+        <include refid="tableName"/>
+        from <include refid="baseColumns"/>
         where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">
             ${wellNumberPre}item${wellNumberEnd}
@@ -92,8 +96,8 @@
 
     <select id="query" resultMap="BaseResultMap">
         select
-        <include refid="BaseColumnList"/>
-        from ${tableName}
+        <include refid="tableName"/>
+        from <include refid="baseColumns"/>
         <where>
             <if test="todo!=null and todo!=''">
                 todo=${wellNumberPre}todo${wellNumberEnd}
@@ -103,7 +107,7 @@
     </select>
 
     <select id="count" resultType="int">
-        select count(*) from ${tableName}
+        select count(*) from <include refid="tableName"/>
         <where>
             <if test="todo!=null and todo!=''">
                 todo=${wellNumberPre}todo${wellNumberEnd}
