@@ -20,47 +20,47 @@ import java.util.List;
 public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> implements I${entityClassName}Dao {
 
     @Override
-    public void add(${entityClassName} ${entityInstanceName}) throws Exception {
+    public void add(${entityClassName} ${entityInstanceName}) {
         super.save(${entityInstanceName});
     }
 
     @Override
-    public void addBatch(List<${entityClassName}> ${entityInstanceName}List) throws Exception {
+    public void addBatch(List<${entityClassName}> ${entityInstanceName}List) {
         super.saveBatch(${entityInstanceName}List);
     }
 
     @Override
-    public void remove(int id) throws Exception {
+    public void remove(int id) {
         super.deleteById(id);
     }
 
     @Override
-    public void removeByIds(List<Integer> ids) throws Exception {
+    public void removeByIds(List<Integer> ids) {
         super.deleteByIds(ids);
     }
 
     @Override
-    public void update(int id) throws Exception {
+    public void update(int id) {
         super.execDml("update User set todo=?1 where id=?2", Arrays.asList(null, id).toArray());
     }
 
     @Override
-    public void update(${entityClassName} ${entityInstanceName}) throws Exception {
+    public void update(${entityClassName} ${entityInstanceName}) {
         super.update(${entityInstanceName});
     }
 
     @Override
-    public void update(List<${entityClassName}> ${entityInstanceName}List) throws Exception {
+    public void update(List<${entityClassName}> ${entityInstanceName}List) {
         super.updateBatch(${entityInstanceName}List);
     }
 
     @Override
-    public ${entityClassName} get(int id) throws Exception {
+    public ${entityClassName} get(int id) {
         return super.findById(id);
     }
 
     @Override
-    public PagingDto<${entityClassName}> query(int pageNo, int pageSize) throws Exception {
+    public PagingDto<${entityClassName}> query(int pageNo, int pageSize) {
         StringSql jpql = new StringSql();
         List<Object> params = new ArrayList<>();
 
@@ -73,12 +73,12 @@ public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> i
     }
 
     @Override
-    public List<${entityClassName}> findAll() throws Exception {
+    public List<${entityClassName}> findAll() {
         return super.findQuickIdDesc("");
     }
 
     @Override
-    public List<${entityClassName}> findByIds(List<Integer> ids) throws Exception {
+    public List<${entityClassName}> findByIds(List<Integer> ids) {
         return super.findByIds(ids);
     }
 

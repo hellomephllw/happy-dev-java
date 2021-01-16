@@ -12,26 +12,26 @@ import java.util.List;
 */
 public interface I${entityClassName}Dao {
 
-    public void add(${entityClassName} ${entityInstanceName}) throws Exception;
+    void add(${entityClassName} ${entityInstanceName});
 
-    public void addBatch(List<${entityClassName}> ${entityInstanceName}List) throws Exception;
+    void addBatch(List<${entityClassName}> ${entityInstanceName}List);
 
-    public void remove(int id) throws Exception;
+    void remove(int id) ;
 
-    public void removeByIds(List<Integer> ids) throws Exception;
+    void removeByIds(List<Integer> ids);
 
-    public void update(int id) throws Exception;
+    void update(int id);
 
-    public void update(${entityClassName} ${entityInstanceName}) throws Exception;
+    void update(${entityClassName} ${entityInstanceName});
 
-    public void update(List<${entityClassName}> ${entityInstanceName}List) throws Exception;
+    void update(List<${entityClassName}> ${entityInstanceName}List);
 
-    public ${entityClassName} get(int id) throws Exception;
+    ${entityClassName} get(int id);
 
-    public PagingDto<${entityClassName}> query(int pageNo, int pageSize) throws Exception;
+    PagingDto<${entityClassName}> query(int pageNo, int pageSize);
 
-    public List<${entityClassName}> findAll() throws Exception;
+    List<${entityClassName}> findAll();
 
-    public List<${entityClassName}> findByIds(List<Integer> ids) throws Exception;
+    List<${entityClassName}> findByIds(List<Integer> ids);
 
 }
