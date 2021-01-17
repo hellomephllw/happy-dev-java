@@ -114,9 +114,15 @@ public class FieldStateParams {
         if (column != null) {
             isNullable = column.nullable();
             isUnique = column.unique();
+            entityFieldLen = column.length();
+            entityFieldPrecision = column.precision();
+            entityFieldScale = column.scale();
         } else if (happyCol != null) {
             isNullable = happyCol.nullable();
             isUnique = happyCol.unique();
+            entityFieldLen = happyCol.len();
+            entityFieldPrecision = happyCol.precision();
+            entityFieldScale = happyCol.scale();
         }
         if (checkNullable) {
             //非空检查

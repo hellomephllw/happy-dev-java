@@ -152,8 +152,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
         if (isNotNull) {
             sql.append(" not null");
-        } else {
-            sql.append(" null");
         }
         sql.append(";");
 
@@ -163,7 +161,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (isNotNull ? " not null" : " null");
+                + (isNotNull ? " not null" : "");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
         logger.warn("修改字段的sql: " + sql.toString());
 

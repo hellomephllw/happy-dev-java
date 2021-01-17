@@ -144,8 +144,6 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
         if (!column.nullable() && !column.unique()) {
             sql.append(" not null");
-        } else {
-            sql.append(" null");
         }
         sql.append(";");
 
@@ -156,7 +154,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (!column.nullable() && !column.unique() ? " not null" : " null");
+                + (!column.nullable() && !column.unique() ? " not null" : "");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
 
         if (!column.nullable() && column.unique()) {
@@ -326,8 +324,8 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
             fieldLine.append(getDatabaseFieldName(entityField.getName()));
             fieldLine.append(" ");
             fieldLine.append(getWholeDbFieldTypeByEntityFieldType(entityField));
-            fieldLine.append(" ");
             if (!column.nullable()) {
+                fieldLine.append(" ");
                 fieldLine.append("not null");
             }
             return fieldLine.toString();
