@@ -237,6 +237,25 @@ public abstract class BaseDatabaseHelper {
     }
 
     /**
+     * 是否存在索引
+     * @param tableName 表名
+     * @param fieldNames 字段名
+     * @return 存在索引
+     * @throws Exception
+     */
+    public static boolean existIndex(String tableName, String... fieldNames) throws Exception {
+        ResultSet indexSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, false, true);
+        while (indexSet.next()) {
+            String indexName = indexSet.getString("INDEX_NAME");
+            if (indexName.equals(getIndexName(tableName, fieldNames))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * 获取所有表格
      * @return 所有表格
      * @throws Exception
@@ -279,7 +298,18 @@ public abstract class BaseDatabaseHelper {
      */
     public static ResultSet getAllUniqueIndexByTableName(String tableName) throws Exception {
 
-        return metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, true, true);
+         return metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, true, true);
+    }
+
+    /**
+     * 根据表名获取该表中所有索引
+     * @param tableName 数据库表
+     * @return 所有索引
+     * @throws Exception
+     */
+    public static ResultSet getAllIndexByTableName(String tableName) throws Exception {
+
+        return metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, false, true);
     }
 
     /**
@@ -292,6 +322,41 @@ public abstract class BaseDatabaseHelper {
     public static String getUniqueIndexName(String tableName, String entityFieldName) throws Exception {
 
         return tableName + "_unique_" + getDatabaseFieldName(entityFieldName);
+    }
+
+    /**
+     * 获取索引名称
+     * @param tableName 表明
+     * @param fieldNames 字段名
+     * @return 索引名称
+     * @throws Exception
+     */
+    public static String getIndexName(String tableName, String... fieldNames) throws Exception {
+        String cols = "";
+        int i = 0;
+        for (String fieldName : fieldNames) {
+            if (i++ != 0) cols += "_";
+            cols += fieldName;
+        }
+
+        return tableName + "__index__" + cols;
+    }
+
+    /**
+     * 获取索引列
+     * @param fieldNames 字段名
+     * @return 索引列
+     * @throws Exception
+     */
+    public static String getIndexCols(String... fieldNames) throws Exception {
+        String cols = "";
+        int i = 0;
+        for (String fieldName : fieldNames) {
+            if (i++ != 0) cols += ",";
+            cols += getDatabaseFieldName(fieldName);
+        }
+
+        return cols;
     }
 
     /**

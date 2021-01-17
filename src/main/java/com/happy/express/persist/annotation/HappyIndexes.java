@@ -6,14 +6,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @description: 表
- * @author: llw
- * @date: 2020-08-19
+ * @description: 表索引集合
+ * @author: liliwen
+ * @date: 2021-01-17
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HappyTable {
+public @interface HappyIndexes {
 
-    String tableName() default "";
+    HappyIndex[] indexes();
+
+    @Target({})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface HappyIndex {
+        String[] fields();
+    }
 
 }

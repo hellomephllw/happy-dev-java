@@ -17,4 +17,8 @@ public class FieldReverseForcer implements IFieldReverseProcessor {
         DatabaseHelper.deleteUniqueIndex(tableName, uniqueIndexName);
     }
 
+    @Override
+    public void unusedIndex(String tableName, String indexName) throws Exception {
+        DatabaseHelper.deleteIndex(tableName, indexName);
+    }
 }

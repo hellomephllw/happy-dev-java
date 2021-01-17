@@ -2,6 +2,7 @@ package com.happy.express.persist.mysql.helper;
 
 import com.happy.express.persist.annotation.HappyCol;
 import com.happy.express.persist.annotation.HappyId;
+import com.happy.express.persist.annotation.HappyIndexes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
      * @param entityFields 实体所有属性
      * @throws Exception
      */
-    public static void addTable(String tableName, List<Field> entityFields) throws Exception {
+    public static void addTable(String tableName, Class entity, List<Field> entityFields) throws Exception {
         //建表sql
         StringBuilder sql = new StringBuilder("create table " + tableName + "(");
         for (int i = 0; i < entityFields.size(); ++i) {
@@ -50,10 +51,12 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
 
         logger.info("已创建数据库表: " + tableName);
 
-        //创建独立索引
+        //创建唯一索引
         for (Field entityField : entityFields) {
             addUniqueIndex(tableName, entityField);
         }
+        //添加索引
+        addIndexes(entity, tableName);
     }
 
     /**
@@ -110,7 +113,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
         }
 
-        //创建独立索引
+        //创建唯一索引
         addUniqueIndex(tableName, entityField);
     }
 
@@ -258,6 +261,20 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         statement.executeUpdate(sql);
 
         logger.info("把数据库表(" + tableName + ")的唯一索引(" + uniqueIndexName + ")删除");
+    }
+
+    /**
+     * 添加索引
+     * @param entity 实体
+     * @param tableName 表名
+     * @throws Exception
+     */
+    public static void addIndexes(Class entity, String tableName) throws Exception {
+        HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
+        for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
+            String[] fields = happyIndex.fields();
+            DatabaseHelper.addIndex(tableName, fields);
+        }
     }
 
     /**

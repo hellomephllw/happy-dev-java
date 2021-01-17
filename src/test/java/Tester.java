@@ -17,16 +17,9 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            List<String> list = new ArrayList<>();
-            list.add("a");
-            list.add("b");
-            list.add("c");
-
-            String c = list.get(2);
-            list.remove(c);
-            list.add(0, c);
-
-            System.out.println(list);
+            String str = "a_b";
+            System.out.println(str.split("_")[0]);
+            System.out.println("a".split("_")[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }

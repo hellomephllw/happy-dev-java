@@ -14,8 +14,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HappySplitTableDao {
 
-    public String tableName() default "";
+    String tableName() default "";
 
-    public String[] methods();
+    String[] methods();
 
 }

@@ -111,7 +111,7 @@ public class FieldForcer implements IFieldProcessor {
         //构建参数
         FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkUnique, checkLength, checkDecimal);
 
-        //添加索引
+        //添加唯一索引
         if (fieldStateParams.addUnique) {
             DatabaseHelper.addUniqueIndex(tableName, field);
             if (!fieldStateParams.modifyType
@@ -122,7 +122,7 @@ public class FieldForcer implements IFieldProcessor {
                 logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
             }
         }
-        //删除索引
+        //删除唯一索引
         if (fieldStateParams.deleteUnique) {
             DatabaseHelper.deleteUniqueIndex(tableName, field);
         }

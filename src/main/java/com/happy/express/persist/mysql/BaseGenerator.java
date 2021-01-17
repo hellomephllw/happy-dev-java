@@ -1,6 +1,7 @@
 package com.happy.express.persist.mysql;
 
 import com.happy.express.persist.annotation.HappyCol;
+import com.happy.express.persist.annotation.HappyIndexes;
 import com.happy.express.persist.mysql.helper.DatabaseHelper;
 import com.happy.express.persist.mysql.helper.IFieldProcessor;
 import com.happy.express.persist.mysql.helper.IFieldReverseProcessor;
@@ -143,11 +144,12 @@ public class BaseGenerator {
     /**
      * 检查数据库表格多余的字段和唯一索引
      * @param tableName 表名
+     * @param entity 实体
      * @param fields 字段集合
      * @param isHappyDev 是happyDev的注解
      * @throws Exception
      */
-    protected static void dbTableUnusedChecker(String tableName, List<Field> fields, IFieldReverseProcessor fieldReverseProcessor, boolean isHappyDev) throws Exception {
+    protected static void dbTableUnusedChecker(String tableName, Class entity, List<Field> fields, IFieldReverseProcessor fieldReverseProcessor, boolean isHappyDev) throws Exception {
         //检查多余的字段
         ResultSet columnSet = DatabaseHelper.getAllFieldsByTableName(tableName);
         while (columnSet.next()) {
@@ -168,6 +170,10 @@ public class BaseGenerator {
         while (uniqueSet.next()) {
             String uniqueIndexName = uniqueSet.getString("INDEX_NAME");
             if (uniqueIndexName.toLowerCase().equals("primary")) {
+                continue;
+            }
+            if (!uniqueIndexName.contains("_unique_")) {
+                fieldReverseProcessor.unusedUniqueIndex(tableName, uniqueIndexName);
                 continue;
             }
             String dbFieldName = uniqueIndexName.split("_unique_")[1];
@@ -195,6 +201,52 @@ public class BaseGenerator {
                 fieldReverseProcessor.unusedUniqueIndex(tableName, uniqueIndexName);
             }
         }
+        //检查多余的索引
+        ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
+        while (indexSet.next()) {
+            String indexName = indexSet.getString("INDEX_NAME");
+            if (indexName.toLowerCase().equals("primary")) {
+                continue;
+            }
+            if (!indexName.contains("__index__")) {
+                fieldReverseProcessor.unusedIndex(tableName, indexName);
+                continue;
+            }
+            String dbFieldNames = indexName.split("__index__")[1];
+            boolean exist = false;
+            HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
+            for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
+                String[] indexFields = happyIndex.fields();
+                int i = 0;
+                int size = dbFieldNames.length();
+                for (String fieldName : dbFieldNames.split("_")) {
+                    if (fieldName.equals(indexFields[i++])) {
+                        --size;
+                    }
+                }
+                if (size <= 0) {
+                    exist = true;
+                    break;
+                }
+            }
+            if (!exist) {
+                fieldReverseProcessor.unusedIndex(tableName, indexName);
+            }
+        }
+    }
+
+    /**
+     * 新增索引
+     * @param entity 实体
+     * @param tableName 表名
+     * @throws Exception
+     */
+    protected static void addIndexes(Class entity, String tableName) throws Exception {
+        HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
+        for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
+            String[] fields = happyIndex.fields();
+            DatabaseHelper.addIndex(tableName, fields);
+        }
     }
 
     /**
@@ -213,6 +265,10 @@ public class BaseGenerator {
      */
     protected static void initUserConfigBasePackagePath(String userConfigBasePackagePath) throws Exception {
         _USER_CONFIG_BASE_PACKAGE_PATH = userConfigBasePackagePath.replaceAll("\\.", "/");
+    }
+
+    private static void removeIndexes() throws Exception {
+        //todo
     }
 
 }

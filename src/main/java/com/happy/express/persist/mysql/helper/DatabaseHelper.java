@@ -1,23 +1,19 @@
 package com.happy.express.persist.mysql.helper;
 
-import com.google.common.base.CaseFormat;
-import com.happy.express.persist.mysql.ExtClassPathLoader;
-import com.happy.util.FileUtil;
+import com.happy.express.persist.annotation.HappyCol;
+import com.happy.express.persist.annotation.HappyId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.TableGenerator;
 import javax.persistence.Version;
-import java.io.File;
-import java.io.FileInputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @description: 数据库处理工具
@@ -88,8 +84,10 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      */
     public static void addField(String tableName, Field entityField) throws Exception {
         Column column = entityField.getAnnotation(Column.class);
-        if (column == null) return ;
+        HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
+        if (column == null && happyCol == null) return ;
 
+        boolean isNotNull = isNotNull(column, happyCol);
         //添加字段sql
         StringBuilder sql = new StringBuilder();
         sql.append("alter table");
@@ -99,9 +97,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
-        if (!column.nullable() && !column.unique()) {
-            sql.append(" not null");
-        }
+        if (isNotNull) sql.append(" not null");
         sql.append(";");
 
         //执行添加字段
@@ -110,11 +106,11 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (!column.nullable() && !column.unique() ? " not null" : "");
+                + (isNotNull ? " not null" : "");
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
         logger.info("添加字段的sql: " + sql.toString());
 
-        if (!column.nullable() && column.unique()) {
+        if (isNotNullUniqueWarn(column, happyCol)) {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
         }
 
@@ -130,9 +126,11 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      */
     public static void modifyField(String tableName, Field entityField) throws Exception {
         Column column = entityField.getAnnotation(Column.class);
+        HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
         Id id = entityField.getAnnotation(Id.class);
+        HappyId happyId = entityField.getAnnotation(HappyId.class);
         Version version = entityField.getAnnotation(Version.class);
-        if (id != null) {
+        if (id != null || happyId != null) {
             modifyId(tableName, entityField);
             return ;
         }
@@ -140,7 +138,8 @@ public class DatabaseHelper extends BaseDatabaseHelper {
             modifyVersion(tableName, entityField);
             return ;
         }
-        if (column == null) return ;
+        if (column == null && happyCol == null) return ;
+        boolean isNotNull = isNotNull(column, happyCol);
 
         //修改sql字段
         StringBuilder sql = new StringBuilder();
@@ -151,7 +150,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
-        if (!column.nullable() && !column.unique()) {
+        if (isNotNull) {
             sql.append(" not null");
         } else {
             sql.append(" null");
@@ -164,11 +163,11 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (!column.nullable() && !column.unique() ? " not null" : " null");
+                + (isNotNull ? " not null" : " null");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
         logger.warn("修改字段的sql: " + sql.toString());
 
-        if (!column.nullable() && column.unique()) {
+        if (isNotNullUniqueWarn(column, happyCol)) {
             logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功修改字段");
         }
     }
@@ -185,7 +184,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         //执行修改
         statement.executeUpdate(sql);
 
-        logger.warn("把数据库表(" + tableName + ")字段(version), 修改为id " + getWholeDbFieldTypeByEntityFieldType(entityField));
+        logger.warn("把数据库表(" + tableName + ")字段(id), 修改为id " + getWholeDbFieldTypeByEntityFieldType(entityField));
         logger.warn("修改id字段的sql: " + sql);
     }
 
@@ -229,8 +228,9 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      */
     public static void addUniqueIndex(String tableName, Field entityField) throws Exception {
         Column column = entityField.getAnnotation(Column.class);
-        if (column == null) return ;
-        if (!column.unique()) return ;
+        HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
+        if (column == null && happyCol == null) return ;
+        if (!column.unique() && !happyCol.unique()) return ;
         if (existUniqueIndex(tableName, entityField.getName())) return ;
 
         String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
@@ -257,8 +257,9 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      */
     public static void deleteUniqueIndex(String tableName, Field entityField) throws Exception {
         Column column = entityField.getAnnotation(Column.class);
-        if (column == null) return ;
-        if (column.unique()) return ;
+        HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
+        if (column == null && happyCol == null) return ;
+        if (column.unique() || happyCol.unique()) return ;
         if (!existUniqueIndex(tableName, entityField.getName())) return ;
 
         String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
@@ -290,27 +291,59 @@ public class DatabaseHelper extends BaseDatabaseHelper {
     }
 
     /**
+     * 添加索引
+     * @param tableName 表名
+     * @param fieldNames 字段名
+     * @throws Exception
+     */
+    public static void addIndex(String tableName, String... fieldNames) throws Exception {
+        if (existIndex(tableName, fieldNames)) return ;
+
+        String indexName = getIndexName(tableName, fieldNames);
+        String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
+
+        statement.executeUpdate(sql);
+
+        logger.info("为数据库表(" + tableName + ")字段" + Arrays.asList(fieldNames).toString() + "添加索引(" + indexName + ")");
+    }
+
+    /**
+     * 删除索引
+     * @param tableName 表名
+     * @param indexName 索引名
+     * @throws Exception
+     */
+    public static void deleteIndex(String tableName, String indexName) throws Exception {
+        String sql = "alter table " + tableName + " drop index " + indexName + ";";
+
+        statement.executeUpdate(sql);
+
+        logger.info("把数据库表(" + tableName + ")的索引(" + indexName + ")删除");
+    }
+
+    /**
      * 创建表字段字符串
      * @param entityField 实体字段
      * @return 表字段字符串
      * @throws Exception
      */
     private static String createFieldStringForAddTable(Field entityField) throws Exception {
-        if (entityField.getAnnotation(Id.class) != null) {
+        if (entityField.getAnnotation(Id.class) != null || entityField.getAnnotation(HappyId.class) != null) {
             return createPrimaryKeyStringForAddTable();
         }
-        if (entityField.getAnnotation(Version.class) != null) {
+        if (entityField.getAnnotation(Version.class) != null || entityField.getAnnotation(Version.class) != null) {
             return createVersionStringForAddTable();
         }
-        if (entityField.getAnnotation(Column.class) != null) {
+        if (entityField.getAnnotation(Column.class) != null || entityField.getAnnotation(HappyCol.class) != null) {
             Column column = entityField.getAnnotation(Column.class);
+            HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
             StringBuilder fieldLine = new StringBuilder();
             fieldLine.append(" ");
             fieldLine.append(getDatabaseFieldName(entityField.getName()));
             fieldLine.append(" ");
             fieldLine.append(getWholeDbFieldTypeByEntityFieldType(entityField));
             fieldLine.append(" ");
-            if (!column.nullable()) {
+            if (isNotNull(column, happyCol)) {
                 fieldLine.append("not null");
             }
             return fieldLine.toString();
@@ -337,12 +370,17 @@ public class DatabaseHelper extends BaseDatabaseHelper {
      */
     private static String addIdInitialValue(List<Field> fields) throws Exception {
         for (Field field : fields) {
-            if (field.getAnnotation(Id.class) != null && field.getAnnotation(TableGenerator.class) != null) {
-                TableGenerator tableGenerator = field.getAnnotation(TableGenerator.class);
+            Id id = field.getAnnotation(Id.class);
+            TableGenerator tableGenerator = field.getAnnotation(TableGenerator.class);
+            if (id != null && tableGenerator != null) {
                 int initialValue = tableGenerator.initialValue();
                 if (initialValue > 0) {
                     return " auto_increment = " + initialValue;
                 }
+            }
+            HappyId happyId = field.getAnnotation(HappyId.class);
+            if (happyId != null && happyId.initialVal() > 0) {
+                return " auto_increment = " + happyId.initialVal();
             }
         }
 
@@ -370,6 +408,23 @@ public class DatabaseHelper extends BaseDatabaseHelper {
             return getDbFieldTypeByEntityFieldType(entityField);
         } else {
             Class fieldType = entityField.getType();
+            Column column = entityField.getAnnotation(Column.class);
+            HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
+            boolean isText = false;
+            int len = 0;
+            int precision = 0;
+            int scale = 0;
+            if (column != null) {
+                isText = !"".equals(column.columnDefinition());
+                len = column.length();
+                precision = column.precision();
+                scale = column.scale();
+            } else if (happyCol != null) {
+                isText = happyCol.text();
+                len = happyCol.len();
+                precision = happyCol.precision();
+                scale = happyCol.scale();
+            }
             if (fieldType == Date.class
                     || fieldType == java.util.Date.class
                     || fieldType == Timestamp.class
@@ -382,14 +437,12 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                     || fieldType == Boolean.class) {
                 return getDbFieldTypeByEntityFieldType(entityField);
             } else if (fieldType == String.class) {
-                Column column = entityField.getAnnotation(Column.class);
-                if (!"".equals(column.columnDefinition())) {
+                if (isText) {
                     return getDbFieldTypeByEntityFieldType(entityField);
                 }
-                return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.length() + ")";
+                return getDbFieldTypeByEntityFieldType(entityField) + "(" + len + ")";
             } else if (fieldType == BigDecimal.class) {
-                Column column = entityField.getAnnotation(Column.class);
-                return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.precision() + "," + column.scale() + ")";
+                return getDbFieldTypeByEntityFieldType(entityField) + "(" + precision + "," + scale + ")";
             }
         }
 
@@ -427,8 +480,11 @@ public class DatabaseHelper extends BaseDatabaseHelper {
             Class fieldType = entityField.getType();
             if (fieldType == String.class) {
                 Column column = entityField.getAnnotation(Column.class);
-                if (!"".equals(column.columnDefinition())) {
+                HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
+                if (column != null && !"".equals(column.columnDefinition())) {
                     return column.columnDefinition().trim();
+                } else if (happyCol != null && happyCol.text()) {
+                    return "text";
                 }
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
@@ -456,6 +512,40 @@ public class DatabaseHelper extends BaseDatabaseHelper {
             throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
         }
         throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
+    }
+
+    /**
+     * 非空唯一
+     * @param column column
+     * @param happyCol happyCol
+     * @return 非空唯一
+     */
+    private static boolean isNotNull(Column column, HappyCol happyCol) {
+        boolean isNotNull = true;
+        if (column != null) {
+            isNotNull = !column.nullable() && !column.unique();
+        } else if (happyCol != null) {
+            isNotNull = !happyCol.nullable() && !happyCol.unique();
+        }
+
+        return isNotNull;
+    }
+
+    /**
+     * 非空唯一警告
+     * @param column column
+     * @param happyCol happyCol
+     * @return 非空唯一警告
+     */
+    private static boolean isNotNullUniqueWarn(Column column, HappyCol happyCol) {
+        boolean warn = false;
+        if (column != null) {
+            warn = !column.nullable() && column.unique();
+        } else if (happyCol != null) {
+            warn = !happyCol.nullable() && happyCol.unique();
+        }
+
+        return warn;
     }
 
 }

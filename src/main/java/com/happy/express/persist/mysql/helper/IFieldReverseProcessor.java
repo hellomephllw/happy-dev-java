@@ -11,4 +11,6 @@ public interface IFieldReverseProcessor {
 
     public void unusedUniqueIndex(String tableName, String uniqueIndexName) throws Exception;
 
+    public void unusedIndex(String tableName, String uniqueIndexName) throws Exception;
+
 }

@@ -1,5 +1,6 @@
 package com.happy.express.persist.mysql.helper;
 
+import com.happy.express.persist.annotation.HappyCol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ public class FieldChecker implements IFieldProcessor {
         FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkUnique, checkLength, checkDecimal);
 
         String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //添加索引
+        //添加唯一索引
         if (fieldStateParams.addUnique) {
             logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")有唯一索引, 需要为该字段添加唯一索引");
             if (!fieldStateParams.modifyType
@@ -123,11 +124,13 @@ public class FieldChecker implements IFieldProcessor {
                 logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
             }
         }
-        //删除索引
+        //删除唯一索引
         if (fieldStateParams.deleteUnique) {
             logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")没有唯一索引, 需要删除该唯一索引(" + DatabaseHelper.getUniqueIndexName(tableName, entityFieldName) + ")");
         }
         //修改字段
+        Column column = field.getAnnotation(Column.class);
+        HappyCol happyCol = field.getAnnotation(HappyCol.class);
         if (fieldStateParams.modifyType
                 || fieldStateParams.modifyLength
                 || fieldStateParams.modifyBigDecimal
@@ -140,11 +143,21 @@ public class FieldChecker implements IFieldProcessor {
                     && fieldStateParams.addNotNull)) {
                 //decimal
                 if (fieldStateParams.modifyBigDecimal) {
-                    Column column = field.getAnnotation(Column.class);
-                    int entityFieldPrecision = column.precision();
-                    int entityFieldScale = column.scale();
-                    int dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
-                    int dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
+                    int entityFieldPrecision = 0;
+                    int entityFieldScale = 0;
+                    int dbFieldPrecision = 0;
+                    int dbFieldScale = 0;
+                    if (column != null) {
+                        entityFieldPrecision = column.precision();
+                        entityFieldScale = column.scale();
+                        dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
+                        dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
+                    } else if (happyCol != null) {
+                        entityFieldPrecision = happyCol.precision();
+                        entityFieldScale = happyCol.scale();
+                        dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
+                        dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
+                    }
                     if (entityFieldPrecision != dbFieldPrecision) {
                         logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")最大长度为(" + dbFieldPrecision + "), 需要变为" + entityFieldPrecision);
                     }
@@ -154,9 +167,15 @@ public class FieldChecker implements IFieldProcessor {
                 }
                 //length
                 if (fieldStateParams.modifyLength) {
-                    Column column = field.getAnnotation(Column.class);
-                    int entityFieldLen = column.length();
-                    int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
+                    int entityFieldLen = 0;
+                    int dbFieldLen = 0;
+                    if (column != null) {
+                        entityFieldLen = column.length();
+                        dbFieldLen = columnSet.getInt("COLUMN_SIZE");
+                    } else if (happyCol != null) {
+                        entityFieldLen = happyCol.len();
+                        dbFieldLen = columnSet.getInt("COLUMN_SIZE");
+                    }
                     if (dbFieldLen != entityFieldLen) {
                         logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")字符串长度为(" + dbFieldLen + "), 需要变为" + entityFieldLen);
                     }

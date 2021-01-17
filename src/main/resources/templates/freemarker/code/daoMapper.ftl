@@ -13,11 +13,10 @@ import java.util.List;
 * @date: ${date}
 */
 @Repository
-public interface I${entityClassName}Dao extend BaseMapper {
+public interface I${entityClassName}Dao extends BaseMapper<${entityClassName}> {
 
-    public void updateProps(@Param("id") int id) throws Exception;
+    void updateProps(@Param("id") int id);
 
-    public List<${entityClassName}> query(@Param("startNo") int startNo,
-                                          @Param("endNo") int endNo) throws Exception;
+    List<${entityClassName}> query(@Param("startNo") int startNo, @Param("size") int size);
 
 }

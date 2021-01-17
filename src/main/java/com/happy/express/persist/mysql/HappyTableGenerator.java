@@ -85,12 +85,12 @@ public class HappyTableGenerator extends BaseGenerator {
                     fieldsProcessor(tableName, entityField, new FieldChecker());
                 }
                 //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                dbTableUnusedChecker(tableName, fields, new FieldReverseChecker(), true);
+                dbTableUnusedChecker(tableName, entity, fields, new FieldReverseChecker(), true);
             } else if (_MODE.equals(_MODE_INCREMENT)) {
                 /**增量操作*/
                 //创建数据库表
                 if (!DatabaseHappyHelper.existTable(tableName)) {
-                    DatabaseHappyHelper.addTable(tableName, fields);
+                    DatabaseHappyHelper.addTable(tableName, entity, fields);
                     continue;
                 }
 
@@ -105,11 +105,13 @@ public class HappyTableGenerator extends BaseGenerator {
                         DatabaseHappyHelper.addField(tableName, entityField);
                     }
                 }
+                //添加索引
+                DatabaseHappyHelper.addIndexes(entity, tableName);
             } else if (_MODE.equals(_MODE_FORCE)) {
                 /**执行增删改*/
                 //创建数据库表
                 if (!DatabaseHappyHelper.existTable(tableName)) {
-                    DatabaseHappyHelper.addTable(tableName, fields);
+                    DatabaseHappyHelper.addTable(tableName, entity, fields);
                     continue;
                 }
 
@@ -126,8 +128,10 @@ public class HappyTableGenerator extends BaseGenerator {
                     //修改字段
                     fieldsProcessor(tableName, entityField, new FieldForcer());
                 }
+                //添加索引
+                DatabaseHappyHelper.addIndexes(entity, tableName);
                 //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                dbTableUnusedChecker(tableName, fields, new FieldReverseForcer(), true);
+                dbTableUnusedChecker(tableName, entity, fields, new FieldReverseForcer(), true);
             }
         }
         /**通过从数据库表格逆向检查和修改数据库表格(看是否有多余的表格)*/

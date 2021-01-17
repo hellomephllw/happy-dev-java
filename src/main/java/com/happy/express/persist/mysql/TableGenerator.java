@@ -87,7 +87,7 @@ public class TableGenerator extends BaseGenerator {
                         fieldsProcessor(tableName, entityField, new FieldChecker());
                     }
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                    dbTableUnusedChecker(tableName, fields, new FieldReverseChecker(), false);
+                    dbTableUnusedChecker(tableName, entity, fields, new FieldReverseChecker(), false);
                 } else if (_MODE.equals(_MODE_INCREMENT)) {
                     /**增量操作*/
                     //创建数据库表
@@ -107,6 +107,8 @@ public class TableGenerator extends BaseGenerator {
                             DatabaseHelper.addField(tableName, entityField);
                         }
                     }
+                    //添加索引
+                    DatabaseHappyHelper.addIndexes(entity, tableName);
                 } else if (_MODE.equals(_MODE_FORCE)) {
                     /**执行增删改*/
                     //创建数据库表
@@ -128,8 +130,10 @@ public class TableGenerator extends BaseGenerator {
                         //修改字段
                         fieldsProcessor(tableName, entityField, new FieldForcer());
                     }
+                    //添加索引
+                    DatabaseHappyHelper.addIndexes(entity, tableName);
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
-                    dbTableUnusedChecker(tableName, fields, new FieldReverseForcer(), false);
+                    dbTableUnusedChecker(tableName, entity, fields, new FieldReverseForcer(), false);
                 }
             }
         }

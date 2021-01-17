@@ -1,5 +1,7 @@
 package com.happy.express.persist.mysql.helper;
 
+import com.happy.express.persist.annotation.HappyCol;
+
 import javax.persistence.Column;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -102,59 +104,65 @@ public class FieldStateParams {
             fieldStateParams.modifyType = !fieldTypeChecker(columnSet, dbFieldType);
         }
 
-        for (Annotation annotation : field.getAnnotations()) {
-            if (annotation.annotationType() == Column.class) {
-                if (checkNullable) {
-                    //非空检查
-                    int nullable = columnSet.getInt("NULLABLE");
-                    if (((Column) annotation).nullable()) {
-                        if (nullable == 0) {
-                            fieldStateParams.deleteNotNull = true;
-                        }
-                    } else {//不可为空
-                        if (nullable == 1) {
-                            fieldStateParams.addNotNull = true;
-                        }
-                    }
+        boolean isNullable = false;
+        boolean isUnique = false;
+        int entityFieldLen = 0;
+        int entityFieldPrecision = 0;
+        int entityFieldScale = 0;
+        Column column = field.getAnnotation(Column.class);
+        HappyCol happyCol = field.getAnnotation(HappyCol.class);
+        if (column != null) {
+            isNullable = column.nullable();
+            isUnique = column.nullable();
+        } else if (happyCol != null) {
+            isNullable = happyCol.nullable();
+            isUnique = happyCol.nullable();
+        }
+        if (checkNullable) {
+            //非空检查
+            int nullable = columnSet.getInt("NULLABLE");
+            if (isNullable) {
+                if (nullable == 0) {
+                    fieldStateParams.deleteNotNull = true;
                 }
-                if (checkUnique) {
-                    //唯一索引检查
-                    if (((Column) annotation).unique()) {//唯一索引
-                        fieldStateParams.canOwnUnique = true;
-                        if (!DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                            fieldStateParams.addUnique = true;
-                        }
-                    } else {
-                        if (DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                            fieldStateParams.deleteUnique = true;
-                        }
-                    }
+            } else {//不可为空
+                if (nullable == 1) {
+                    fieldStateParams.addNotNull = true;
                 }
-                if (checkLength) {
-                    //字符串长度检查
-                    String typeStr = columnSet.getString("TYPE_NAME");
-                    if (typeStr.toLowerCase().equals("varchar")) {
-                        int entityFieldLen = ((Column) annotation).length();
-                        int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
-                        if (dbFieldLen != entityFieldLen) {
-                            fieldStateParams.modifyLength = true;
-                        }
-                    }
+            }
+        }
+        if (checkUnique) {
+            //唯一索引检查
+            if (isUnique) {//唯一索引
+                fieldStateParams.canOwnUnique = true;
+                if (!DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
+                    fieldStateParams.addUnique = true;
                 }
-                if (checkDecimal) {
-                    //bigDecimal检查
-                    int entityFieldPrecision = ((Column) annotation).precision();
-                    int entityFieldScale = ((Column) annotation).scale();
-                    int dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
-                    int dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
-                    if (entityFieldPrecision != dbFieldPrecision) {
-                        fieldStateParams.modifyBigDecimal = true;
-                    }
-                    if (entityFieldScale != dbFieldScale) {
-                        fieldStateParams.modifyBigDecimal = true;
-                    }
+            } else {
+                if (DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
+                    fieldStateParams.deleteUnique = true;
                 }
-                break;
+            }
+        }
+        if (checkLength) {
+            //字符串长度检查
+            String typeStr = columnSet.getString("TYPE_NAME");
+            if (typeStr.toLowerCase().equals("varchar")) {
+                int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
+                if (dbFieldLen != entityFieldLen) {
+                    fieldStateParams.modifyLength = true;
+                }
+            }
+        }
+        if (checkDecimal) {
+            //bigDecimal检查
+            int dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
+            int dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
+            if (entityFieldPrecision != dbFieldPrecision) {
+                fieldStateParams.modifyBigDecimal = true;
+            }
+            if (entityFieldScale != dbFieldScale) {
+                fieldStateParams.modifyBigDecimal = true;
             }
         }
 

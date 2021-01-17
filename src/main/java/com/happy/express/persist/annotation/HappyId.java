@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HappyId {
 
-    public int initialVal() default 0;
+    int initialVal() default 0;
 
 }

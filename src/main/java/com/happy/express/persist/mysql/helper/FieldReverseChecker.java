@@ -23,4 +23,8 @@ public class FieldReverseChecker implements IFieldReverseProcessor {
         logger.warn("数据库表(" + tableName + ")唯一索引(" + uniqueIndexName + ")是多余的, 需要删除");
     }
 
+    @Override
+    public void unusedIndex(String tableName, String indexName) throws Exception {
+        logger.warn("数据库表(" + tableName + ")索引(" + indexName + ")是多余的, 需要删除");
+    }
 }

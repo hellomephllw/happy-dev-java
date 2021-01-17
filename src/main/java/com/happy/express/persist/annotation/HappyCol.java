@@ -14,16 +14,16 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HappyCol {
 
-    public int len() default 0;
+    int len() default 0;
 
-    public boolean nullable() default true;
+    boolean nullable() default true;
 
-    public boolean unique() default false;
+    boolean unique() default false;
 
-    public int precision() default 0;
+    int precision() default 0;
 
-    public int scale() default 0;
+    int scale() default 0;
 
-    public boolean text() default false;
+    boolean text() default false;
 
 }
