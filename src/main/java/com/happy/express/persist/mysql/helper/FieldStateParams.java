@@ -113,10 +113,10 @@ public class FieldStateParams {
         HappyCol happyCol = field.getAnnotation(HappyCol.class);
         if (column != null) {
             isNullable = column.nullable();
-            isUnique = column.nullable();
+            isUnique = column.unique();
         } else if (happyCol != null) {
             isNullable = happyCol.nullable();
-            isUnique = happyCol.nullable();
+            isUnique = happyCol.unique();
         }
         if (checkNullable) {
             //非空检查
