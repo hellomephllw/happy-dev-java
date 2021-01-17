@@ -111,7 +111,6 @@ public class FieldForcer implements IFieldProcessor {
         //构建参数
         FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkUnique, checkLength, checkDecimal);
 
-        System.out.println(fieldStateParams);
         //添加唯一索引
         if (fieldStateParams.addUnique) {
             DatabaseHelper.addUniqueIndex(tableName, field);

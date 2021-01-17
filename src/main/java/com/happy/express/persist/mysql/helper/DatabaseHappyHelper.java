@@ -217,6 +217,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(");");
 
+        logger.info("添加唯一索引的sql: " + sql.toString());
         statement.executeUpdate(sql.toString());
 
         logger.info("为数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + ")添加唯一索引(" + uniqueIndexName + ")");
@@ -243,6 +244,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(getUniqueIndexName(tableName, entityField.getName()));
         sql.append(";");
 
+        logger.info("删除唯一索引的sql: " + sql.toString());
         statement.executeUpdate(sql.toString());
 
         logger.info("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + ")的唯一索引(" + uniqueIndexName + ")删除");
@@ -257,6 +259,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
     public static void deleteUniqueIndex(String tableName, String uniqueIndexName) throws Exception {
         String sql = "alter table " + tableName + " drop index " + uniqueIndexName + ";";
 
+        logger.info("删除唯一索引的sql: " + sql);
         statement.executeUpdate(sql);
 
         logger.info("把数据库表(" + tableName + ")的唯一索引(" + uniqueIndexName + ")删除");
@@ -288,6 +291,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String indexName = getIndexName(tableName, fieldNames);
         String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
 
+        logger.info("添加索引的sql: " + sql);
         statement.executeUpdate(sql);
 
         logger.info("为数据库表(" + tableName + ")字段" + Arrays.asList(fieldNames).toString() + "添加索引(" + indexName + ")");
@@ -302,6 +306,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
     public static void deleteIndex(String tableName, String indexName) throws Exception {
         String sql = "alter table " + tableName + " drop index " + indexName + ";";
 
+        logger.info("删除索引的sql: " + sql);
         statement.executeUpdate(sql);
 
         logger.info("把数据库表(" + tableName + ")的索引(" + indexName + ")删除");

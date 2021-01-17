@@ -221,8 +221,9 @@ public class BaseGenerator {
             for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
                 String[] indexFields = happyIndex.fields();
                 int i = 0;
-                int size = dbFieldNames.length();
-                for (String fieldName : dbFieldNames.split("_")) {
+                String[] splitDbFieldNames = dbFieldNames.split("_");
+                int size = splitDbFieldNames.length;
+                for (String fieldName : splitDbFieldNames) {
                     if (fieldName.equals(indexFields[i++])) {
                         --size;
                     }
