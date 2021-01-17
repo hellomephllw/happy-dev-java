@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="${daoPackagePath}.I${entityClassName}Dao">
-    <resultMap id="BaseResultMap" type="${entityPackagePath}.${entityClassName}">
+    <!-- baseResultMap、tableName、baseColumns、insertValues可以自动更新 -->
+    <resultMap id="baseResultMap" type="${entityPackagePath}.${entityClassName}">
         <id column="id" property="id"/>
         <#list props as prop>
         <result column="${prop.col}" property="${prop.prop}"/>
@@ -17,6 +18,7 @@
         ${batchInsertValues}
     </sql>
 
+    <!-- 以下sql可以自动更新 -->
     <insert id="add" parameterType="${entityPackagePath}.${entityClassName}">
         insert into <include refid="tableName"/> (<include refid="baseColumns"/>)
         values (<include refid="insertValues"/>)
@@ -41,19 +43,14 @@
         </foreach>
     </delete>
 
-    <update id="updateProps">
-        update <include refid="tableName"/>
-        set todo=${wellNumberPre}todo${wellNumberEnd}
-        where id=${wellNumberPre}id${wellNumberEnd}
-    </update>
-
     <update id="update" parameterType="${entityPackagePath}.${entityClassName}">
         update <include refid="tableName"/>
         set
         <#assign num=0>
         <#list propsWithoutId as prop>
             <#assign num=num+1>
-            <#if (num>1)>,<#else> </#if>${prop.col}=${wellNumberPre}${prop.prop}${wellNumberEnd}
+            <#assign size=propsWithoutId?size>
+            ${prop.col}=${wellNumberPre}item.${prop.prop}${wellNumberEnd}<#if (num!=size)>,</#if>
         </#list>
         where id=${wellNumberPre}id${wellNumberEnd}
     </update>
@@ -65,26 +62,27 @@
             <#assign num=0>
             <#list propsWithoutId as prop>
                 <#assign num=num+1>
-                <#if (num>1)>,<#else> </#if>${prop.col}=${wellNumberPre}item.${prop.prop}${wellNumberEnd}
+                <#assign size=propsWithoutId?size>
+                ${prop.col}=${wellNumberPre}item.${prop.prop}${wellNumberEnd}<#if (num!=size)>,</#if>
             </#list>
             where id=${wellNumberPre}item.id${wellNumberEnd}
         </foreach>
     </update>
 
-    <select id="get" resultMap="BaseResultMap">
+    <select id="get" resultMap="baseResultMap">
         select
         <include refid="tableName"/>
         from <include refid="baseColumns"/>
         where id=${wellNumberPre}id${wellNumberEnd}
     </select>
 
-    <select id="findAll" resultMap="BaseResultMap">
+    <select id="findAll" resultMap="baseResultMap">
         select
         <include refid="tableName"/>
         from <include refid="baseColumns"/>
     </select>
 
-    <select id="findByIds" resultMap="BaseResultMap">
+    <select id="findByIds" resultMap="baseResultMap">
         select
         <include refid="tableName"/>
         from <include refid="baseColumns"/>
@@ -94,7 +92,18 @@
         </foreach>
     </select>
 
-    <select id="query" resultMap="BaseResultMap">
+    <!-- 以下需要自行改动, 不会自动更新 -->
+    <update id="updateProps">
+        update <include refid="tableName"/>
+        <set>
+            <if test="todo!=null">
+                ${wellNumberPre}todo${wellNumberEnd}
+            </if>
+        </set>
+        where id=${wellNumberPre}id${wellNumberEnd}
+    </update>
+
+    <select id="query" resultMap="baseResultMap">
         select
         <include refid="tableName"/>
         from <include refid="baseColumns"/>
