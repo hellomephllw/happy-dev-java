@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -273,8 +274,39 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
-            DatabaseHelper.addIndex(tableName, fields);
+            addIndex(tableName, fields);
         }
+    }
+
+    /**
+     * 添加索引
+     * @param tableName 表名
+     * @param fieldNames 字段名
+     * @throws Exception
+     */
+    public static void addIndex(String tableName, String... fieldNames) throws Exception {
+        if (existIndex(tableName, fieldNames)) return ;
+
+        String indexName = getIndexName(tableName, fieldNames);
+        String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
+
+        statement.executeUpdate(sql);
+
+        logger.info("为数据库表(" + tableName + ")字段" + Arrays.asList(fieldNames).toString() + "添加索引(" + indexName + ")");
+    }
+
+    /**
+     * 删除索引
+     * @param tableName 表名
+     * @param indexName 索引名
+     * @throws Exception
+     */
+    public static void deleteIndex(String tableName, String indexName) throws Exception {
+        String sql = "alter table " + tableName + " drop index " + indexName + ";";
+
+        statement.executeUpdate(sql);
+
+        logger.info("把数据库表(" + tableName + ")的索引(" + indexName + ")删除");
     }
 
     /**

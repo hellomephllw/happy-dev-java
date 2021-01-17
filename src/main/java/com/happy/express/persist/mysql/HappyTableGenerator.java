@@ -84,6 +84,8 @@ public class HappyTableGenerator extends BaseGenerator {
                     //对比
                     fieldsProcessor(tableName, entityField, new FieldChecker());
                 }
+                //检查索引
+                checkIndexes(entity, tableName);
                 //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
                 dbTableUnusedChecker(tableName, entity, fields, new FieldReverseChecker(), true);
             } else if (_MODE.equals(_MODE_INCREMENT)) {

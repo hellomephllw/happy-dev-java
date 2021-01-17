@@ -291,37 +291,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
     }
 
     /**
-     * 添加索引
-     * @param tableName 表名
-     * @param fieldNames 字段名
-     * @throws Exception
-     */
-    public static void addIndex(String tableName, String... fieldNames) throws Exception {
-        if (existIndex(tableName, fieldNames)) return ;
-
-        String indexName = getIndexName(tableName, fieldNames);
-        String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
-
-        statement.executeUpdate(sql);
-
-        logger.info("为数据库表(" + tableName + ")字段" + Arrays.asList(fieldNames).toString() + "添加索引(" + indexName + ")");
-    }
-
-    /**
-     * 删除索引
-     * @param tableName 表名
-     * @param indexName 索引名
-     * @throws Exception
-     */
-    public static void deleteIndex(String tableName, String indexName) throws Exception {
-        String sql = "alter table " + tableName + " drop index " + indexName + ";";
-
-        statement.executeUpdate(sql);
-
-        logger.info("把数据库表(" + tableName + ")的索引(" + indexName + ")删除");
-    }
-
-    /**
      * 创建表字段字符串
      * @param entityField 实体字段
      * @return 表字段字符串

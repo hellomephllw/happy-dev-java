@@ -2,10 +2,12 @@ package com.happy.express.persist.mysql;
 
 import com.happy.express.persist.annotation.HappyCol;
 import com.happy.express.persist.annotation.HappyIndexes;
+import com.happy.express.persist.mysql.helper.DatabaseHappyHelper;
 import com.happy.express.persist.mysql.helper.DatabaseHelper;
 import com.happy.express.persist.mysql.helper.IFieldProcessor;
 import com.happy.express.persist.mysql.helper.IFieldReverseProcessor;
 import com.happy.util.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Column;
 import java.lang.reflect.Field;
@@ -21,6 +23,7 @@ import java.util.List;
  * @author: llw
  * @date: 2020-08-18
  */
+@Slf4j
 public class BaseGenerator {
 
     /**模式*/
@@ -236,16 +239,31 @@ public class BaseGenerator {
     }
 
     /**
-     * 新增索引
+     * 检查索引
      * @param entity 实体
      * @param tableName 表名
      * @throws Exception
      */
-    protected static void addIndexes(Class entity, String tableName) throws Exception {
+    protected static void checkIndexes(Class entity, String tableName) throws Exception {
         HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
-            DatabaseHelper.addIndex(tableName, fields);
+            String indexName = DatabaseHappyHelper.getIndexName(tableName, fields);
+            boolean existInDb = false;
+            ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
+            while (indexSet.next()) {
+                String dbIndexName = indexSet.getString("INDEX_NAME");
+                if (dbIndexName.toLowerCase().equals("primary")) {
+                    continue;
+                }
+                if (indexName.equals(dbIndexName)) {
+                    existInDb = true;
+                    break;
+                }
+            }
+            if (!existInDb) {
+                log.warn("数据库表(" + tableName + ")列" + DatabaseHappyHelper.getIndexCols(fields) + "存在索引, 需要添加索引");
+            }
         }
     }
 

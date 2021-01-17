@@ -8,11 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -86,6 +84,8 @@ public class TableGenerator extends BaseGenerator {
                         //对比
                         fieldsProcessor(tableName, entityField, new FieldChecker());
                     }
+                    //检查索引
+                    checkIndexes(entity, tableName);
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
                     dbTableUnusedChecker(tableName, entity, fields, new FieldReverseChecker(), false);
                 } else if (_MODE.equals(_MODE_INCREMENT)) {
@@ -107,7 +107,7 @@ public class TableGenerator extends BaseGenerator {
                             DatabaseHelper.addField(tableName, entityField);
                         }
                     }
-                    //添加索引
+                    //添加索引(只有happyIndex提供建立索引功能)
                     DatabaseHappyHelper.addIndexes(entity, tableName);
                 } else if (_MODE.equals(_MODE_FORCE)) {
                     /**执行增删改*/
@@ -130,7 +130,7 @@ public class TableGenerator extends BaseGenerator {
                         //修改字段
                         fieldsProcessor(tableName, entityField, new FieldForcer());
                     }
-                    //添加索引
+                    //添加索引(只有happyIndex提供建立索引功能)
                     DatabaseHappyHelper.addIndexes(entity, tableName);
                     //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
                     dbTableUnusedChecker(tableName, entity, fields, new FieldReverseForcer(), false);
