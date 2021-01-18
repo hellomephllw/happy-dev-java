@@ -3,6 +3,7 @@ package com.happy.express.persist.mysql.helper;
 import com.happy.express.persist.annotation.HappyCol;
 import com.happy.express.persist.annotation.HappyId;
 import com.happy.express.persist.annotation.HappyIndexes;
+import com.happy.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -273,6 +274,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
      */
     public static void addIndexes(Class entity, String tableName) throws Exception {
         HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
+        if (happyIndexes == null || happyIndexes.indexes() == null || happyIndexes.indexes().length == 0) return ;
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
             addIndex(tableName, fields);

@@ -16,7 +16,9 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @description: 表生成器基类
@@ -206,35 +208,40 @@ public class BaseGenerator {
         }
         //检查多余的索引
         ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
+        Set<String> deletedIndexes = new HashSet<>();
         while (indexSet.next()) {
             String indexName = indexSet.getString("INDEX_NAME");
             if (indexName.toLowerCase().equals("primary")) {
                 continue;
             }
-            if (!indexName.contains("__index__")) {
+            if (!indexName.contains("__index__") && !deletedIndexes.contains(indexName)) {
                 fieldReverseProcessor.unusedIndex(tableName, indexName);
+                deletedIndexes.add(indexName);
                 continue;
             }
             String dbFieldNames = indexName.split("__index__")[1];
             boolean exist = false;
             HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
-            for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
-                String[] indexFields = happyIndex.fields();
-                int i = 0;
-                String[] splitDbFieldNames = dbFieldNames.split("_");
-                int size = splitDbFieldNames.length;
-                for (String fieldName : splitDbFieldNames) {
-                    if (fieldName.equals(indexFields[i++])) {
-                        --size;
+            if (happyIndexes != null && happyIndexes.indexes() != null && happyIndexes.indexes().length > 0) {
+                for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
+                    String[] indexFields = happyIndex.fields();
+                    int i = 0;
+                    String[] splitDbFieldNames = dbFieldNames.split("_");
+                    int size = splitDbFieldNames.length;
+                    for (String fieldName : splitDbFieldNames) {
+                        if (fieldName.equals(indexFields[i++])) {
+                            --size;
+                        }
+                    }
+                    if (size <= 0) {
+                        exist = true;
+                        break;
                     }
                 }
-                if (size <= 0) {
-                    exist = true;
-                    break;
-                }
             }
-            if (!exist) {
+            if (!exist && !deletedIndexes.contains(indexName)) {
                 fieldReverseProcessor.unusedIndex(tableName, indexName);
+                deletedIndexes.add(indexName);
             }
         }
     }
