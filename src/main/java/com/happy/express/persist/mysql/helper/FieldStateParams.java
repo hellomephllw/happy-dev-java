@@ -76,13 +76,41 @@ public class FieldStateParams {
         //重置属性
         reset();
 
+        //获取注解信息
+        Column column = field.getAnnotation(Column.class);
+        HappyCol happyCol = field.getAnnotation(HappyCol.class);
+        int entityFieldLen = 0;
+        int entityFieldPrecision = 0;
+        int entityFieldScale = 0;
+        boolean isChar = false;
+        boolean isText = false;
+        boolean isLongText = false;
+        boolean isNullable = false;
+        boolean isUnique = false;
+        if (column != null) {
+            entityFieldLen = column.length();
+            entityFieldPrecision = column.precision();
+            entityFieldScale = column.scale();
+            isNullable = column.nullable();
+            isUnique = column.unique();
+        } else if (happyCol != null) {
+            entityFieldLen = happyCol.len();
+            entityFieldPrecision = happyCol.precision();
+            entityFieldScale = happyCol.scale();
+            isChar = happyCol.fixLen() && entityFieldLen > 0;
+            isText = happyCol.text();
+            isLongText = happyCol.longText();
+            isNullable = happyCol.nullable();
+            isUnique = happyCol.unique();
+        }
+
         //是否要修改类型
         if ("string".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
-            if (!("varchar".equals(typeStr.toLowerCase())
-                    || "text".equals(typeStr.toLowerCase())
-                    || "mediumtext".equals(typeStr.toLowerCase())
-                    || "longtext".equals(typeStr.toLowerCase()))) {
+            if (("char".equals(typeStr.toLowerCase()) && !isChar)
+                    || ("text".equals(typeStr.toLowerCase()) && !isText)
+                    || ("longtext".equals(typeStr.toLowerCase()) && !isLongText)
+                    || ("varchar".equals(typeStr.toLowerCase()) && (entityFieldLen <= 0 || isChar))) {
                 fieldStateParams.modifyType = true;
             }
         } else if ("byte".equals(dbFieldType.toLowerCase())) {
@@ -104,26 +132,6 @@ public class FieldStateParams {
             fieldStateParams.modifyType = !fieldTypeChecker(columnSet, dbFieldType);
         }
 
-        boolean isNullable = false;
-        boolean isUnique = false;
-        int entityFieldLen = 0;
-        int entityFieldPrecision = 0;
-        int entityFieldScale = 0;
-        Column column = field.getAnnotation(Column.class);
-        HappyCol happyCol = field.getAnnotation(HappyCol.class);
-        if (column != null) {
-            isNullable = column.nullable();
-            isUnique = column.unique();
-            entityFieldLen = column.length();
-            entityFieldPrecision = column.precision();
-            entityFieldScale = column.scale();
-        } else if (happyCol != null) {
-            isNullable = happyCol.nullable();
-            isUnique = happyCol.unique();
-            entityFieldLen = happyCol.len();
-            entityFieldPrecision = happyCol.precision();
-            entityFieldScale = happyCol.scale();
-        }
         if (checkNullable) {
             //非空检查
             int nullable = columnSet.getInt("NULLABLE");

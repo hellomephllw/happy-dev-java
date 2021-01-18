@@ -16,6 +16,8 @@ public @interface HappyCol {
 
     int len() default 0;
 
+    boolean fixLen() default false;
+
     boolean nullable() default true;
 
     boolean unique() default false;
@@ -25,5 +27,7 @@ public @interface HappyCol {
     int scale() default 0;
 
     boolean text() default false;
+
+    boolean longText() default false;
 
 }

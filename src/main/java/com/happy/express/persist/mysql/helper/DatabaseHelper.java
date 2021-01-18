@@ -387,7 +387,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                 precision = column.precision();
                 scale = column.scale();
             } else if (happyCol != null) {
-                isText = happyCol.text();
+                isText = happyCol.text() || happyCol.longText();
                 len = happyCol.len();
                 precision = happyCol.precision();
                 scale = happyCol.scale();
@@ -452,6 +452,10 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                     return column.columnDefinition().trim();
                 } else if (happyCol != null && happyCol.text()) {
                     return "text";
+                } else if (happyCol != null && happyCol.longText()) {
+                    return "longtext";
+                } else if (happyCol != null && happyCol.fixLen()) {
+                    return "char";
                 }
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {

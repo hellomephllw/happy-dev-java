@@ -211,7 +211,7 @@ public class HappyTableGenerator extends BaseGenerator {
             //检查string是否设置长度
             if (field.getType() == String.class) {
                 HappyCol column = field.getAnnotation(HappyCol.class);
-                if (column != null && column.len() == 0 && !column.text()) {
+                if (column != null && column.len() == 0 && !column.text() && !column.longText()) {
                     logger.error("实体(" + entityClass.getSimpleName() + ")的字段(" + field.getName() + ")为string类型, 需要设置字符串长度");
                     return false;
                 }

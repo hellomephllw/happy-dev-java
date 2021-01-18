@@ -286,8 +286,4 @@ public class BaseGenerator {
         _USER_CONFIG_BASE_PACKAGE_PATH = userConfigBasePackagePath.replaceAll("\\.", "/");
     }
 
-    private static void removeIndexes() throws Exception {
-        //todo
-    }
-
 }

@@ -393,9 +393,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
                 return getDbFieldTypeByEntityFieldType(entityField);
             } else if (fieldType == String.class) {
                 HappyCol column = entityField.getAnnotation(HappyCol.class);
-                if (column.text()) {
-                    return getDbFieldTypeByEntityFieldType(entityField);
-                }
+                if (column.text() || column.longText()) return getDbFieldTypeByEntityFieldType(entityField);
                 return getDbFieldTypeByEntityFieldType(entityField) + "(" + column.len() + ")";
             } else if (fieldType == BigDecimal.class) {
                 HappyCol column = entityField.getAnnotation(HappyCol.class);
@@ -437,9 +435,9 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
             Class fieldType = entityField.getType();
             if (fieldType == String.class) {
                 HappyCol column = entityField.getAnnotation(HappyCol.class);
-                if (column.text()) {
-                    return "text";
-                }
+                if (column.fixLen() && column.len() > 0) return "char";
+                if (column.text()) return "text";
+                if (column.longText()) return "longtext";
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
                 return "timestamp default current_timestamp";
