@@ -2,21 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="${daoPackagePath}.I${entityClassName}Dao">
     <!-- baseResultMap、tableName、baseColumns、insertValues可以自动更新 -->
-    <resultMap id="baseResultMap" type="${entityPackagePath}.${entityClassName}">
-        <id column="id" property="id"/>
-        <#list props as prop>
-        <result column="${prop.col}" property="${prop.prop}"/>
-        </#list>
-    </resultMap>
-    <sql id="tableName">
-        ${tableName}
-    </sql>
-    <sql id="baseColumns">
-        ${entityCols}
-    </sql>
-    <sql id="insertValues">
-        ${batchInsertValues}
-    </sql>
+    <#include "./mapper/baseResultMap.ftl">
+    <#include "./mapper/tableName.ftl">
+    <#include "./mapper/baseColumns.ftl">
+    <#include "./mapper/insertValues.ftl">
 
     <!-- 以下sql可以自动更新 -->
     <insert id="add" parameterType="${entityPackagePath}.${entityClassName}">

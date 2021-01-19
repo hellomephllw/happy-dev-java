@@ -48,6 +48,8 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
         generateDaoMapper();
         //生成mapperXml
         generateMapperXml();
+        //更新mapperXml
+        updateMapperXml();
         //生成service
         generateServiceCode();
         //生成serviceImpl
@@ -122,6 +124,15 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
                             .build(),
                     new BufferedWriter(new OutputStreamWriter(fos, "utf-8"),10240));
         }
+    }
+
+    /**
+     * 更新mapperXml
+     * @throws Exception
+     */
+    public static void updateMapperXml() throws Exception {
+        //todo
+        //读取mapper文件
     }
 
     /**
