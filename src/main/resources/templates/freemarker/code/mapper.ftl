@@ -86,7 +86,7 @@
         update <include refid="tableName"/>
         <set>
             <if test="todo!=null">
-                ${wellNumberPre}todo${wellNumberEnd}
+                todo=${wellNumberPre}todo${wellNumberEnd}
             </if>
         </set>
         where id=${wellNumberPre}id${wellNumberEnd}

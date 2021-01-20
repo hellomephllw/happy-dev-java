@@ -254,6 +254,7 @@ public class BaseGenerator {
      */
     protected static void checkIndexes(Class entity, String tableName) throws Exception {
         HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
+        if (happyIndexes == null || happyIndexes.indexes() == null || happyIndexes.indexes().length == 0) return ;
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
             String indexName = DatabaseHappyHelper.getIndexName(tableName, fields);

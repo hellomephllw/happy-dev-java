@@ -9,24 +9,24 @@ import java.util.List;
  */
 public interface BaseMapper<T> {
 
-    public void add(T entity) throws Exception;
+    public void add(T entity);
 
-    public void addBatch(List<T> list) throws Exception;
+    public void addBatch(List<T> list);
 
-    public void remove(int id) throws Exception;
+    public void remove(int id);
 
-    public void removeByIds(List<Integer> ids) throws Exception;
+    public void removeByIds(List<Integer> ids);
 
-    public void update(T entity) throws Exception;
+    public void update(T entity);
 
-    public void updateBatch(List<T> list) throws Exception;
+    public void updateBatch(List<T> list);
 
-    public T get(int id) throws Exception;
+    public T get(int id);
 
-    public List<T> findAll() throws Exception;
+    public List<T> findAll();
 
-    public List<T> findByIds(List<Integer> ids) throws Exception;
+    public List<T> findByIds(List<Integer> ids);
 
-    public int count() throws Exception;
+    public int count();
 
 }

@@ -1,5 +1,7 @@
 package com.happy.util;
 
+import com.happy.exception.BusinessException;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,6 +42,17 @@ public class DateUtil {
     private final static SimpleDateFormat NORM_DATETIME_FORMAT = new SimpleDateFormat(NORM_DATETIME_PATTERN);
     /** HTTP日期时间格式化器 */
     private final static SimpleDateFormat HTTP_DATETIME_FORMAT = new SimpleDateFormat(HTTP_DATETIME_PATTERN, Locale.US);
+
+    /**
+     * 获取一个很老的时期(2000-01-01 00:00:00)，用作默认值
+     * @return 老日期
+     */
+    public static Date oldDate() {
+        Calendar oldDate = Calendar.getInstance();
+        oldDate.set(2000, 0, 1, 0, 0, 0);
+
+        return oldDate.getTime();
+    }
 
     /**
      * 当前时间，格式 yyyy-MM-dd HH:mm:ss
@@ -240,6 +253,34 @@ public class DateUtil {
      */
     public static Date transformSqlDateToUtilDate(java.sql.Date date) {
         return new Date(date.getTime());
+    }
+
+    /**
+     * 把str日期类型变为Date类型
+     * @param dateStr 时间字符串
+     * @return 时间
+     * @throws Exception
+     */
+    public static Date transferStr2DateWithValidate(String dateStr) throws Exception {
+        try {
+            return DateUtil.parseDate(dateStr);
+        } catch (Exception e) {
+            throw new BusinessException("时间格式只能是yyyy-MM-dd");
+        }
+    }
+
+    /**
+     * 把str日期类型变为Date类型
+     * @param dateStr 时间字符串
+     * @return 时间
+     * @throws Exception
+     */
+    public static Date transferStr2DateTimeWithValidate(String dateStr) throws Exception {
+        try {
+            return DateUtil.parseDateTime(dateStr);
+        } catch (Exception e) {
+            throw new BusinessException("时间格式只能是yyyy-MM-dd HH:mm:ss");
+        }
     }
 
 }
