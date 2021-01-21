@@ -2,22 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="${daoPackagePath}.I${entityClassName}Dao">
     <!-- baseResultMap、tableName、baseColumns、insertValues可以自动更新 -->
-    <#include "./mapper/baseResultMap.ftl">
-    <#include "./mapper/tableName.ftl">
-    <#include "./mapper/baseColumns.ftl">
-    <#include "./mapper/insertValues.ftl">
+    <#include "mapper/baseResultMap.ftl">
+    <#include "mapper/tableName.ftl">
+    <#include "mapper/baseColumns.ftl">
+    <#include "mapper/baseColumnsWithoutId.ftl">
+    <#include "mapper/insertValuesWithoutId.ftl">
+    <#include "mapper/batchInsertValuesWithoutId.ftl">
 
     <!-- 以下sql可以自动更新 -->
-    <insert id="add" parameterType="${entityPackagePath}.${entityClassName}">
-        insert into <include refid="tableName"/> (<include refid="baseColumns"/>)
+    <insert id="add" parameterType="${entityPackagePath}.${entityClassName}" useGeneratedKeys="true" keyProperty="id">
+        insert into <include refid="tableName"/> (<include refid="baseColumnsWithoutId"/>)
         values (<include refid="insertValues"/>)
     </insert>
 
-    <insert id="addBatch" parameterType="${entityPackagePath}.${entityClassName}">
-        insert into <include refid="tableName"/> (<include refid="baseColumns"/>)
+    <insert id="addBatch" parameterType="${entityPackagePath}.${entityClassName}" useGeneratedKeys="true" keyProperty="id">
+        insert into <include refid="tableName"/> (<include refid="baseColumnsWithoutId"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (<include refid="insertValues"/>)
+            (<include refid="batchInsertValues"/>)
         </foreach>
     </insert>
 
@@ -39,7 +41,7 @@
         <#list propsWithoutId as prop>
             <#assign num=num+1>
             <#assign size=propsWithoutId?size>
-            ${prop.col}=${wellNumberPre}item.${prop.prop}${wellNumberEnd}<#if (num!=size)>,</#if>
+            ${prop.col}=${wellNumberPre}${prop.prop}${wellNumberEnd}<#if (num!=size)>,</#if>
         </#list>
         where id=${wellNumberPre}id${wellNumberEnd}
     </update>

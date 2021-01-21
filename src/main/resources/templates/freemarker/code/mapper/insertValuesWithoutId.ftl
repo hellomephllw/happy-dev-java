@@ -1,3 +1,3 @@
     <sql id="insertValues">
-        ${batchInsertValues}
+        ${insertValuesWithoutId}
     </sql>

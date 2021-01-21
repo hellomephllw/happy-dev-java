@@ -111,8 +111,10 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
                             .put("propsWithoutId", getPropertiesMappingList(clazz, false))
                             .put("entityCols", generateEntityCols(clazz))
                             .put("insertCols", generateInsertCols(clazz))
-                            .put("insertValues", generateInsertValues(clazz))
-                            .put("batchInsertValues", generateBatchInsertValues(clazz))
+                            .put("insertValues", generateInsertValues(clazz, true))
+                            .put("insertValuesWithoutId", generateInsertValues(clazz, true))
+                            .put("batchInsertValues", generateBatchInsertValues(clazz, true))
+                            .put("batchInsertValuesWithoutId", generateBatchInsertValues(clazz, false))
                             .put("tableName", HappyTableGenerator.getTableName(clazz))
                             .put("wellNumberPre", "#{")
                             .put("wellNumberEnd", "}")
@@ -216,16 +218,18 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
     /**
      * 生成插入值字符串
      * @param entityClass 实体class
+     * @param withId 带id
      * @return 插入值
      * @throws Exception
      */
-    private static String generateInsertValues(Class entityClass) throws Exception {
+    private static String generateInsertValues(Class entityClass, boolean withId) throws Exception {
         List<Field> fields = BaseGenerator.collectAllFields(entityClass);
         excludeNotColFieldsAndId(fields);
 
         String values = "";
         int index = 0;
         for (Field field : fields) {
+            if (!withId && field.getName().equals("id")) continue;
             if (index++ > 0) values += ", ";
             values += "#{" + field.getName() + "}";
         }
@@ -236,16 +240,18 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
     /**
      * 生成批量插入字符串
      * @param entityClass 实体class
+     * @param withId 带id
      * @return 插入值
      * @throws Exception
      */
-    private static String generateBatchInsertValues(Class entityClass) throws Exception {
+    private static String generateBatchInsertValues(Class entityClass, boolean withId) throws Exception {
         List<Field> fields = BaseGenerator.collectAllFields(entityClass);
         excludeNotColFieldsAndId(fields);
 
         String values = "";
         int index = 0;
         for (Field field : fields) {
+            if (!withId && field.getName().equals("id")) continue;
             if (index++ > 0) values += ", ";
             values += "#{item." + field.getName() + "}";
         }
