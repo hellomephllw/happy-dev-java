@@ -112,7 +112,7 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
                             .put("entityCols", generateEntityCols(clazz))
                             .put("insertCols", generateInsertCols(clazz))
                             .put("insertValues", generateInsertValues(clazz, true))
-                            .put("insertValuesWithoutId", generateInsertValues(clazz, true))
+                            .put("insertValuesWithoutId", generateInsertValues(clazz, false))
                             .put("batchInsertValues", generateBatchInsertValues(clazz, true))
                             .put("batchInsertValuesWithoutId", generateBatchInsertValues(clazz, false))
                             .put("tableName", HappyTableGenerator.getTableName(clazz))
