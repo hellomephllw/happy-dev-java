@@ -6,20 +6,18 @@
     <#include "mapper/tableName.ftl">
     <#include "mapper/baseColumns.ftl">
     <#include "mapper/baseColumnsWithoutId.ftl">
-    <#include "mapper/insertValuesWithoutId.ftl">
-    <#include "mapper/batchInsertValuesWithoutId.ftl">
 
     <!-- 以下sql可以自动更新 -->
     <insert id="add" parameterType="${entityPackagePath}.${entityClassName}" useGeneratedKeys="true" keyProperty="id">
         insert into <include refid="tableName"/> (<include refid="baseColumnsWithoutId"/>)
-        values (<include refid="insertValues"/>)
+        values (${insertValuesWithoutId})
     </insert>
 
     <insert id="addBatch" parameterType="${entityPackagePath}.${entityClassName}" useGeneratedKeys="true" keyProperty="id">
         insert into <include refid="tableName"/> (<include refid="baseColumnsWithoutId"/>)
         values
         <foreach collection="list" item="item" separator=",">
-            (<include refid="batchInsertValues"/>)
+            (${batchInsertValuesWithoutId})
         </foreach>
     </insert>
 
@@ -62,21 +60,21 @@
 
     <select id="get" resultMap="baseResultMap">
         select
-        <include refid="tableName"/>
-        from <include refid="baseColumns"/>
+        <include refid="baseColumns"/>
+        from <include refid="tableName"/>
         where id=${wellNumberPre}id${wellNumberEnd}
     </select>
 
     <select id="findAll" resultMap="baseResultMap">
         select
-        <include refid="tableName"/>
-        from <include refid="baseColumns"/>
+        <include refid="baseColumns"/>
+        from <include refid="tableName"/>
     </select>
 
     <select id="findByIds" resultMap="baseResultMap">
         select
-        <include refid="tableName"/>
-        from <include refid="baseColumns"/>
+        <include refid="baseColumns"/>
+        from <include refid="tableName"/>
         where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">
             ${wellNumberPre}item${wellNumberEnd}
@@ -96,8 +94,8 @@
 
     <select id="query" resultMap="baseResultMap">
         select
-        <include refid="tableName"/>
-        from <include refid="baseColumns"/>
+        <include refid="baseColumns"/>
+        from <include refid="tableName"/>
         <where>
             <if test="todo!=null and todo!=''">
                 todo=${wellNumberPre}todo${wellNumberEnd}
