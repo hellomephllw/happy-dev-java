@@ -24,10 +24,12 @@ public class NetUtil {
      * @return 响应内容
      * @throws Exception
      */
+    @SuppressWarnings("unchecked")
     public static String sendHttpRequest(Map<String, Object> attrs) {
         String url = (String) attrs.get("url");
         String method = attrs.get("type") == null ? "GET" : ((String) attrs.get("type")).toUpperCase();
         String contentType = attrs.get("contentType") == null ? "application/json;charset=UTF-8" : (String) attrs.get("contentType");
+        Map<String, String> headers = (Map<String, String>) attrs.get("headers");
 
         HttpURLConnection conn = null;
         try {
@@ -35,6 +37,9 @@ public class NetUtil {
             conn = (HttpURLConnection) serverUrl.openConnection();
             conn.setRequestMethod(method);
             conn.setRequestProperty("Content-type", contentType);
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                conn.setRequestProperty(header.getKey(), header.getValue());
+            }
             conn.setInstanceFollowRedirects(false);
             if (attrs.get("body") != null && attrs.get("body") instanceof String)
                 setRequestBody(conn, (String) attrs.get("body"));

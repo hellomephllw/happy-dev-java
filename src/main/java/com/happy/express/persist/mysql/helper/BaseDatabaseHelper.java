@@ -3,6 +3,7 @@ package com.happy.express.persist.mysql.helper;
 import com.google.common.base.CaseFormat;
 import com.happy.express.persist.mysql.ExtClassPathLoader;
 import com.happy.util.FileUtil;
+import com.happy.util.StringUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -239,15 +240,15 @@ public abstract class BaseDatabaseHelper {
     /**
      * 是否存在索引
      * @param tableName 表名
-     * @param fieldNames 字段名
+     * @param suffix 后缀
      * @return 存在索引
      * @throws Exception
      */
-    public static boolean existIndex(String tableName, String... fieldNames) throws Exception {
+    public static boolean existIndex(String tableName, String suffix) throws Exception {
         ResultSet indexSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, false, true);
         while (indexSet.next()) {
             String indexName = indexSet.getString("INDEX_NAME");
-            if (indexName.equals(getIndexName(tableName, fieldNames))) {
+            if (indexName.equals(getIndexNameSuffix(tableName, suffix))) {
                 return true;
             }
         }
@@ -331,7 +332,7 @@ public abstract class BaseDatabaseHelper {
      * @return 索引名称
      * @throws Exception
      */
-    public static String getIndexName(String tableName, String... fieldNames) throws Exception {
+    public static String getIndexNameFields(String tableName, String... fieldNames) throws Exception {
         String cols = "";
         int i = 0;
         for (String fieldName : fieldNames) {
@@ -339,7 +340,20 @@ public abstract class BaseDatabaseHelper {
             cols += fieldName;
         }
 
-        return tableName + "__index__" + cols;
+        return getIndexNameSuffix(tableName, cols);
+    }
+
+    /**
+     * 获取索引名称
+     * @param tableName 表名
+     * @param suffix 后缀
+     * @return 索引名称
+     * @throws Exception
+     */
+    public static String getIndexNameSuffix(String tableName, String suffix) throws Exception {
+        if (StringUtil.isEmpty(suffix)) suffix = "";
+
+        return tableName + "__index__" + suffix;
     }
 
     /**

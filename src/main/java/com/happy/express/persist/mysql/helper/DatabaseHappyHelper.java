@@ -4,6 +4,7 @@ import com.happy.express.persist.annotation.HappyCol;
 import com.happy.express.persist.annotation.HappyId;
 import com.happy.express.persist.annotation.HappyIndexes;
 import com.happy.util.CollectionUtil;
+import com.happy.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -277,20 +278,28 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         if (happyIndexes == null || happyIndexes.indexes() == null || happyIndexes.indexes().length == 0) return ;
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
-            addIndex(tableName, fields);
+            String suffix = happyIndex.suffix();
+            addIndex(tableName, suffix, fields);
         }
     }
 
     /**
      * 添加索引
      * @param tableName 表名
+     * @param suffix 后缀
      * @param fieldNames 字段名
      * @throws Exception
      */
-    public static void addIndex(String tableName, String... fieldNames) throws Exception {
-        if (existIndex(tableName, fieldNames)) return ;
+    public static void addIndex(String tableName, String suffix, String... fieldNames) throws Exception {
+        if (StringUtil.isEmpty(suffix)) {
+            if (existIndex(tableName, getIndexNameFields(tableName, fieldNames))) return ;
+        } else {
+            if (existIndex(tableName, suffix)) return ;
+        }
 
-        String indexName = getIndexName(tableName, fieldNames);
+        String indexName = getIndexNameSuffix(tableName, suffix);
+        if (StringUtil.isEmpty(suffix))
+            indexName = getIndexNameFields(tableName, fieldNames);
         String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
 
         logger.info("添加索引的sql: " + sql);

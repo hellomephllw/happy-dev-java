@@ -15,7 +15,7 @@ public class LoggerUtil {
      * @param e 异常
      */
     public static void printStackTrace(Logger logger, Exception e) {
-        logger.error("发生错误", e);
+        logger.error("发生错误: " + e.getMessage(), e);
     }
 
 }

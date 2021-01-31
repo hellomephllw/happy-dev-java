@@ -7,6 +7,7 @@ import com.happy.express.persist.mysql.helper.DatabaseHelper;
 import com.happy.express.persist.mysql.helper.IFieldProcessor;
 import com.happy.express.persist.mysql.helper.IFieldReverseProcessor;
 import com.happy.util.FileUtil;
+import com.happy.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.Column;
@@ -226,6 +227,7 @@ public class BaseGenerator {
                 for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
                     String[] indexFields = happyIndex.fields();
                     int i = 0;
+                    //todo 判断
                     String[] splitDbFieldNames = dbFieldNames.split("_");
                     int size = splitDbFieldNames.length;
                     for (String fieldName : splitDbFieldNames) {
@@ -257,7 +259,9 @@ public class BaseGenerator {
         if (happyIndexes == null || happyIndexes.indexes() == null || happyIndexes.indexes().length == 0) return ;
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
-            String indexName = DatabaseHappyHelper.getIndexName(tableName, fields);
+            String indexName = DatabaseHappyHelper.getIndexNameSuffix(tableName, happyIndex.suffix());
+            if (StringUtil.isEmpty(happyIndex.suffix()))
+                indexName = DatabaseHappyHelper.getIndexNameFields(tableName, fields);
             boolean existInDb = false;
             ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
             while (indexSet.next()) {

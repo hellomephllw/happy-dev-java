@@ -20,6 +20,7 @@ public @interface HappyIndexes {
     @Retention(RetentionPolicy.RUNTIME)
     @interface HappyIndex {
         String[] fields();
+        String suffix() default "";
     }
 
 }
