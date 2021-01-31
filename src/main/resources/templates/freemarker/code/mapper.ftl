@@ -101,7 +101,7 @@
                 todo=${wellNumberPre}todo${wellNumberEnd}
             </if>
         </where>
-        limit ${wellNumberPre}startNo${wellNumberEnd}, ${wellNumberPre}endNo${wellNumberEnd}
+        limit ${wellNumberPre}startNo${wellNumberEnd}, ${wellNumberPre}pageSize${wellNumberEnd}
     </select>
 
     <select id="count" resultType="int">
