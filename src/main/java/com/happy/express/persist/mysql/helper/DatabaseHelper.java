@@ -228,7 +228,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         Column column = entityField.getAnnotation(Column.class);
         HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
         if (column == null && happyCol == null) return ;
-        if (!column.unique() && !happyCol.unique()) return ;
+        if ((column != null && !column.unique()) && (happyCol != null && !happyCol.unique())) return ;
         if (existUniqueIndex(tableName, entityField.getName())) return ;
 
         String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
@@ -257,7 +257,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         Column column = entityField.getAnnotation(Column.class);
         HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
         if (column == null && happyCol == null) return ;
-        if (column.unique() || happyCol.unique()) return ;
+        if ((column != null && column.unique()) || (happyCol != null && happyCol.unique())) return ;
         if (!existUniqueIndex(tableName, entityField.getName())) return ;
 
         String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());

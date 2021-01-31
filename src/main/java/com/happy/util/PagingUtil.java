@@ -21,11 +21,10 @@ public class PagingUtil {
      * @param pageNo 当前页码
      * @param pageSize 每页数据量
      * @return PageRequest对象
-     * @throws Exception
      */
-    public static PageRequest buildJpaPageRequest(int pageNo, int pageSize) throws Exception {
-        if (pageNo < 1) throw new Exception("pageNo必须大于0");
-        if (pageSize < 1) throw new Exception("pageSize必须大于0");
+    public static PageRequest buildJpaPageRequest(int pageNo, int pageSize) {
+        if (pageNo < 1) throw new RuntimeException("pageNo必须大于0");
+        if (pageSize < 1) throw new RuntimeException("pageSize必须大于0");
 
         return PageRequest.of(--pageNo, pageSize, new Sort(Sort.Direction.DESC, "id"));
     }
@@ -36,10 +35,9 @@ public class PagingUtil {
      * @param pageSize 每页数据量
      * @param sorts 指定的多个排序方式, eg: CollectionUtil.stringMap().put("name", "desc")
      * @return PageRequest对象
-     * @throws Exception
      */
-    public static PageRequest buildJpaPageRequest(int pageNo, int pageSize, ImmutableMap.Builder<String, String> ...sorts) throws Exception {
-        if (sorts == null) throw new Exception("sorts参数可以不写，但不能为空");
+    public static PageRequest buildJpaPageRequest(int pageNo, int pageSize, ImmutableMap.Builder<String, String> ...sorts) {
+        if (sorts == null) throw new RuntimeException("sorts参数可以不写，但不能为空");
 
         List<Sort.Order> orders = new ArrayList<>();
         for (ImmutableMap.Builder<String, String> sort : sorts) {
@@ -54,14 +52,13 @@ public class PagingUtil {
      * 把desc和asc字符串解析为direction
      * @param direction 待解析字符串
      * @return direction
-     * @throws Exception
      */
-    private static Sort.Direction parseStringToDirection(String direction) throws Exception {
+    private static Sort.Direction parseStringToDirection(String direction) {
         if (direction != null) {
             if (direction.toLowerCase().equals("desc")) return Sort.Direction.DESC;
             if (direction.toLowerCase().equals("asc")) return Sort.Direction.ASC;
         }
-        throw new Exception("direction必须是desc或asc字符串");
+        throw new RuntimeException("direction必须是desc或asc字符串");
     }
 
     /**
@@ -73,7 +70,7 @@ public class PagingUtil {
      * @return 分页数据对象
      */
     @SuppressWarnings("unchecked")
-    public static PagingVo transformPagingDtoToVo(PagingDto dto, Class voClazz, int pageNo, int pageSize) throws Exception {
+    public static PagingVo transformPagingDtoToVo(PagingDto dto, Class voClazz, int pageNo, int pageSize) {
         PagingVo pagingVo = new PagingVo();
         pagingVo.setEntities(new TreeSet(transformEntities(dto.getEntities(), voClazz)));
         pagingVo.setTotal(dto.getCount());
@@ -93,7 +90,7 @@ public class PagingUtil {
      * @return 分页数据对象
      */
     @SuppressWarnings("unchecked")
-    public static PagingVoNoSort transformPagingDtoToVoNoSort(PagingDto dto, Class voClazz, int pageNo, int pageSize) throws Exception {
+    public static PagingVoNoSort transformPagingDtoToVoNoSort(PagingDto dto, Class voClazz, int pageNo, int pageSize) {
         PagingVoNoSort pagingVoNoSort = new PagingVoNoSort();
         pagingVoNoSort.setEntities(transformEntities(dto.getEntities(), voClazz));
         pagingVoNoSort.setTotal(dto.getCount());
@@ -109,9 +106,8 @@ public class PagingUtil {
      * @param entities 被转换实体
      * @param voClazz 需要转换的实体class
      * @return 新的实体
-     * @throws Exception
      */
-    private static List transformEntities(List entities, Class voClazz) throws Exception {
+    private static List transformEntities(List entities, Class voClazz) {
         List news = new ArrayList();
         for (Object object : entities) {
             news.add(ObjectUtil.transferObjectValToAnother(object, voClazz));
