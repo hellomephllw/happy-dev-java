@@ -1,7 +1,5 @@
 package com.happy.util;
 
-import com.happy.exception.BusinessException;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -261,11 +259,11 @@ public class DateUtil {
      * @return 时间
      * @throws Exception
      */
-    public static Date transferStr2DateWithValidate(String dateStr) throws Exception {
+    public static Date transferStr2DateWithValidate(String dateStr) {
         try {
             return DateUtil.parseDate(dateStr);
         } catch (Exception e) {
-            throw new BusinessException("时间格式只能是yyyy-MM-dd");
+            throw new RuntimeException("时间格式只能是yyyy-MM-dd");
         }
     }
 
@@ -275,11 +273,11 @@ public class DateUtil {
      * @return 时间
      * @throws Exception
      */
-    public static Date transferStr2DateTimeWithValidate(String dateStr) throws Exception {
+    public static Date transferStr2DateTimeWithValidate(String dateStr) {
         try {
             return DateUtil.parseDateTime(dateStr);
         } catch (Exception e) {
-            throw new BusinessException("时间格式只能是yyyy-MM-dd HH:mm:ss");
+            throw new RuntimeException("时间格式只能是yyyy-MM-dd HH:mm:ss");
         }
     }
 
