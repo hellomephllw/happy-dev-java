@@ -27,6 +27,4 @@ public interface BaseMapper<T> {
 
     public List<T> findByIds(List<Integer> ids);
 
-    public int count();
-
 }

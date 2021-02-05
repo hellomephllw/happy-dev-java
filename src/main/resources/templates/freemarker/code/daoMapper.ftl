@@ -19,4 +19,6 @@ public interface I${entityClassName}Dao extends BaseMapper<${entityClassName}> {
 
     List<${entityClassName}> query(@Param("startNo") int startNo, @Param("pageSize") int pageSize);
 
+    int count();
+
 }
