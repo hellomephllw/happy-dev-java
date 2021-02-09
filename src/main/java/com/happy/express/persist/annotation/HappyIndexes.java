@@ -14,13 +14,22 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HappyIndexes {
 
-    HappyIndex[] indexes();
+    HappyIndex[] indexes() default {};
+
+    HappyUniqueIndex[] uniqueIndexes() default {};
 
     @Target({})
     @Retention(RetentionPolicy.RUNTIME)
     @interface HappyIndex {
         String[] fields();
-        String suffix() default "";
+        String suffix() default "";//后缀名(idx_suffix)
+    }
+
+    @Target({})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface HappyUniqueIndex {
+        String[] fields();
+        String suffix() default "";//后缀名(idx_suffix)
     }
 
 }

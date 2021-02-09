@@ -229,7 +229,7 @@ public abstract class BaseDatabaseHelper {
         ResultSet uniqueSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, true, true);
         while (uniqueSet.next()) {
             String uniqueName = uniqueSet.getString("INDEX_NAME");
-            if (uniqueName.equals(getUniqueIndexName(tableName, entityFieldName))) {
+            if (uniqueName.equals(getUniqueIndexName(entityFieldName))) {
                 return true;
             }
         }
@@ -248,7 +248,7 @@ public abstract class BaseDatabaseHelper {
         ResultSet indexSet = metaData.getIndexInfo(DatabaseHelper.getDatabaseName(), "%", tableName, false, true);
         while (indexSet.next()) {
             String indexName = indexSet.getString("INDEX_NAME");
-            if (indexName.equals(getIndexNameSuffix(tableName, suffix))) {
+            if (indexName.equals(getIndexNameSuffix(suffix))) {
                 return true;
             }
         }
@@ -315,24 +315,22 @@ public abstract class BaseDatabaseHelper {
 
     /**
      * 获取唯一索引名称
-     * @param tableName 表名
      * @param entityFieldName 实体字段名称
      * @return 该实体字段的索引名称
      * @throws Exception
      */
-    public static String getUniqueIndexName(String tableName, String entityFieldName) throws Exception {
+    public static String getUniqueIndexName(String entityFieldName) throws Exception {
 
-        return tableName + "_unique_" + getDatabaseFieldName(entityFieldName);
+        return "idx_uniq_" + getDatabaseFieldName(entityFieldName);
     }
 
     /**
      * 获取索引名称
-     * @param tableName 表明
      * @param fieldNames 字段名
      * @return 索引名称
      * @throws Exception
      */
-    public static String getIndexNameFields(String tableName, String... fieldNames) throws Exception {
+    public static String getIndexNameFields(String... fieldNames) throws Exception {
         String cols = "";
         int i = 0;
         for (String fieldName : fieldNames) {
@@ -340,20 +338,19 @@ public abstract class BaseDatabaseHelper {
             cols += fieldName;
         }
 
-        return getIndexNameSuffix(tableName, cols);
+        return getIndexNameSuffix(cols);
     }
 
     /**
      * 获取索引名称
-     * @param tableName 表名
      * @param suffix 后缀
      * @return 索引名称
      * @throws Exception
      */
-    public static String getIndexNameSuffix(String tableName, String suffix) throws Exception {
+    public static String getIndexNameSuffix(String suffix) throws Exception {
         if (StringUtil.isEmpty(suffix)) suffix = "";
 
-        return tableName + "__index__" + suffix;
+        return "idx_" + suffix;
     }
 
     /**

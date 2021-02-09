@@ -20,8 +20,6 @@ public @interface HappyCol {
 
     boolean nullable() default true;
 
-    boolean unique() default false;
-
     int precision() default 0;
 
     int scale() default 0;

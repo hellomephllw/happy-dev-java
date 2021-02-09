@@ -171,79 +171,36 @@ public class BaseGenerator {
                 fieldReverseProcessor.unusedField(tableName, dbFieldName);
             }
         }
-        //检查多余的唯一索引
-        ResultSet uniqueSet = DatabaseHelper.getAllUniqueIndexByTableName(tableName);
-        while (uniqueSet.next()) {
-            String uniqueIndexName = uniqueSet.getString("INDEX_NAME");
-            if (uniqueIndexName.toLowerCase().equals("primary")) {
-                continue;
-            }
-            if (!uniqueIndexName.contains("_unique_")) {
-                fieldReverseProcessor.unusedUniqueIndex(tableName, uniqueIndexName);
-                continue;
-            }
-            String dbFieldName = uniqueIndexName.split("_unique_")[1];
-            boolean existInField = false;
-            for (Field field : fields) {
-                if (field.getName().equals(DatabaseHelper.getEntityFieldName(dbFieldName))) {
-                    if (isHappyDev) {
-                        HappyCol column = field.getAnnotation(HappyCol.class);
-                        if (column.unique()) {
-                            //属性中配置了唯一索引
-                            existInField = true;
-                        }
-                        break;
-                    } else {
-                        Column column = field.getAnnotation(Column.class);
-                        if (column.unique()) {
-                            //属性中配置了唯一索引
-                            existInField = true;
-                        }
-                        break;
-                    }
-                }
-            }
-            if (!existInField) {
-                fieldReverseProcessor.unusedUniqueIndex(tableName, uniqueIndexName);
-            }
-        }
         //检查多余的索引
         ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
         Set<String> deletedIndexes = new HashSet<>();
         while (indexSet.next()) {
-            String indexName = indexSet.getString("INDEX_NAME");
-            if (indexName.toLowerCase().equals("primary")) {
+            String dbIndexName = indexSet.getString("INDEX_NAME");
+            if (dbIndexName.toLowerCase().equals("primary")) {
                 continue;
             }
-            if (!indexName.contains("__index__") && !deletedIndexes.contains(indexName)) {
-                fieldReverseProcessor.unusedIndex(tableName, indexName);
-                deletedIndexes.add(indexName);
+            if (!dbIndexName.contains("idx_") && !deletedIndexes.contains(dbIndexName)) {
+                fieldReverseProcessor.unusedIndex(tableName, dbIndexName);
+                deletedIndexes.add(dbIndexName);
                 continue;
             }
-            String dbFieldNames = indexName.split("__index__")[1];
             boolean exist = false;
             HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
             if (happyIndexes != null && happyIndexes.indexes() != null && happyIndexes.indexes().length > 0) {
                 for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
                     String[] indexFields = happyIndex.fields();
-                    int i = 0;
-                    //todo 判断
-                    String[] splitDbFieldNames = dbFieldNames.split("_");
-                    int size = splitDbFieldNames.length;
-                    for (String fieldName : splitDbFieldNames) {
-                        if (fieldName.equals(indexFields[i++])) {
-                            --size;
-                        }
-                    }
-                    if (size <= 0) {
+                    String indexName = DatabaseHappyHelper.getIndexNameSuffix(happyIndex.suffix());
+                    if (StringUtil.isEmpty(happyIndex.suffix()))
+                        indexName = DatabaseHappyHelper.getIndexNameFields(indexFields);
+                    if (indexName.equals(dbIndexName)) {
                         exist = true;
                         break;
                     }
                 }
             }
-            if (!exist && !deletedIndexes.contains(indexName)) {
-                fieldReverseProcessor.unusedIndex(tableName, indexName);
-                deletedIndexes.add(indexName);
+            if (!exist && !deletedIndexes.contains(dbIndexName)) {
+                fieldReverseProcessor.unusedIndex(tableName, dbIndexName);
+                deletedIndexes.add(dbIndexName);
             }
         }
     }
@@ -259,9 +216,9 @@ public class BaseGenerator {
         if (happyIndexes == null || happyIndexes.indexes() == null || happyIndexes.indexes().length == 0) return ;
         for (HappyIndexes.HappyIndex happyIndex : happyIndexes.indexes()) {
             String[] fields = happyIndex.fields();
-            String indexName = DatabaseHappyHelper.getIndexNameSuffix(tableName, happyIndex.suffix());
+            String indexName = DatabaseHappyHelper.getIndexNameSuffix(happyIndex.suffix());
             if (StringUtil.isEmpty(happyIndex.suffix()))
-                indexName = DatabaseHappyHelper.getIndexNameFields(tableName, fields);
+                indexName = DatabaseHappyHelper.getIndexNameFields(fields);
             boolean existInDb = false;
             ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
             while (indexSet.next()) {

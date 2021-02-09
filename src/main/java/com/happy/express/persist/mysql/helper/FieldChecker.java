@@ -22,70 +22,70 @@ public class FieldChecker implements IFieldProcessor {
     public void byteField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "byte", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "byte", true, false, false);
     }
 
     @Override
     public void shortField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "short", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "short", true, false, false);
     }
 
     @Override
     public void integerField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "int", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "int", true, false, false);
     }
 
     @Override
     public void longField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "bigint", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "bigint", true, false, false);
     }
 
     @Override
     public void floatField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "float", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "float", true, false, false);
     }
 
     @Override
     public void doubleField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "double", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "double", true, false, false);
     }
 
     @Override
     public void booleanField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "bit", true, false, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "bit", true, false, false);
     }
 
     @Override
     public void stringField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "string", true, true, true, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "string", true, true, false);
     }
 
     @Override
     public void dateField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "date", true, true, false, false);
+        genericChecker(tableName, entityFieldName, field, columnSet, "date", true, false, false);
     }
 
     @Override
     public void bigDecimalField(String tableName, Field field, ResultSet columnSet) throws Exception {
         String entityFieldName = field.getName();
 
-        genericChecker(tableName, entityFieldName, field, columnSet, "decimal", true, true, false, true);
+        genericChecker(tableName, entityFieldName, field, columnSet, "decimal", true, false, true);
     }
 
     /**
@@ -95,7 +95,6 @@ public class FieldChecker implements IFieldProcessor {
      * @param field 实体字段
      * @param columnSet 数据库字段
      * @param checkNullable 非空检查
-     * @param checkUnique 唯一检查
      * @param checkLength 字符串长度检查
      * @param checkDecimal decimal精度检查
      * @throws Exception
@@ -106,28 +105,12 @@ public class FieldChecker implements IFieldProcessor {
                                 ResultSet columnSet,
                                 String dbFieldType,
                                 boolean checkNullable,
-                                boolean checkUnique,
                                 boolean checkLength,
                                 boolean checkDecimal) throws Exception {
         //构建参数
-        FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkUnique, checkLength, checkDecimal);
+        FieldStateParams fieldStateParams = FieldStateParams.build(tableName, entityFieldName, field, columnSet, dbFieldType, checkNullable, checkLength, checkDecimal);
 
         String dbFieldName = DatabaseHelper.getDatabaseFieldName(entityFieldName);
-        //添加唯一索引
-        if (fieldStateParams.addUnique) {
-            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")有唯一索引, 需要为该字段添加唯一索引");
-            if (!fieldStateParams.modifyType
-                    && !fieldStateParams.modifyLength
-                    && !fieldStateParams.modifyBigDecimal
-                    && fieldStateParams.canOwnUnique
-                    && fieldStateParams.addNotNull) {
-                logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
-            }
-        }
-        //删除唯一索引
-        if (fieldStateParams.deleteUnique) {
-            logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")没有唯一索引, 需要删除该唯一索引(" + DatabaseHelper.getUniqueIndexName(tableName, entityFieldName) + ")");
-        }
         //修改字段
         Column column = field.getAnnotation(Column.class);
         HappyCol happyCol = field.getAnnotation(HappyCol.class);
@@ -136,63 +119,57 @@ public class FieldChecker implements IFieldProcessor {
                 || fieldStateParams.modifyBigDecimal
                 || fieldStateParams.addNotNull
                 || fieldStateParams.deleteNotNull) {
-            if (!(!fieldStateParams.modifyType
-                    && !fieldStateParams.modifyLength
-                    && !fieldStateParams.modifyBigDecimal
-                    && fieldStateParams.canOwnUnique
-                    && fieldStateParams.addNotNull)) {
-                //decimal
-                if (fieldStateParams.modifyBigDecimal) {
-                    int entityFieldPrecision = 0;
-                    int entityFieldScale = 0;
-                    int dbFieldPrecision = 0;
-                    int dbFieldScale = 0;
-                    if (column != null) {
-                        entityFieldPrecision = column.precision();
-                        entityFieldScale = column.scale();
-                        dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
-                        dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
-                    } else if (happyCol != null) {
-                        entityFieldPrecision = happyCol.precision();
-                        entityFieldScale = happyCol.scale();
-                        dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
-                        dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
-                    }
-                    if (entityFieldPrecision != dbFieldPrecision) {
-                        logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")最大长度为(" + dbFieldPrecision + "), 需要变为" + entityFieldPrecision);
-                    }
-                    if (entityFieldScale != dbFieldScale) {
-                        logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")小数位数为(" + dbFieldScale + "), 需要变为" + entityFieldScale);
-                    }
+            //decimal
+            if (fieldStateParams.modifyBigDecimal) {
+                int entityFieldPrecision = 0;
+                int entityFieldScale = 0;
+                int dbFieldPrecision = 0;
+                int dbFieldScale = 0;
+                if (column != null) {
+                    entityFieldPrecision = column.precision();
+                    entityFieldScale = column.scale();
+                    dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
+                    dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
+                } else if (happyCol != null) {
+                    entityFieldPrecision = happyCol.precision();
+                    entityFieldScale = happyCol.scale();
+                    dbFieldPrecision = columnSet.getInt("COLUMN_SIZE");
+                    dbFieldScale = columnSet.getInt("DECIMAL_DIGITS");
                 }
-                //length
-                if (fieldStateParams.modifyLength) {
-                    int entityFieldLen = 0;
-                    int dbFieldLen = 0;
-                    if (column != null) {
-                        entityFieldLen = column.length();
-                        dbFieldLen = columnSet.getInt("COLUMN_SIZE");
-                    } else if (happyCol != null) {
-                        entityFieldLen = happyCol.len();
-                        dbFieldLen = columnSet.getInt("COLUMN_SIZE");
-                    }
-                    if (dbFieldLen != entityFieldLen) {
-                        logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")字符串长度为(" + dbFieldLen + "), 需要变为" + entityFieldLen);
-                    }
+                if (entityFieldPrecision != dbFieldPrecision) {
+                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")最大长度为(" + dbFieldPrecision + "), 需要变为" + entityFieldPrecision);
                 }
-                //添加非空
-                if (fieldStateParams.addNotNull && !fieldStateParams.canOwnUnique) {
-                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")可为空, 需要变为不为空");
+                if (entityFieldScale != dbFieldScale) {
+                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")小数位数为(" + dbFieldScale + "), 需要变为" + entityFieldScale);
                 }
-                //删除非空
-                if (fieldStateParams.deleteNotNull) {
-                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")不能为空, 需要变为可为空");
+            }
+            //length
+            if (fieldStateParams.modifyLength) {
+                int entityFieldLen = 0;
+                int dbFieldLen = 0;
+                if (column != null) {
+                    entityFieldLen = column.length();
+                    dbFieldLen = columnSet.getInt("COLUMN_SIZE");
+                } else if (happyCol != null) {
+                    entityFieldLen = happyCol.len();
+                    dbFieldLen = columnSet.getInt("COLUMN_SIZE");
                 }
-                //类型
-                if (fieldStateParams.modifyType) {
-                    String typeStr = columnSet.getString("TYPE_NAME");
-                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")的类型为(" + typeStr.toLowerCase() + "), 需要变为" + dbFieldType);
+                if (dbFieldLen != entityFieldLen) {
+                    logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")字符串长度为(" + dbFieldLen + "), 需要变为" + entityFieldLen);
                 }
+            }
+            //添加非空
+            if (fieldStateParams.addNotNull) {
+                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")可为空, 需要变为不为空");
+            }
+            //删除非空
+            if (fieldStateParams.deleteNotNull) {
+                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")不能为空, 需要变为可为空");
+            }
+            //类型
+            if (fieldStateParams.modifyType) {
+                String typeStr = columnSet.getString("TYPE_NAME");
+                logger.warn("数据库表(" + tableName + ")字段(" + dbFieldName + ")的类型为(" + typeStr.toLowerCase() + "), 需要变为" + dbFieldType);
             }
         }
 

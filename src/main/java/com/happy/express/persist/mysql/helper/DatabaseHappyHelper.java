@@ -54,10 +54,6 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
 
         logger.info("已创建数据库表: " + tableName);
 
-        //创建唯一索引
-        for (Field entityField : entityFields) {
-            addUniqueIndex(tableName, entityField);
-        }
         //添加索引
         addIndexes(entity, tableName);
     }
@@ -97,7 +93,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
-        if (!column.nullable() && !column.unique()) {
+        if (!column.nullable()) {
             sql.append(" not null");
         }
         sql.append(";");
@@ -109,12 +105,8 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (!column.nullable() && !column.unique() ? " not null" : "");
+                + (!column.nullable() ? " not null" : "");
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
-
-        if (!column.nullable() && column.unique()) {
-            logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
-        }
 
         //创建唯一索引
         addUniqueIndex(tableName, entityField);
@@ -144,7 +136,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
-        if (!column.nullable() && !column.unique()) {
+        if (!column.nullable()) {
             sql.append(" not null");
         }
         sql.append(";");
@@ -156,12 +148,8 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         String fieldStr = getDatabaseFieldName(entityField.getName())
                 + " "
                 + getWholeDbFieldTypeByEntityFieldType(entityField)
-                + (!column.nullable() && !column.unique() ? " not null" : "");
+                + (!column.nullable() ? " not null" : "");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
-
-        if (!column.nullable() && column.unique()) {
-            logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功修改字段");
-        }
     }
 
     /**
@@ -205,10 +193,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
     public static void addUniqueIndex(String tableName, Field entityField) throws Exception {
         HappyCol column = entityField.getAnnotation(HappyCol.class);
         if (column == null) return ;
-        if (!column.unique()) return ;
+//        if (!column.unique()) return ;
         if (existUniqueIndex(tableName, entityField.getName())) return ;
 
-        String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
+        String uniqueIndexName = getUniqueIndexName(entityField.getName());
         StringBuilder sql = new StringBuilder();
         sql.append("create unique index");
         sql.append(" ");
@@ -234,16 +222,16 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
     public static void deleteUniqueIndex(String tableName, Field entityField) throws Exception {
         HappyCol column = entityField.getAnnotation(HappyCol.class);
         if (column == null) return ;
-        if (column.unique()) return ;
+//        if (column.unique()) return ;
         if (!existUniqueIndex(tableName, entityField.getName())) return ;
 
-        String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
+        String uniqueIndexName = getUniqueIndexName(entityField.getName());
         StringBuilder sql = new StringBuilder();
         sql.append("alter table");
         sql.append(" ");
         sql.append(tableName);
         sql.append(" drop index ");
-        sql.append(getUniqueIndexName(tableName, entityField.getName()));
+        sql.append(getUniqueIndexName(entityField.getName()));
         sql.append(";");
 
         logger.info("删除唯一索引的sql: " + sql.toString());
@@ -292,14 +280,14 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
      */
     public static void addIndex(String tableName, String suffix, String... fieldNames) throws Exception {
         if (StringUtil.isEmpty(suffix)) {
-            if (existIndex(tableName, getIndexNameFields(tableName, fieldNames))) return ;
+            if (existIndex(tableName, getIndexNameFields(fieldNames))) return ;
         } else {
             if (existIndex(tableName, suffix)) return ;
         }
 
-        String indexName = getIndexNameSuffix(tableName, suffix);
+        String indexName = getIndexNameSuffix(suffix);
         if (StringUtil.isEmpty(suffix))
-            indexName = getIndexNameFields(tableName, fieldNames);
+            indexName = getIndexNameFields(fieldNames);
         String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
 
         logger.info("添加索引的sql: " + sql);

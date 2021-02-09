@@ -53,11 +53,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
 
         logger.info("已创建数据库表: " + tableName);
         logger.info("建表sql: " + sql.toString());
-
-        //创建独立索引
-        for (Field entityField : entityFields) {
-            addUniqueIndex(tableName, entityField);
-        }
     }
 
     /**
@@ -68,6 +63,7 @@ public class DatabaseHelper extends BaseDatabaseHelper {
     public static void deleteTable(String tableName) throws Exception {
         //删表sql
         String sql = "drop table " + tableName + ";";
+        sql = "set foreign_key_checks = 0; " + sql;
 
         //执行删除
         statement.executeUpdate(sql);
@@ -109,13 +105,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                 + (isNotNull ? " not null" : "");
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
         logger.info("添加字段的sql: " + sql.toString());
-
-        if (isNotNullUniqueWarn(column, happyCol)) {
-            logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功添加字段");
-        }
-
-        //创建独立索引
-        addUniqueIndex(tableName, entityField);
     }
 
     /**
@@ -164,10 +153,6 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                 + (isNotNull ? " not null" : "");
         logger.warn("把数据库表(" + tableName + ")字段(" + getDatabaseFieldName(entityField.getName()) + "), 修改为" + fieldStr);
         logger.warn("修改字段的sql: " + sql.toString());
-
-        if (isNotNullUniqueWarn(column, happyCol)) {
-            logger.warn("【非常重要, 请注意】如果该字段为not null unique, 则忽略not null, 不然无法成功修改字段");
-        }
     }
 
     /**
@@ -228,10 +213,10 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         Column column = entityField.getAnnotation(Column.class);
         HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
         if (column == null && happyCol == null) return ;
-        if ((column != null && !column.unique()) && (happyCol != null && !happyCol.unique())) return ;
+//        if ((column != null && !column.unique()) && (happyCol != null && !happyCol.unique())) return ;
         if (existUniqueIndex(tableName, entityField.getName())) return ;
 
-        String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
+        String uniqueIndexName = getUniqueIndexName(entityField.getName());
         StringBuilder sql = new StringBuilder();
         sql.append("create unique index");
         sql.append(" ");
@@ -257,16 +242,16 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         Column column = entityField.getAnnotation(Column.class);
         HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
         if (column == null && happyCol == null) return ;
-        if ((column != null && column.unique()) || (happyCol != null && happyCol.unique())) return ;
+//        if ((column != null && column.unique()) || (happyCol != null && happyCol.unique())) return ;
         if (!existUniqueIndex(tableName, entityField.getName())) return ;
 
-        String uniqueIndexName = getUniqueIndexName(tableName, entityField.getName());
+        String uniqueIndexName = getUniqueIndexName(entityField.getName());
         StringBuilder sql = new StringBuilder();
         sql.append("alter table");
         sql.append(" ");
         sql.append(tableName);
         sql.append(" drop index ");
-        sql.append(getUniqueIndexName(tableName, entityField.getName()));
+        sql.append(getUniqueIndexName(entityField.getName()));
         sql.append(";");
 
         statement.executeUpdate(sql.toString());
@@ -494,29 +479,12 @@ public class DatabaseHelper extends BaseDatabaseHelper {
     private static boolean isNotNull(Column column, HappyCol happyCol) {
         boolean isNotNull = true;
         if (column != null) {
-            isNotNull = !column.nullable() && !column.unique();
+            isNotNull = !column.nullable();
         } else if (happyCol != null) {
-            isNotNull = !happyCol.nullable() && !happyCol.unique();
+            isNotNull = !happyCol.nullable();
         }
 
         return isNotNull;
-    }
-
-    /**
-     * 非空唯一警告
-     * @param column column
-     * @param happyCol happyCol
-     * @return 非空唯一警告
-     */
-    private static boolean isNotNullUniqueWarn(Column column, HappyCol happyCol) {
-        boolean warn = false;
-        if (column != null) {
-            warn = !column.nullable() && column.unique();
-        } else if (happyCol != null) {
-            warn = !happyCol.nullable() && happyCol.unique();
-        }
-
-        return warn;
     }
 
 }

@@ -39,16 +39,6 @@ public class FieldStateParams {
      * 是否要删除非空
      */
     public boolean deleteNotNull = false;
-    /***是否要添加唯一索引*/
-    public boolean addUnique = false;
-    /**
-     * 是否要删除唯一索引
-     */
-    public boolean deleteUnique = false;
-    /**
-     * 是否能够有唯一索引
-     */
-    public boolean canOwnUnique = false;
 
     /**
      * 构建参数
@@ -58,7 +48,6 @@ public class FieldStateParams {
      * @param columnSet       数据库字段
      * @param dbFieldType     数据库字段类型
      * @param checkNullable   检查非空
-     * @param checkUnique     检查唯一索引
      * @param checkLength     检查字符长度
      * @param checkDecimal    检查decimal
      * @return 实体字段情况
@@ -70,7 +59,6 @@ public class FieldStateParams {
                                          ResultSet columnSet,
                                          String dbFieldType,
                                          boolean checkNullable,
-                                         boolean checkUnique,
                                          boolean checkLength,
                                          boolean checkDecimal) throws Exception {
         //重置属性
@@ -86,13 +74,11 @@ public class FieldStateParams {
         boolean isText = false;
         boolean isLongText = false;
         boolean isNullable = false;
-        boolean isUnique = false;
         if (column != null) {
             entityFieldLen = column.length();
             entityFieldPrecision = column.precision();
             entityFieldScale = column.scale();
             isNullable = column.nullable();
-            isUnique = column.unique();
         } else if (happyCol != null) {
             entityFieldLen = happyCol.len();
             entityFieldPrecision = happyCol.precision();
@@ -101,9 +87,9 @@ public class FieldStateParams {
             isText = happyCol.text();
             isLongText = happyCol.longText();
             isNullable = happyCol.nullable();
-            isUnique = happyCol.unique();
         }
 
+        boolean isDate = false;
         //是否要修改类型
         if ("string".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
@@ -124,6 +110,7 @@ public class FieldStateParams {
                 fieldStateParams.modifyType = true;
             }
         } else if ("date".equals(dbFieldType.toLowerCase())) {
+            isDate = true;
             String typeStr = columnSet.getString("TYPE_NAME");
             if (!"timestamp".equals(typeStr.toLowerCase())) {
                 fieldStateParams.modifyType = true;
@@ -132,7 +119,7 @@ public class FieldStateParams {
             fieldStateParams.modifyType = !fieldTypeChecker(columnSet, dbFieldType);
         }
 
-        if (checkNullable) {
+        if (checkNullable && !isDate) {
             //非空检查
             int nullable = columnSet.getInt("NULLABLE");
             if (isNullable) {
@@ -142,19 +129,6 @@ public class FieldStateParams {
             } else {//不可为空
                 if (nullable == 1) {
                     fieldStateParams.addNotNull = true;
-                }
-            }
-        }
-        if (checkUnique) {
-            //唯一索引检查
-            if (isUnique) {//唯一索引
-                fieldStateParams.canOwnUnique = true;
-                if (!DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                    fieldStateParams.addUnique = true;
-                }
-            } else {
-                if (DatabaseHelper.existUniqueIndex(tableName, entityFieldName)) {
-                    fieldStateParams.deleteUnique = true;
                 }
             }
         }
@@ -206,9 +180,6 @@ public class FieldStateParams {
         fieldStateParams.modifyBigDecimal = false;
         fieldStateParams.addNotNull = false;
         fieldStateParams.deleteNotNull = false;
-        fieldStateParams.addUnique = false;
-        fieldStateParams.deleteUnique = false;
-        fieldStateParams.canOwnUnique = false;
     }
 
     @Override
@@ -219,9 +190,6 @@ public class FieldStateParams {
                 ", modifyBigDecimal=" + modifyBigDecimal +
                 ", addNotNull=" + addNotNull +
                 ", deleteNotNull=" + deleteNotNull +
-                ", addUnique=" + addUnique +
-                ", deleteUnique=" + deleteUnique +
-                ", canOwnUnique=" + canOwnUnique +
                 '}';
     }
 
