@@ -1,6 +1,7 @@
 package com.happy.express.persist.mysql;
 
 import com.happy.express.persist.mysql.helper.DatabaseHappyHelper;
+import com.happy.express.persist.mysql.helper.DatabaseHelper;
 import com.happy.util.LoggerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,11 @@ public class JarGenerator extends BaseGenerator {
      */
     public static void generate(String env) throws Exception {
         //连接数据库
-        DatabaseHappyHelper.connectDatabaseInJar(env);
+        DatabaseHelper.connectDatabaseInJar(env);
         //读取所有实体
         EntityReader.readAllEntitiesInJarClassPath(getUserConfigBasePackageFilePath());
         //表对比并执行表同步任务
-        HappyTableGenerator.diffAndGenerate();
+        TableGenerator.diff();
     }
 
     public static void main(String[] args) {

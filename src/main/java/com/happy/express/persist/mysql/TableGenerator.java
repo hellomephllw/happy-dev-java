@@ -43,7 +43,7 @@ public class TableGenerator extends BaseGenerator {
      * 对表格进行对比: 可能进行更新
      * @throws Exception
      */
-    private static void diff() throws Exception {
+    public static void diff() throws Exception {
         List<Class> entities = EntityReader.getEntities();
 
         /**实体安全检查*/
