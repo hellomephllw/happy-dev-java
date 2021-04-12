@@ -23,13 +23,4 @@ public class I${entityClassName}ServiceImpl extends BaseService implements I${en
     @Autowired
     private I${entityClassName}Dao ${entityInstanceName}Dao;
 
-    private PagingDto<${entityClassName}> paging(int pageNo, int pageSize) throws Exception {
-        int startNo = (pageNo - 1) * pageSize;
-
-        List<${entityClassName}> list = ${entityInstanceName}Dao.query(startNo, pageSize);
-        int count = ${entityInstanceName}Dao.count();
-
-        return new PagingDto<>(list, count);
-    }
-
 }
