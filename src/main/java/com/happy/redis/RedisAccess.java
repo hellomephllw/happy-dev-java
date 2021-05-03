@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -165,9 +166,8 @@ public class RedisAccess {
      * @param key 键
      * @param object 对象
      * @param <T> 范型
-     * @throws Exception
      */
-    public <T> void putObject(String key, T object) throws Exception {
+    public <T> void putObject(String key, T object) {
         redisTemplate.opsForHash().putAll(keyObject(key), new BeanMap(object));
         expire(keyObject(key), defaultDuration);
     }
@@ -178,9 +178,8 @@ public class RedisAccess {
      * @param object 对象
      * @param durationSecond 时长(单位: 秒)
      * @param <T> 范型
-     * @throws Exception
      */
-    public <T> void putObject(String key, T object, long durationSecond) throws Exception {
+    public <T> void putObject(String key, T object, long durationSecond) {
         redisTemplate.opsForHash().putAll(keyObject(key), new BeanMap(object));
         expire(keyObject(key), durationSecond);
     }
@@ -189,9 +188,8 @@ public class RedisAccess {
      * 存入对象(map)
      * @param key 键
      * @param objectMap 对象(map)
-     * @throws Exception
      */
-    public void putObject(String key, Map<String, Object> objectMap) throws Exception {
+    public void putObject(String key, Map<String, Object> objectMap) {
         redisTemplate.opsForHash().putAll(keyObject(key), objectMap);
         expire(keyObject(key), defaultDuration);
     }
@@ -201,9 +199,8 @@ public class RedisAccess {
      * @param key 键
      * @param objectMap 对象(map)
      * @param durationSecond 时长(单位: 秒)
-     * @throws Exception
      */
-    public void putObject(String key, Map<String, Object> objectMap, long durationSecond) throws Exception {
+    public void putObject(String key, Map<String, Object> objectMap, long durationSecond) {
         redisTemplate.opsForHash().putAll(keyObject(key), objectMap);
         expire(keyObject(key), durationSecond);
     }
@@ -214,13 +211,18 @@ public class RedisAccess {
      * @param clazz 对象(map)
      * @param <T> 范型
      * @return 对象
-     * @throws Exception
      */
-    public <T> T getObject(String key, Class<T> clazz) throws Exception {
+    public <T> T getObject(String key, Class<T> clazz) {
         if (existObject(key)) {
-            T bean = clazz.newInstance();
-            dateFormatter();
-            BeanUtils.populate(bean, redisTemplate.opsForHash().entries(keyObject(key)));
+            T bean = null;
+            try {
+                bean = clazz.newInstance();
+                dateFormatter();
+                BeanUtils.populate(bean, redisTemplate.opsForHash().entries(keyObject(key)));
+            } catch (Exception e) {
+                logger.error("redis访问的对象反射出错: " + e.getMessage(), e);
+                throw new RuntimeException("redis访问的对象反射出错: " + e.getMessage(), e);
+            }
 
             return bean;
         }
@@ -548,12 +550,12 @@ public class RedisAccess {
      */
     public void removeListItemsByValue(String key, Object val, long amount, boolean left) {
         try {
-            if (amount <= 0) throw new Exception("删除list元素指定的amount必须大于0");
+            if (amount <= 0) throw new RuntimeException("删除list元素指定的amount必须大于0");
             if (!left) amount = -amount;
             redisTemplate.opsForList().remove(keyList(key), amount, val);
         } catch (Exception e) {
             LoggerUtil.printStackTrace(logger, e);
-            e.printStackTrace();
+            throw new RuntimeException("根据值删除list元素出错: " + e.getMessage(), e);
         }
     }
 
