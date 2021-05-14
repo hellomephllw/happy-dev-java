@@ -371,14 +371,16 @@ public abstract class BaseDatabaseHelper {
     }
 
     /**
-     * 根据实体字段名(驼峰)获取数据库字段名(下划线)
+     * 保持原样
      * @param entityFieldName 实体字段名
      * @return 数据库字段名
      * @throws Exception
      */
     public static String getDatabaseFieldName(String entityFieldName) throws Exception {
 
-        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityFieldName);
+//        根据实体字段名(驼峰)获取数据库字段名(下划线)
+//        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityFieldName);
+        return entityFieldName;
     }
 
     /**
