@@ -47,7 +47,7 @@ public class CollectionUtil {
      * @param collection 集合
      * @return 是否为空
      */
-    public static boolean isEmpty(Collection collection) {
+    public static boolean isEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty();
     }
 
@@ -56,7 +56,16 @@ public class CollectionUtil {
      * @param map 键值对
      * @return 是否为空
      */
-    public static boolean mapIsEmpty(Map map) {
+    public static boolean isEmpty(Map<?, ?> map) {
+        return mapIsEmpty(map);
+    }
+
+    /**
+     * 键值对是空
+     * @param map 键值对
+     * @return 是否为空
+     */
+    public static boolean mapIsEmpty(Map<?, ?> map) {
         return map == null || map.isEmpty();
     }
 

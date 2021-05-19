@@ -18,6 +18,10 @@ public class NetUtil {
     /**log*/
     private static Logger logger = LoggerFactory.getLogger(NetUtil.class);
 
+    public final static String CONTENT_TYPE_JSON = "application/json";
+    public final static String CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
+    public final static String CONTENT_TYPE_FILE = "multipart/form-data";
+
     /**
      * 发送http请求
      * @param attrs 请求的参数
@@ -28,7 +32,7 @@ public class NetUtil {
     public static String sendHttpRequest(Map<String, Object> attrs) {
         String url = (String) attrs.get("url");
         String method = attrs.get("type") == null ? "GET" : ((String) attrs.get("type")).toUpperCase();
-        String contentType = attrs.get("contentType") == null ? "application/json;charset=UTF-8" : (String) attrs.get("contentType");
+        String contentType = attrs.get("contentType") == null ? CONTENT_TYPE_JSON + ";charset=UTF-8" : (String) attrs.get("contentType");
         Map<String, String> headers = (Map<String, String>) attrs.get("headers");
 
         HttpURLConnection conn = null;
