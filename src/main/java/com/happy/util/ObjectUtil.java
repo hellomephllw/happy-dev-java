@@ -68,7 +68,6 @@ public class ObjectUtil {
      * 把对象转换为xml字符串
      * @param object 对象
      * @return xml
-     * @throws Exception
      */
     public static String transferObjectToXml(Object object) {
         XStream xstream = getXStream(false);
@@ -81,7 +80,6 @@ public class ObjectUtil {
      * 把对象转换为xml字符串，属性值加入cdata
      * @param object 对象
      * @return xml
-     * @throws Exception
      */
     public static String transferObjectToXmlWithCData(Object object) {
         XStream xstream = getXStream(true);
@@ -95,7 +93,6 @@ public class ObjectUtil {
      * @param xml   xml
      * @param clazz 对象所属class
      * @return 对象
-     * @throws Exception
      */
     @SuppressWarnings("unchecked")
     public static <T> T transferXmlToObject(String xml, Class<T> clazz) {
@@ -110,7 +107,6 @@ public class ObjectUtil {
      * @param object             被转移对象
      * @param targetObjectClazz  目标对象class
      * @return 目标对象
-     * @throws Exception
      */
     public static <T> T transferObjectValToAnother(Object object, Class<T> targetObjectClazz) {
         T targetObject = null;
@@ -125,6 +121,17 @@ public class ObjectUtil {
         }
 
         return targetObject;
+    }
+
+    /**
+     * 转移属性的语义化接口
+     * @param object 被转移对象
+     * @param targetObjectClazz 目标对象的class
+     * @param <T> 目标对象范型
+     * @return 目标对象
+     */
+    public static <T> T transferProperties(Object object, Class<T> targetObjectClazz) {
+        return transferObjectValToAnother(object, targetObjectClazz);
     }
 
     /**
@@ -202,9 +209,8 @@ public class ObjectUtil {
      * 判断是否还有继承的基类
      * @param clazz 被判定对象
      * @return 判定结果
-     * @throws Exception
      */
-    private static boolean hasParent(Class clazz) throws Exception {
+    private static boolean hasParent(Class clazz) {
         return clazz.getSuperclass() != Object.class;
     }
 
