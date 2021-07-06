@@ -10,7 +10,7 @@ import java.util.List;
 * @author: ${author}
 * @date: ${date}
 */
-public interface I${entityClassName}Dao {
+public interface ${entityClassName}Dao {
 
     void add(${entityClassName} ${entityInstanceName});
 

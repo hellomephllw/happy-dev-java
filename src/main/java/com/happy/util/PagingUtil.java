@@ -110,7 +110,7 @@ public class PagingUtil {
     private static List transformEntities(List entities, Class voClazz) {
         List news = new ArrayList();
         for (Object object : entities) {
-            news.add(ObjectUtil.transferObjectValToAnother(object, voClazz));
+            news.add(ObjectUtil.transferProperties(object, voClazz));
         }
 
         return news;

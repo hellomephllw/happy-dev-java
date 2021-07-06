@@ -13,12 +13,6 @@ import java.util.List;
 * @date: ${date}
 */
 @Repository
-public interface I${entityClassName}Dao extends BaseMapper<${entityClassName}> {
-
-    void updateProps(@Param("id") int id);
-
-    List<${entityClassName}> query(@Param("startNo") int startNo, @Param("pageSize") int pageSize);
-
-    int count();
+public interface ${entityClassName}Dao extends BaseMapper<${entityClassName}> {
 
 }

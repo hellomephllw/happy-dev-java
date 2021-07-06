@@ -18,19 +18,9 @@ import java.util.List;
 */
 @Transactional
 @Service
-public class I${entityClassName}ServiceImpl extends BaseService implements I${entityClassName}Service {
+public class ${entityClassName}ServiceImpl extends BaseService implements ${entityClassName}Service {
 
     @Autowired
-    private I${entityClassName}Dao ${entityInstanceName}Dao;
-
-    private PagingDto<${entityClassName}> paging(int pageNo, int pageSize) {
-        int startNo = (pageNo - 1) * pageSize;
-        int pageCount = pageSize;
-
-        List<${entityClassName}> list = ${entityInstanceName}Dao.query(startNo, pageCount);
-        int count = ${entityInstanceName}Dao.count();
-
-        return new PagingDto<>(list, count);
-    }
+    private ${entityClassName}Dao ${entityInstanceName}Dao;
 
 }

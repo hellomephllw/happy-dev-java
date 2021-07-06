@@ -121,7 +121,7 @@ public class BaseBasicCodeGenerator {
             Class clazz = entities.get(classPackagePath);
 
             String dirPath = getSourceCodePath() + "/" + getUserConfigBasePackageFilePath() + "/" + typeLower;
-            String fileName = "I" + clazz.getSimpleName() + typeUpper + ".java";
+            String fileName = clazz.getSimpleName() + typeUpper + ".java";
             String moduleName = null;
 
             String[] fragments = classPackagePath.split("entity")[1].split("\\.");
@@ -175,7 +175,7 @@ public class BaseBasicCodeGenerator {
             Class clazz = entities.get(classPackagePath);
 
             String dirPath = getSourceCodePath() + "/" + getUserConfigBasePackageFilePath() + "/" + typeLower;
-            String fileName = "I" + clazz.getSimpleName() + typeUpper + "Impl.java";
+            String fileName = clazz.getSimpleName() + typeUpper + "Impl.java";
             String moduleName = null;
 
             String[] fragments = classPackagePath.split("entity")[1].split("\\.");
@@ -199,8 +199,8 @@ public class BaseBasicCodeGenerator {
             FileOutputStream fos = new FileOutputStream(new File(dir, fileName));
 
             String packagePath = getUserConfigBasePackagePath() + "." + typeLower + (moduleName != null ? "." + moduleName : "") + ".impl";
-            String daoClassPackagePath = getUserConfigBasePackagePath() + ".dao" + (moduleName != null ? "." + moduleName : "") + ".I" + clazz.getSimpleName() + "Dao";
-            String serviceClassPackagePath = getUserConfigBasePackagePath() + ".service" + (moduleName != null ? "." + moduleName : "") + ".I" + clazz.getSimpleName() + "Service";
+            String daoClassPackagePath = getUserConfigBasePackagePath() + ".dao" + (moduleName != null ? "." + moduleName : "") + "." + clazz.getSimpleName() + "Dao";
+            String serviceClassPackagePath = getUserConfigBasePackagePath() + ".service" + (moduleName != null ? "." + moduleName : "") + "." + clazz.getSimpleName() + "Service";
             template.process(
                     CollectionUtil.stringMap()
                             .put("packagePath", packagePath)

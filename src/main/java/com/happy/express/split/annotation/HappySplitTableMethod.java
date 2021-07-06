@@ -1,4 +1,4 @@
-package com.happy.express.persist.annotation;
+package com.happy.express.split.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

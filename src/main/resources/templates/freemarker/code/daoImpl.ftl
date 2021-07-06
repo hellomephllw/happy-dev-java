@@ -17,7 +17,7 @@ import java.util.List;
 * @date: ${date}
 */
 @Repository
-public class I${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> implements I${entityClassName}Dao {
+public class ${entityClassName}DaoImpl extends BaseJpaDao<${entityClassName}> implements ${entityClassName}Dao {
 
     @Override
     public void add(${entityClassName} ${entityInstanceName}) {

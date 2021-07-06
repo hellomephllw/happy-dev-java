@@ -9,22 +9,22 @@ import java.util.List;
  */
 public interface BaseMapper<T> {
 
-    public void add(T entity);
+    void add(T entity);
 
-    public void addBatch(List<T> list);
+    void addBatch(List<T> list);
 
-    public void remove(int id);
+    void remove(int id);
 
-    public void removeByIds(List<Integer> ids);
+    void removeByIds(List<Integer> ids);
 
-    public void update(T entity);
+    void update(T entity);
 
-    public void updateBatch(List<T> list);
+    void updateBatch(List<T> list);
 
-    public T get(int id);
+    T get(int id);
 
-    public List<T> findAll();
+    List<T> findAll();
 
-    public List<T> findByIds(List<Integer> ids);
+    List<T> findByIds(List<Integer> ids);
 
 }

@@ -5,6 +5,6 @@ package ${packagePath};
 * @author: ${author}
 * @date: ${date}
 */
-public interface I${entityClassName}Service {
+public interface ${entityClassName}Service {
 
 }
