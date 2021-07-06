@@ -304,11 +304,7 @@ public class HappyTableGenerator extends BaseGenerator {
             LoggerUtil.printStackTrace(logger, e);
         } finally {
             try {
-                Statement statement = DatabaseHappyHelper.getStatement();
                 Connection connection = DatabaseHappyHelper.getConn();
-                if (statement != null) {
-                    statement.close();
-                }
                 if (connection != null) {
                     connection.close();
                 }
