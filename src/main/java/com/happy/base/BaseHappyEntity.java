@@ -3,7 +3,6 @@ package com.happy.base;
 import com.happy.express.persist.annotation.HappyId;
 import lombok.Data;
 
-import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 
 /**
@@ -11,7 +10,6 @@ import java.io.Serializable;
  * @author: llw
  * @date: 2020-08-19
  */
-@MappedSuperclass
 @Data
 public class BaseHappyEntity implements Serializable, Comparable {
 
