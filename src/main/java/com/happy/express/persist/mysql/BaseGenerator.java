@@ -1,6 +1,5 @@
 package com.happy.express.persist.mysql;
 
-import com.happy.express.persist.annotation.HappyCol;
 import com.happy.express.persist.annotation.HappyIndexes;
 import com.happy.express.persist.mysql.helper.DatabaseHappyHelper;
 import com.happy.express.persist.mysql.helper.DatabaseHelper;
@@ -10,7 +9,6 @@ import com.happy.util.FileUtil;
 import com.happy.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.Column;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Date;

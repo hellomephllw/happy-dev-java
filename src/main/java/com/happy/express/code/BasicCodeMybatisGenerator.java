@@ -3,10 +3,7 @@ package com.happy.express.code;
 import com.happy.express.persist.mysql.BaseGenerator;
 import com.happy.express.persist.mysql.HappyTableGenerator;
 import com.happy.express.persist.mysql.helper.BaseDatabaseHelper;
-import com.happy.util.CollectionUtil;
-import com.happy.util.DateUtil;
-import com.happy.util.FileUtil;
-import com.happy.util.LoggerUtil;
+import com.happy.util.*;
 import freemarker.template.Template;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +45,6 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
         generateDaoMapper();
         //生成mapperXml
         generateMapperXml();
-        //更新mapperXml
-        updateMapperXml();
         //生成service
         generateServiceCode();
         //生成serviceImpl
@@ -70,7 +65,7 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
      */
     public static void generateMapperXml() throws Exception {
         Map<String, Class> entities = PackageReader.entities;
-        String basePath = FileUtil.getLocalRootAbsolutePath() + "/src/main/resources/mapper";
+        String basePath = getMybatisMapperPath();
         File file = new File(basePath);
         if (!file.exists()) {
             file.mkdir();
@@ -78,16 +73,9 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
         for (String classPackagePath : entities.keySet()) {
             Class clazz = entities.get(classPackagePath);
 
-            String dirPath = basePath;
+            String moduleName = CodeGeneratorHelper.getModuleName(classPackagePath);
+            String dirPath = StringUtil.isEmpty(moduleName) ? basePath : "/" + moduleName;
             String fileName = clazz.getSimpleName() + "Mapper.xml";
-            String moduleName = null;
-
-            String[] fragments = classPackagePath.split("entity")[1].split("\\.");
-            if (fragments.length == 3) {
-                //子模块
-                moduleName = fragments[1];
-                dirPath += "/" + moduleName;
-            }
 
             //判断是否存在mapper文件
             File mapperFile = new File(dirPath + "/" + fileName);
@@ -107,14 +95,14 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
                     CollectionUtil.generalMap()
                             .put("daoPackagePath", daoPackagePath)
                             .put("entityPackagePath", entityPackagePath)
-                            .put("props", getPropertiesMappingList(clazz, true))
-                            .put("propsWithoutId", getPropertiesMappingList(clazz, false))
-                            .put("entityCols", generateEntityCols(clazz))
-                            .put("insertCols", generateInsertCols(clazz))
-                            .put("insertValues", generateInsertValues(clazz, true))
-                            .put("insertValuesWithoutId", generateInsertValues(clazz, false))
-                            .put("batchInsertValues", generateBatchInsertValues(clazz, true))
-                            .put("batchInsertValuesWithoutId", generateBatchInsertValues(clazz, false))
+                            .put("props", CodeGeneratorHelper.getPropertiesMappingList(clazz, true))
+                            .put("propsWithoutId", CodeGeneratorHelper.getPropertiesMappingList(clazz, false))
+                            .put("entityCols", CodeGeneratorHelper.generateEntityCols(clazz))
+                            .put("insertCols", CodeGeneratorHelper.generateInsertCols(clazz))
+                            .put("insertValues", CodeGeneratorHelper.generateInsertValues(clazz, true))
+                            .put("insertValuesWithoutId", CodeGeneratorHelper.generateInsertValues(clazz, false))
+                            .put("batchInsertValues", CodeGeneratorHelper.generateBatchInsertValues(clazz, true))
+                            .put("batchInsertValuesWithoutId", CodeGeneratorHelper.generateBatchInsertValues(clazz, false))
                             .put("tableName", HappyTableGenerator.getTableName(clazz))
                             .put("wellNumberPre", "#{")
                             .put("wellNumberEnd", "}")
@@ -126,15 +114,6 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
                             .build(),
                     new BufferedWriter(new OutputStreamWriter(fos, "utf-8"),10240));
         }
-    }
-
-    /**
-     * 更新mapperXml
-     * @throws Exception
-     */
-    public static void updateMapperXml() throws Exception {
-        //todo
-        //读取mapper文件
     }
 
     /**
@@ -150,144 +129,7 @@ public class BasicCodeMybatisGenerator extends BaseBasicCodeGenerator {
      * @throws Exception
      */
     public static void generateServiceImplCode() throws Exception {
-        generateInterfaceImplement("service", true);
-    }
-
-    /**
-     * 获取java字段和数据库字段映射集合
-     * @param entityClass 实体class对象
-     * @param withId 有id
-     * @return 映射集合
-     * @throws Exception
-     */
-    private static List<PropertiesMapping> getPropertiesMappingList(Class entityClass, boolean withId) throws Exception {
-        List<Field> fields = BaseGenerator.collectAllFields(entityClass);
-        excludeNotColFields(fields);
-        List<PropertiesMapping> propertiesMappings = new ArrayList<>();
-        for (Field field : fields) {
-            if (!withId && field.getName().equals("id")) continue;
-            PropertiesMapping mapping = new PropertiesMapping();
-            mapping.setCol(BaseDatabaseHelper.getDatabaseFieldName(field.getName()));
-            mapping.setProp(field.getName());
-            propertiesMappings.add(mapping);
-        }
-
-        return propertiesMappings;
-    }
-
-    /**
-     * 获取数据库字段组合
-     * @param entityClass 实体class对象
-     * @return 字段组合string
-     * @throws Exception
-     */
-    private static String generateEntityCols(Class entityClass) throws Exception {
-        List<Field> fields = BaseGenerator.collectAllFields(entityClass);
-        excludeNotColFields(fields);
-
-        String cols = "";
-        int index = 0;
-        for (Field field : fields) {
-            if (index++ > 0) cols += ", ";
-            cols += BaseDatabaseHelper.getDatabaseFieldName(field.getName());
-        }
-
-        return cols;
-    }
-
-    /**
-     * 生成插入列字符串
-     * @param entityClass 实体class对象
-     * @return 字段组合string
-     * @throws Exception
-     */
-    private static String generateInsertCols(Class entityClass) throws Exception {
-        List<Field> fields = BaseGenerator.collectAllFields(entityClass);
-        excludeNotColFieldsAndId(fields);
-
-        String cols = "";
-        int index = 0;
-        for (Field field : fields) {
-            if (index++ > 0) cols += ", ";
-            cols += BaseDatabaseHelper.getDatabaseFieldName(field.getName());
-        }
-
-        return cols;
-    }
-
-    /**
-     * 生成插入值字符串
-     * @param entityClass 实体class
-     * @param withId 带id
-     * @return 插入值
-     * @throws Exception
-     */
-    private static String generateInsertValues(Class entityClass, boolean withId) throws Exception {
-        List<Field> fields = BaseGenerator.collectAllFields(entityClass);
-        excludeNotColFieldsAndId(fields);
-
-        String values = "";
-        int index = 0;
-        for (Field field : fields) {
-            if (!withId && field.getName().equals("id")) continue;
-            if (index++ > 0) values += ", ";
-            values += "#{" + field.getName() + "}";
-        }
-
-        return values;
-    }
-
-    /**
-     * 生成批量插入字符串
-     * @param entityClass 实体class
-     * @param withId 带id
-     * @return 插入值
-     * @throws Exception
-     */
-    private static String generateBatchInsertValues(Class entityClass, boolean withId) throws Exception {
-        List<Field> fields = BaseGenerator.collectAllFields(entityClass);
-        excludeNotColFieldsAndId(fields);
-
-        String values = "";
-        int index = 0;
-        for (Field field : fields) {
-            if (!withId && field.getName().equals("id")) continue;
-            if (index++ > 0) values += ", ";
-            values += "#{item." + field.getName() + "}";
-        }
-
-        return values;
-    }
-
-    /**
-     * 排除非列属性
-     * @param fields 所有属性
-     * @throws Exception
-     */
-    private static void excludeNotColFields(List<Field> fields) throws Exception {
-        for (int i = 0; i < fields.size(); ++i) {
-            Field field = fields.get(i);
-            if (field.getAnnotations().length == 0) {
-                fields.remove(field);
-            }
-        }
-    }
-
-    /**
-     * 排除非列和id属性
-     * @param fields 所有属性
-     * @throws Exception
-     */
-    private static void excludeNotColFieldsAndId(List<Field> fields) throws Exception {
-        for (int i = 0; i < fields.size(); ++i) {
-            Field field = fields.get(i);
-            if (field.getAnnotations().length == 0) {
-                fields.remove(field);
-            }
-            if (field.getName().equals("id")) {
-                fields.remove(field);
-            }
-        }
+        generateInterfaceImplement("service");
     }
 
     public static void main(String[] args) {

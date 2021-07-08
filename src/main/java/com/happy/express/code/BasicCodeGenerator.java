@@ -51,7 +51,7 @@ public class BasicCodeGenerator extends BaseBasicCodeGenerator {
      * @throws Exception
      */
     public static void generateDaoImplCode() throws Exception {
-        generateInterfaceImplement("dao", false);
+        generateInterfaceImplement("dao");
     }
 
     /**
@@ -67,7 +67,7 @@ public class BasicCodeGenerator extends BaseBasicCodeGenerator {
      * @throws Exception
      */
     public static void generateServiceImplCode() throws Exception {
-        generateInterfaceImplement("service", false);
+        generateInterfaceImplement("service");
     }
 
     public static void main(String[] args) {

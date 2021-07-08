@@ -317,9 +317,8 @@ public abstract class BaseDatabaseHelper {
      * 获取唯一索引名称
      * @param entityFieldName 实体字段名称
      * @return 该实体字段的索引名称
-     * @throws Exception
      */
-    public static String getUniqueIndexName(String entityFieldName) throws Exception {
+    public static String getUniqueIndexName(String entityFieldName) {
 
         return "idx_uniq_" + getDatabaseFieldName(entityFieldName);
     }
@@ -328,9 +327,8 @@ public abstract class BaseDatabaseHelper {
      * 获取索引名称
      * @param fieldNames 字段名
      * @return 索引名称
-     * @throws Exception
      */
-    public static String getIndexNameFields(String... fieldNames) throws Exception {
+    public static String getIndexNameFields(String... fieldNames) {
         String cols = "";
         int i = 0;
         for (String fieldName : fieldNames) {
@@ -345,9 +343,8 @@ public abstract class BaseDatabaseHelper {
      * 获取索引名称
      * @param suffix 后缀
      * @return 索引名称
-     * @throws Exception
      */
-    public static String getIndexNameSuffix(String suffix) throws Exception {
+    public static String getIndexNameSuffix(String suffix) {
         if (StringUtil.isEmpty(suffix)) suffix = "";
 
         return "idx_" + suffix;
@@ -357,9 +354,8 @@ public abstract class BaseDatabaseHelper {
      * 获取索引列
      * @param fieldNames 字段名
      * @return 索引列
-     * @throws Exception
      */
-    public static String getIndexCols(String... fieldNames) throws Exception {
+    public static String getIndexCols(String... fieldNames) {
         String cols = "";
         int i = 0;
         for (String fieldName : fieldNames) {
@@ -374,9 +370,8 @@ public abstract class BaseDatabaseHelper {
      * 保持原样
      * @param entityFieldName 实体字段名
      * @return 数据库字段名
-     * @throws Exception
      */
-    public static String getDatabaseFieldName(String entityFieldName) throws Exception {
+    public static String getDatabaseFieldName(String entityFieldName) {
 
 //        根据实体字段名(驼峰)获取数据库字段名(下划线)
 //        return CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityFieldName);
@@ -387,9 +382,8 @@ public abstract class BaseDatabaseHelper {
      * 根据数据库字段名(下划线)获取实体字段名(驼峰)
      * @param databaseFieldName 数据库字段名
      * @return 实体字段名
-     * @throws Exception
      */
-    public static String getEntityFieldName(String databaseFieldName) throws Exception {
+    public static String getEntityFieldName(String databaseFieldName) {
 
         return CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, databaseFieldName);
     }

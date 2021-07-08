@@ -24,9 +24,8 @@ public class FileUtil {
     /**
      * 获取本地本目录绝对路径
      * @return 本地根目录绝对路径
-     * @throws Exception
      */
-    public static String getLocalRootAbsolutePath() throws Exception {
+    public static String getLocalRootAbsolutePath() {
 
         return System.getProperty("user.dir");
     }
@@ -84,7 +83,7 @@ public class FileUtil {
             }
         } else {
             logger.info("没有找到该文件");
-            throw new Exception("没有找到该文件");
+            throw new RuntimeException("没有找到该文件");
         }
     }
 
