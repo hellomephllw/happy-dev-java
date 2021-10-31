@@ -191,7 +191,7 @@ public class BaseGenerator {
                     String[] indexFields = happyIndex.fields();
                     String indexName = DatabaseHappyHelper.getIndexNameSuffix(happyIndex.suffix());
                     if (StringUtil.isEmpty(happyIndex.suffix()))
-                        indexName = DatabaseHappyHelper.getIndexNameFields(indexFields);
+                        indexName = DatabaseHappyHelper.getIndexNameSuffix(DatabaseHappyHelper.getIndexNameFields(indexFields));
                     if (indexName.equals(dbIndexName)) {
                         exist = true;
                         break;
@@ -218,12 +218,12 @@ public class BaseGenerator {
             String[] fields = happyIndex.fields();
             String indexName = DatabaseHappyHelper.getIndexNameSuffix(happyIndex.suffix());
             if (StringUtil.isEmpty(happyIndex.suffix()))
-                indexName = DatabaseHappyHelper.getIndexNameFields(fields);
+                indexName = DatabaseHappyHelper.getIndexNameSuffix(DatabaseHappyHelper.getIndexNameFields(fields));
             boolean existInDb = false;
             ResultSet indexSet = DatabaseHelper.getAllIndexByTableName(tableName);
             while (indexSet.next()) {
                 String dbIndexName = indexSet.getString("INDEX_NAME");
-                if (dbIndexName.toLowerCase().equals("primary")) {
+                if (dbIndexName.equalsIgnoreCase("primary")) {
                     continue;
                 }
                 if (indexName.equals(dbIndexName)) {

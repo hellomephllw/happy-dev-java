@@ -287,7 +287,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
 
         String indexName = getIndexNameSuffix(suffix);
         if (StringUtil.isEmpty(suffix))
-            indexName = getIndexNameFields(fieldNames);
+            indexName = getIndexNameSuffix(getIndexNameFields(fieldNames));
         String sql = "create index " + indexName + " on " + tableName + "(" + getIndexCols(fieldNames) + ");";
 
         logger.info("添加索引的sql: " + sql);

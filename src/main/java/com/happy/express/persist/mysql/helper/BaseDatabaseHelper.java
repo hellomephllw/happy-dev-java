@@ -338,7 +338,7 @@ public abstract class BaseDatabaseHelper {
             cols += fieldName;
         }
 
-        return getIndexNameSuffix(cols);
+        return cols;
     }
 
     /**
