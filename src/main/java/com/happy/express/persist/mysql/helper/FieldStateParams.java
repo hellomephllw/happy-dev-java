@@ -99,6 +99,12 @@ public class FieldStateParams {
                     || ("varchar".equals(typeStr.toLowerCase()) && (entityFieldLen <= 0 || isChar))) {
                 fieldStateParams.modifyType = true;
             }
+            if (!"char".equals(typeStr.toLowerCase())
+                    && !"text".equals(typeStr.toLowerCase())
+                    && !"longtext".equals(typeStr.toLowerCase())
+                    && !"varchar".equals(typeStr.toLowerCase())) {
+                fieldStateParams.modifyType = true;
+            }
         } else if ("byte".equals(dbFieldType.toLowerCase())) {
             String typeStr = columnSet.getString("TYPE_NAME");
             if (!"tinyint".equals(typeStr.toLowerCase())) {
