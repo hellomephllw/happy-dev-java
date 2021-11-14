@@ -109,7 +109,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
 
         //创建唯一索引
-        addUniqueIndex(tableName, entityField);
+        // addUniqueIndex(tableName, entityField);
     }
 
     /**

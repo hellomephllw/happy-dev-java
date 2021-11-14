@@ -1,5 +1,5 @@
 group 'com.llw'
-version '3.0.2'
+version '3.0.3'
 def artifactId = "happy-dev"
 
 apply plugin: 'java'
