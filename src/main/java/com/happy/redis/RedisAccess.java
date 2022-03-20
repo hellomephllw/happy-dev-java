@@ -89,7 +89,7 @@ public class RedisAccess {
     /**
      * 补充string的key
      * @param key 键
-     * @return 完整🉐️的key(即末尾追加类型)
+     * @return 完整的key(即末尾追加类型)
      */
     private String keyString(String key) {
         return RegexUtil.find("\\.string$", key) ? key : key + ".string";
@@ -155,7 +155,7 @@ public class RedisAccess {
     /**
      * 补充对象的key
      * @param key 键
-     * @return 完整🉐️的key(即末尾追加类型)
+     * @return 完整的key(即末尾追加类型)
      */
     private String keyObject(String key) {
         return RegexUtil.find("\\.hash$", key) ? key : key + ".hash";
@@ -343,7 +343,7 @@ public class RedisAccess {
     /**
      * 补充list的key
      * @param key 键
-     * @return 完整🉐️的key(即末尾追加类型)
+     * @return 完整的key(即末尾追加类型)
      */
     private String keyList(String key) {
         return RegexUtil.find("\\.list$", key) ? key : key + ".list";
@@ -582,7 +582,7 @@ public class RedisAccess {
     /**
      * 补充set的key
      * @param key 键
-     * @return 完整🉐️的key(即末尾追加类型)
+     * @return 完整的key(即末尾追加类型)
      */
     private String keySet(String key) {
         return RegexUtil.find("\\.set$", key) ? key : key + ".set";
@@ -702,7 +702,7 @@ public class RedisAccess {
     /**
      * 补充sorted set的key
      * @param key 键
-     * @return 完整🉐️的key(即末尾追加类型)
+     * @return 完整的key(即末尾追加类型)
      */
     private String keyZSet(String key) {
         return RegexUtil.find("\\.sortedSet$", key) ? key : key + ".sortedSet";
