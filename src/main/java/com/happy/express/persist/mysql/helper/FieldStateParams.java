@@ -141,7 +141,7 @@ public class FieldStateParams {
         if (checkLength) {
             //字符串长度检查
             String typeStr = columnSet.getString("TYPE_NAME");
-            if (typeStr.toLowerCase().equals("varchar")) {
+            if ("varchar".equalsIgnoreCase(typeStr) || "char".equalsIgnoreCase(typeStr)) {
                 int dbFieldLen = columnSet.getInt("COLUMN_SIZE");
                 if (dbFieldLen != entityFieldLen) {
                     fieldStateParams.modifyLength = true;
