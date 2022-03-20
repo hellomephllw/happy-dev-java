@@ -53,7 +53,7 @@ public class RedisAccess {
     }
 
     /**
-     * 重置时间格式
+     * 重置时间格式(使copyProperties支持时间转换)
      */
     private void dateFormatter() {
         ConvertUtils.register(new Converter() {
