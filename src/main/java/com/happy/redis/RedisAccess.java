@@ -665,10 +665,28 @@ public class RedisAccess {
     /**
      * 获取set集合
      * @param key 键
-     * @return
+     * @return 集合
      */
     public Set<?> getSet(String key) {
         return redisTemplate.opsForSet().members(keySet(key));
+    }
+
+    /**
+     * 删除set中的元素
+     * @param key 键
+     * @param item 元素
+     */
+    public void removeSetItem(String key, String item) {
+        redisTemplate.opsForSet().remove(keySet(key), item);
+    }
+
+    /**
+     * 删除set中的集合(批量删除)
+     * @param key 键
+     * @param set 集合
+     */
+    public void removeSetItems(String key, Set<?> set) {
+        redisTemplate.opsForSet().remove(keySet(key), set.toArray());
     }
 
     /**
