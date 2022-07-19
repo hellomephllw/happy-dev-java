@@ -176,6 +176,9 @@ public class BaseGenerator {
         Set<String> deletedIndexes = new HashSet<>();
         while (indexSet.next()) {
             String dbIndexName = indexSet.getString("INDEX_NAME");
+            if (dbIndexName.contains("uniq_")) {
+                continue;
+            }
             if (dbIndexName.toLowerCase().equals("primary")) {
                 continue;
             }

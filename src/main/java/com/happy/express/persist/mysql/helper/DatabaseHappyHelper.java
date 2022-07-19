@@ -113,7 +113,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         logger.info("为数据库表(" + tableName + ")添加字段: " + fieldStr);
 
         //创建唯一索引
-        // addUniqueIndex(tableName, entityField);
+        addUniqueIndex(tableName, entityField);
     }
 
     /**
@@ -186,6 +186,49 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         statement.executeUpdate(sql);
 
         logger.warn("把数据库表(" + tableName + ")字段(" + dbFieldName + ")删除");
+    }
+
+    /**
+     * 添加索引
+     * @param entity 实体
+     * @param tableName 表名
+     * @throws Exception
+     */
+    public static void addUniqueIndexes(Class entity, String tableName) throws Exception {
+        HappyIndexes happyIndexes = (HappyIndexes) entity.getAnnotation(HappyIndexes.class);
+        if (happyIndexes == null || happyIndexes.uniqueIndexes() == null || happyIndexes.uniqueIndexes().length == 0) return ;
+        for (HappyIndexes.HappyUniqueIndex happyUniqueIndex : happyIndexes.uniqueIndexes()) {
+            String[] fields = happyUniqueIndex.fields();
+            String suffix = happyUniqueIndex.suffix();
+            addUniqueIndex(tableName, fields);
+        }
+    }
+
+    /**
+     * 添加数据库字段唯一索引
+     * @param tableName 表名
+     * @param fields 字段名
+     * @throws Exception
+     */
+    public static void addUniqueIndex(String tableName, String... fields) throws Exception {
+        String suffix = getIndexNameFields(fields);
+        if (existUniqueIndex(tableName, suffix)) return ;
+
+        String uniqueIndexName = getUniqueIndexName(suffix);
+        StringBuilder sql = new StringBuilder();
+        sql.append("create unique index");
+        sql.append(" ");
+        sql.append(uniqueIndexName);
+        sql.append(" on ");
+        sql.append(tableName);
+        sql.append("(");
+        sql.append(getIndexCols(fields));
+        sql.append(");");
+
+        logger.info("添加唯一索引的sql: " + sql.toString());
+        statement.executeUpdate(sql.toString());
+
+        logger.info("为数据库表(" + tableName + ")字段(" + Arrays.asList(fields).toString() + ")添加唯一索引(" + uniqueIndexName + ")");
     }
 
     /**
