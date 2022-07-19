@@ -28,4 +28,10 @@ public @interface HappyCol {
 
     boolean longText() default false;
 
+    String initial() default "";
+
+    boolean updateTime() default false;
+
+    boolean createTime() default false;
+
 }

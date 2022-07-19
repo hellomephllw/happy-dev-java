@@ -2,6 +2,7 @@ package com.happy.express.persist.mysql.helper;
 
 import com.happy.express.persist.annotation.HappyCol;
 import com.happy.express.persist.annotation.HappyId;
+import com.happy.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +140,10 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
+        if (!StringUtil.isEmpty(happyCol.initial()) || happyCol.createTime() || happyCol.updateTime()) {
+            sql.append(" ");
+            sql.append(getDbFieldDefaultValueByEntityFieldType(entityField));
+        }
         if (isNotNull) {
             sql.append(" not null");
         }
@@ -444,6 +449,8 @@ public class DatabaseHelper extends BaseDatabaseHelper {
                 }
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
+                HappyCol happyCol = entityField.getAnnotation(HappyCol.class);
+                if (happyCol != null) return "timestamp";
                 return "timestamp default current_timestamp";
             } else if (fieldType == BigDecimal.class) {
                 return "decimal";
@@ -485,6 +492,41 @@ public class DatabaseHelper extends BaseDatabaseHelper {
         }
 
         return isNotNull;
+    }
+
+    private static String getDbFieldDefaultValueByEntityFieldType(Field entityField) {
+        HappyCol column = entityField.getAnnotation(HappyCol.class);
+        boolean hasDefault = !StringUtil.isEmpty(column.initial());
+        boolean hasCreateTime = column.createTime();
+        boolean hasUpdateTime = column.updateTime();
+        if (entityField.getType().isPrimitive() && hasDefault) {
+            String typeStr = entityField.getGenericType().toString();
+            if (Arrays.asList("byte", "short", "int", "long", "float", "double").contains(typeStr)) {
+                return "default " + column.initial();
+            } else if (typeStr.equals("boolean")) {
+                return "default " + (column.initial().equals("true") ? 1 : 0);
+            }
+        } else if (hasDefault || hasCreateTime || hasUpdateTime) {
+            Class fieldType = entityField.getType();
+            if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
+                String result = "";
+                if (hasCreateTime) {
+                    result = "default current_timestamp";
+                }
+                if (hasUpdateTime) {
+                    if (!StringUtil.isEmpty(result)) {
+                        result += " ";
+                    }
+                    result += "on update current_timestamp";
+                }
+                return result;
+            } else if (fieldType == String.class) {
+                return "default '" + column.initial() + "'";
+            } else {
+                return "default " + column.initial();
+            }
+        }
+        return "";
     }
 
 }

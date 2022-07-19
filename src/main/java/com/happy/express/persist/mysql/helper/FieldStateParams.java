@@ -1,6 +1,7 @@
 package com.happy.express.persist.mysql.helper;
 
 import com.happy.express.persist.annotation.HappyCol;
+import com.happy.util.StringUtil;
 
 import javax.persistence.Column;
 import java.lang.annotation.Annotation;
@@ -40,6 +41,13 @@ public class FieldStateParams {
      */
     public boolean deleteNotNull = false;
 
+    public boolean addDefault = false;
+    public boolean deleteDefault = false;
+    public boolean addCreateTime = false;
+    public boolean deleteCreateTime = false;
+    public boolean addUpdateTime = false;
+    public boolean deleteUpdateTime = false;
+
     /**
      * 构建参数
      * @param tableName       表名
@@ -50,6 +58,9 @@ public class FieldStateParams {
      * @param checkNullable   检查非空
      * @param checkLength     检查字符长度
      * @param checkDecimal    检查decimal
+     * @param checkDefault 默认值检查
+     * @param checkCreateTime 创建时间检查
+     * @param checkUpdateTime 更新时间检查
      * @return 实体字段情况
      * @throws Exception
      */
@@ -60,7 +71,10 @@ public class FieldStateParams {
                                          String dbFieldType,
                                          boolean checkNullable,
                                          boolean checkLength,
-                                         boolean checkDecimal) throws Exception {
+                                         boolean checkDecimal,
+                                         boolean checkDefault,
+                                         boolean checkCreateTime,
+                                         boolean checkUpdateTime) throws Exception {
         //重置属性
         reset();
 
@@ -74,6 +88,9 @@ public class FieldStateParams {
         boolean isText = false;
         boolean isLongText = false;
         boolean isNullable = false;
+        boolean hasDefault = false;
+        boolean hasCreateTime = false;
+        boolean hasUpdateTime = false;
         if (column != null) {
             entityFieldLen = column.length();
             entityFieldPrecision = column.precision();
@@ -87,6 +104,9 @@ public class FieldStateParams {
             isText = happyCol.text();
             isLongText = happyCol.longText();
             isNullable = happyCol.nullable();
+            hasDefault = !StringUtil.isEmpty(happyCol.initial());
+            hasCreateTime = happyCol.createTime();
+            hasUpdateTime = happyCol.updateTime();
         }
 
         boolean isDate = false;
@@ -159,6 +179,35 @@ public class FieldStateParams {
                 fieldStateParams.modifyBigDecimal = true;
             }
         }
+        if (checkDefault) {
+            String typeStr = columnSet.getString("TYPE_NAME");
+            if (!typeStr.equalsIgnoreCase("timestamp")) {
+                String dbDefault = columnSet.getString("COLUMN_DEF");
+                boolean dbHasDefault = !StringUtil.isEmpty(dbDefault);
+                if (hasDefault && !dbHasDefault) {
+                    fieldStateParams.addDefault = true;
+                }
+                if (!hasDefault && dbHasDefault) {
+                    fieldStateParams.deleteDefault = true;
+                }
+            }
+        }
+        if (checkCreateTime) {
+            String typeStr = columnSet.getString("TYPE_NAME");
+            if (typeStr.equalsIgnoreCase("timestamp")) {
+                String dbDefault = columnSet.getString("COLUMN_DEF");
+                boolean dbHasCreateTime = !StringUtil.isEmpty(dbDefault);
+                if (hasCreateTime && !dbHasCreateTime) {
+                    fieldStateParams.addCreateTime = true;
+                }
+                if (!hasCreateTime && dbHasCreateTime) {
+                    fieldStateParams.deleteCreateTime = true;
+                }
+            }
+        }
+        if (checkUpdateTime) {
+            fieldStateParams.addUpdateTime = hasUpdateTime;
+        }
 
         return fieldStateParams;
     }
@@ -186,6 +235,12 @@ public class FieldStateParams {
         fieldStateParams.modifyBigDecimal = false;
         fieldStateParams.addNotNull = false;
         fieldStateParams.deleteNotNull = false;
+        fieldStateParams.addDefault = false;
+        fieldStateParams.deleteDefault = false;
+        fieldStateParams.addCreateTime = false;
+        fieldStateParams.deleteCreateTime = false;
+        fieldStateParams.addUpdateTime = false;
+        fieldStateParams.deleteUpdateTime = false;
     }
 
     @Override

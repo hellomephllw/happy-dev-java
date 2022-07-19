@@ -93,6 +93,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
         sql.append(getDatabaseFieldName(entityField.getName()));
         sql.append(" ");
         sql.append(getWholeDbFieldTypeByEntityFieldType(entityField));
+        if (!StringUtil.isEmpty(column.initial()) || column.createTime() || column.updateTime()) {
+            sql.append(" ");
+            sql.append(getDbFieldDefaultValueByEntityFieldType(entityField));
+        }
         if (!column.nullable()) {
             sql.append(" not null");
         }
@@ -328,6 +332,10 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
             fieldLine.append(getDatabaseFieldName(entityField.getName()));
             fieldLine.append(" ");
             fieldLine.append(getWholeDbFieldTypeByEntityFieldType(entityField));
+            if (!StringUtil.isEmpty(column.initial()) || column.createTime() || column.updateTime()) {
+                fieldLine.append(" ");
+                fieldLine.append(getDbFieldDefaultValueByEntityFieldType(entityField));
+            }
             if (!column.nullable()) {
                 fieldLine.append(" ");
                 fieldLine.append("not null");
@@ -439,7 +447,7 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
                 if (column.longText()) return "longtext";
                 return "varchar";
             } else if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
-                return "timestamp default current_timestamp";
+                return "timestamp";
             } else if (fieldType == BigDecimal.class) {
                 return "decimal";
             } else if (fieldType == Byte.class) {
@@ -463,6 +471,41 @@ public class DatabaseHappyHelper extends BaseDatabaseHelper {
             throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getGenericType().toString() + "), 没有找到合适的数据库字段类型");
         }
         throw new Exception("字段(" + getDatabaseFieldName(entityField.getName()) + ")的类型为(" + entityField.getType() + "), 没有找到合适的数据库字段类型");
+    }
+
+    private static String getDbFieldDefaultValueByEntityFieldType(Field entityField) {
+        HappyCol column = entityField.getAnnotation(HappyCol.class);
+        boolean hasDefault = !StringUtil.isEmpty(column.initial());
+        boolean hasCreateTime = column.createTime();
+        boolean hasUpdateTime = column.updateTime();
+        if (entityField.getType().isPrimitive() && hasDefault) {
+            String typeStr = entityField.getGenericType().toString();
+            if (Arrays.asList("byte", "short", "int", "long", "float", "double").contains(typeStr)) {
+                return "default " + column.initial();
+            } else if (typeStr.equals("boolean")) {
+                return "default " + (column.initial().equals("true") ? 1 : 0);
+            }
+        } else if (hasDefault || hasCreateTime || hasUpdateTime) {
+            Class fieldType = entityField.getType();
+            if (fieldType == Date.class || fieldType == java.util.Date.class || fieldType == Timestamp.class) {
+                String result = "";
+                if (hasCreateTime) {
+                    result = "default current_timestamp";
+                }
+                if (hasUpdateTime) {
+                    if (!StringUtil.isEmpty(result)) {
+                        result += " ";
+                    }
+                    result += "on update current_timestamp";
+                }
+                return result;
+            } else if (fieldType == String.class) {
+                return "default '" + column.initial() + "'";
+            } else {
+                return "default " + column.initial();
+            }
+        }
+        return "";
     }
 
 }
