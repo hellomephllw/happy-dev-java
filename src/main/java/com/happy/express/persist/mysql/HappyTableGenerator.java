@@ -132,7 +132,7 @@ public class HappyTableGenerator extends BaseGenerator {
                 }
                 //添加索引
                 DatabaseHappyHelper.addIndexes(entity, tableName);
-                DatabaseHappyHelper.addUniqueIndexes(entity,tableName);
+                DatabaseHappyHelper.addUniqueIndexes(entity, tableName);
                 //通过从数据库字段到实体属性反向对比(看数据库表格是否有多余的字段和唯一索引)
                 dbTableUnusedChecker(tableName, entity, fields, new FieldReverseForcer(), true);
             }
