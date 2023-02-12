@@ -32,15 +32,6 @@ public class DateUtil {
     /** HTTP头中日期时间格式 */
     public final static String HTTP_DATETIME_PATTERN = "EEE, dd MMM yyyy HH:mm:ss z";
 
-    /** 标准日期（不含时间）格式化器 */
-    private final static SimpleDateFormat NORM_DATE_FORMAT = new SimpleDateFormat(NORM_DATE_PATTERN);
-    /** 标准时间格式化器 */
-    private final static SimpleDateFormat NORM_TIME_FORMAT = new SimpleDateFormat(NORM_TIME_PATTERN);
-    /** 标准日期时间格式化器 */
-    private final static SimpleDateFormat NORM_DATETIME_FORMAT = new SimpleDateFormat(NORM_DATETIME_PATTERN);
-    /** HTTP日期时间格式化器 */
-    private final static SimpleDateFormat HTTP_DATETIME_FORMAT = new SimpleDateFormat(HTTP_DATETIME_PATTERN, Locale.US);
-
     /**
      * 获取一个很老的时期(2000-01-01 00:00:00)，用作默认值
      * @return 老日期
@@ -84,7 +75,7 @@ public class DateUtil {
      * @return 格式化后的日期
      */
     public static String formatDateTime(Date date) {
-        return NORM_DATETIME_FORMAT.format(date);
+        return new SimpleDateFormat(NORM_DATETIME_PATTERN).format(date);
     }
 
     /**
@@ -93,7 +84,7 @@ public class DateUtil {
      * @return HTTP标准形式日期字符串
      */
     public static String formatHttpDate(Date date) {
-        return HTTP_DATETIME_FORMAT.format(date);
+        return new SimpleDateFormat(HTTP_DATETIME_PATTERN).format(date);
     }
 
     /**
@@ -102,7 +93,7 @@ public class DateUtil {
      * @return 格式化后的字符串
      */
     public static String formatDate(Date date) {
-        return NORM_DATE_FORMAT.format(date);
+        return new SimpleDateFormat(NORM_DATE_PATTERN).format(date);
     }
 
     /**
@@ -121,7 +112,7 @@ public class DateUtil {
      * @return 日期对象
      */
     public static Date parseDateTime(String dateString) throws Exception {
-        return NORM_DATETIME_FORMAT.parse(dateString);
+        return new SimpleDateFormat(NORM_DATETIME_PATTERN).parse(dateString);
     }
 
     /**
@@ -130,7 +121,7 @@ public class DateUtil {
      * @return 日期对象
      */
     public static Date parseDate(String dateString) throws Exception {
-        return NORM_DATE_FORMAT.parse(dateString);
+        return new SimpleDateFormat(NORM_DATE_PATTERN).parse(dateString);
     }
 
     /**
@@ -139,7 +130,7 @@ public class DateUtil {
      * @return 日期对象
      */
     public static Date parseTime(String dateString) throws Exception {
-        return NORM_TIME_FORMAT.parse(dateString);
+        return new SimpleDateFormat(NORM_TIME_PATTERN).parse(dateString);
     }
 
     /**
